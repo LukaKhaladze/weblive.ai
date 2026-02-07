@@ -381,7 +381,10 @@ export default function GeneratorClient() {
       const page = { ...pages[0] };
       page.sections = page.sections.map((section) =>
         section.type === type
-          ? { ...section, cta: { ...section.cta, [field]: value } }
+          ? {
+              ...section,
+              cta: { ...(section.cta ?? { label: "", href: "" }), [field]: value }
+            }
           : section
       );
       pages[0] = page;
@@ -519,14 +522,14 @@ export default function GeneratorClient() {
             <EditableText
               as="span"
               className="inline-flex items-center justify-center rounded-xl bg-ink text-white px-4 py-2 text-xs uppercase tracking-[0.2em]"
-              value={block.label}
+              value={block.label || "CTA"}
               onChange={(value) => updateSectionCta(section.type, "label", value)}
               placeholder="CTA"
             />
             <EditableText
               as="span"
               className="text-xs text-ink/50 self-center"
-              value={block.href}
+              value={block.href || "/contact"}
               onChange={(value) => updateSectionCta(section.type, "href", value)}
               placeholder="/contact"
             />

@@ -214,6 +214,12 @@ function toLocalizedFields(language: "ka" | "en") {
   return ["Name", "Phone", "Email", "Message"];
 }
 
+function defaultCta(language: "ka" | "en") {
+  return language === "ka"
+    ? { label: "დაგვიკავშირდით", href: "/contact" }
+    : { label: "Contact us", href: "/contact" };
+}
+
 function fallbackVariant(
   type: SectionType,
   targetPage: string
@@ -234,9 +240,11 @@ function withFallbackUI(
   targetPage: string
 ): Blueprint {
   const fields = toLocalizedFields(blueprint.site.language);
+  const fallbackCta = defaultCta(blueprint.site.language);
   const pages = blueprint.pages.map((page) => {
     const sections = page.sections.map((section) => {
-      if (section.ui) return section;
+      const safeCta = section.cta ?? fallbackCta;
+      if (section.ui) return { ...section, cta: safeCta };
       const variant = fallbackVariant(section.type, targetPage);
       const blocks: UIBlock[] = [
         { type: "heading", value: section.heading },
@@ -258,13 +266,13 @@ function withFallbackUI(
       } else {
         blocks.push({
           type: "button",
-          label: section.cta.label,
-          href: section.cta.href
+          label: safeCta.label,
+          href: safeCta.href
         });
       }
 
       const ui: SectionUI = { variant, blocks };
-      return { ...section, ui };
+      return { ...section, cta: safeCta, ui };
     });
     return { ...page, sections };
   });

@@ -217,7 +217,7 @@ function renderSection({
                 <EditableText
                   as="span"
                   className="inline-flex items-center justify-center rounded-full bg-white text-ink px-4 py-2 text-xs uppercase tracking-[0.2em]"
-                  value={section.cta.label}
+                  value={section.cta?.label || copy.labels.cta}
                   onChange={(value) => onUpdateCta(section.type, "label", value)}
                   placeholder={copy.labels.cta}
                 />
@@ -407,7 +407,7 @@ function renderSection({
                 <EditableText
                   as="span"
                   className="text-xs uppercase tracking-[0.2em]"
-                  value={section.cta.label || copy.labels.send}
+                  value={section.cta?.label || copy.labels.send}
                   onChange={(value) => onUpdateCta(section.type, "label", value)}
                   placeholder={copy.labels.send}
                 />

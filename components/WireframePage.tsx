@@ -213,7 +213,7 @@ function renderSection({
                 <EditableText
                   as="span"
                   className="text-xs uppercase tracking-[0.2em]"
-                  value={section.cta.label || copy.labels.cta}
+                  value={section.cta?.label || copy.labels.cta}
                   onChange={(value) => onUpdateCta(section.type, "label", value)}
                   placeholder={copy.labels.cta}
                 />
@@ -400,7 +400,7 @@ function renderSection({
                 <EditableText
                   as="span"
                   className="text-xs uppercase tracking-[0.2em]"
-                  value={section.cta.label || copy.labels.send}
+                  value={section.cta?.label || copy.labels.send}
                   onChange={(value) => onUpdateCta(section.type, "label", value)}
                   placeholder={copy.labels.send}
                 />
