@@ -225,6 +225,21 @@ function renderSection({
           </div>
         </section>
       );
+    case "trust_strip":
+      return (
+        <section className="rounded-3xl border border-dashed border-ink/20 bg-shell/40 p-6">
+          <div className="grid gap-3 sm:grid-cols-4">
+            {pickItems(section.bullets, 4, copy.services).map((item, index) => (
+              <div
+                key={`trust-${index}`}
+                className="rounded-full border border-ink/10 bg-white/70 px-3 py-2 text-xs text-ink/60 text-center"
+              >
+                {item}
+              </div>
+            ))}
+          </div>
+        </section>
+      );
     case "about":
       return (
         <section className="rounded-3xl border border-dashed border-ink/20 bg-shell/40 p-6 space-y-4">

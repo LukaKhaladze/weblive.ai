@@ -2,6 +2,7 @@ export type Language = "ka" | "en";
 
 export type SectionType =
   | "hero"
+  | "trust_strip"
   | "about"
   | "services"
   | "why_us"
@@ -62,6 +63,8 @@ export type Blueprint = {
     };
     sections: Array<{
       type: SectionType;
+      templateId?: string;
+      slots?: Record<string, unknown>;
       heading: string;
       content: string;
       bullets: string[];

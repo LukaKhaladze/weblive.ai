@@ -6,6 +6,7 @@ import {
   SectionUI,
   UIBlock
 } from "@/lib/types";
+import { DENTAL_TEMPLATES } from "@/lib/templates/dental";
 
 export const runtime = "nodejs";
 
@@ -39,6 +40,9 @@ function validateInputs(body: GeneratorInputs) {
 }
 
 function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
+  const templateSummary = DENTAL_TEMPLATES.map(
+    (t) => `${t.templateId} | ${t.sectionType} | slots: ${JSON.stringify(t.slotsSchema)}`
+  ).join("\n");
   const lines = [
     "You are a senior brand strategist. Produce ONLY valid JSON that matches the schema exactly.",
     "",
@@ -48,7 +52,7 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
     "- If language is ka, ALL strings must be Georgian (including section titles: სერვისები, რატომ ჩვენ, შეფასებები, ხშირად დასმული კითხვები, კონტაქტი).",
     "- If language is en, ALL strings must be English.",
     "- No markdown, no code fences, no commentary, JSON only.",
-    "- Use the section order: hero, about, services, why_us, testimonials, faq, contact.",
+    "- Use the section order: hero, trust_strip, about, services, why_us, testimonials, faq, contact.",
     "- Provide 3-5 bullets per section when relevant.",
     "- Provide realistic CTA labels and hrefs (e.g., /contact, tel:+995..., mailto:...).",
     "- Include recommendedPages (5-8 page names) that best fit the business.",
@@ -63,6 +67,7 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
     "- If target page is Home, use a hero-style layout with an image + CTA in the hero section.",
     "- Change layouts based on the design variation seed: hero layout (centered vs split vs image-first vs text-first), number of service cards (3–6), testimonials layout (slider vs grid vs quotes), FAQ style (accordion vs list), section order where possible, and button placement.",
     "- Apply the chosen primary and secondary colors consistently across layout components.",
+    "- For category Dental Clinic: choose templateId from the provided catalog for each section and fill slots accordingly. Use the seed to vary hero/services templates.",
     "- Choose ONE layout archetype and design accordingly:",
     "- A) Modern SaaS-style (clean hero, split layout, big typography)",
     "- B) Luxury/Clinic-style (large hero image, softer spacing, premium look)",
@@ -79,6 +84,9 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
   }
 
   lines.push(
+    "",
+    "Dental Clinic Templates (choose appropriate templateId per sectionType and fill slots):",
+    templateSummary,
     "",
     "Schema:",
     "{",
@@ -112,9 +120,11 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
     "      },",
     '      "sections": [',
     "        {",
-    '          "type": "hero" | "about" | "services" | "why_us" | "testimonials" | "faq" | "contact",',
-    '          "heading": string,',
-    '          "content": string,',
+      '          "type": "hero" | "trust_strip" | "about" | "services" | "why_us" | "testimonials" | "faq" | "contact",',
+      '          "templateId": string,',
+      '          "slots": object,',
+      '          "heading": string,',
+      '          "content": string,',
     '          "bullets": string[],',
     '          "cta": { "label": string, "href": string },',
     '          "ui": {',
@@ -302,6 +312,238 @@ function applyThemeColors(
   };
 }
 
+function dentalDefaults(language: "ka" | "en") {
+  if (language === "ka") {
+    return {
+      heroSplit: {
+        headline: "ჯანსაღი ღიმილი ყოველდღე",
+        subtext: "კომფორტული სტომატოლოგიური მომსახურება თანამედროვე ტექნოლოგიებით.",
+        ctaPrimary: { label: "ჩანიშნე ვიზიტი", href: "/contact" },
+        ctaSecondary: { label: "დაგვიკავშირდით", href: "/contact" },
+        imageHint: "კლინიკა და ექიმები"
+      },
+      heroCentered: {
+        headline: "თანამედროვე სტომატოლოგია თბილისში",
+        subtext: "სანდო გუნდი, უსაფრთხო გარემო და ხარისხიანი მოვლა.",
+        cta: { label: "კონსულტაცია", href: "/contact" },
+        backgroundImageHint: "ღიმილიანი პაციენტი"
+      },
+      trustStrip: { badges: ["ლიცენზირებული ექიმები", "სტერილური გარემო", "დამტკიცებული მასალები", "გერმანული ტექნოლოგიები"] },
+      about: { title: "ჩვენ შესახებ", paragraph: "ვზრუნავთ ოჯახების სტომატოლოგიურ ჯანმრთელობაზე პროფესიონალურად და სიყვარულით.", imageHint: "კლინიკის ინტერიერი" },
+      servicesCards: {
+        services: [
+          { title: "თერაპიული მკურნალობა", shortText: "კარიესისა და ფესვის არხების მართვა." },
+          { title: "ბრეკეტები და ალაინერები", shortText: "ღიმილის გასწორება ინდივიდუალური გეგმებით." },
+          { title: "ჰიგიენა და პროფილაქტიკა", shortText: "პროფესიონალური წმენდა და პრევენცია." }
+        ]
+      },
+      servicesIcons: { services: ["გათეთრება", "იმპლანტაცია", "ბრეკეტები", "ბავშვთა სტომატოლოგია", "ჰიგიენა", "პროთეზირება"] },
+      whyUs: {
+        benefits: [
+          { title: "გამოცდილი გუნდი", shortText: "საუკეთესო პრაქტიკა და მუდმივი განვითარება." },
+          { title: "უსაფრთხო გარემო", shortText: "სრული სტერილიზაცია და ხარისხის კონტროლი." },
+          { title: "საერთაშორისო სტანდარტი", shortText: "თანამედროვე აპარატურა და მეთოდები." }
+        ]
+      },
+      testimonials: {
+        testimonials: [
+          { name: "ნინო", quote: "ძალიან კომფორტული გამოცდილება და პროფესიონალური მომსახურება." },
+          { name: "გიორგი", quote: "მშვენიერი გუნდი და სწრაფი შედეგი." },
+          { name: "მარია", quote: "სისუფთავე და ყურადღება დეტალებზე." }
+        ]
+      },
+      faq: {
+        faq: [
+          { question: "როგორ დავჯავშნო ვიზიტი?", answer: "დაგვიკავშირდით ტელეფონით ან ონლაინ." },
+          { question: "არის კონსულტაცია ფასიანი?", answer: "პირველადი შეფასება ხშირად უფასოა." },
+          { question: "ბავშვებისთვის გაქვთ მომსახურება?", answer: "დიახ, სპეციალური პედიატრიული მიმართულება გვაქვს." },
+          { question: "რამდენ ხანს გრძელდება გათეთრება?", answer: "საშუალოდ 60–90 წუთი." },
+          { question: "მიიღებთ დაზღვევას?", answer: "დეტალებისთვის დაგვიკავშირდით." }
+        ]
+      },
+      contact: {
+        address: "თბილისი, ვაკე",
+        phone: "+995...",
+        workingHours: "ორშ-შაბ 09:00-20:00",
+        formCtaLabel: "გაგზავნა"
+      }
+    };
+  }
+  return {
+    heroSplit: {
+      headline: "Healthy smiles every day",
+      subtext: "Comfortable dental care with modern technology.",
+      ctaPrimary: { label: "Book a visit", href: "/contact" },
+      ctaSecondary: { label: "Contact us", href: "/contact" },
+      imageHint: "Clinic and team"
+    },
+    heroCentered: {
+      headline: "Modern dentistry in Tbilisi",
+      subtext: "Trusted team, safe environment, quality care.",
+      cta: { label: "Consultation", href: "/contact" },
+      backgroundImageHint: "Smiling patient"
+    },
+    trustStrip: { badges: ["Licensed doctors", "Sterile environment", "Certified materials", "German technology"] },
+    about: { title: "About us", paragraph: "We care for family dental health with professionalism and care.", imageHint: "Clinic interior" },
+    servicesCards: {
+      services: [
+        { title: "Therapeutic care", shortText: "Caries and root canal treatment." },
+        { title: "Braces & aligners", shortText: "Smile alignment with custom plans." },
+        { title: "Hygiene & prevention", shortText: "Professional cleaning and prevention." }
+      ]
+    },
+    servicesIcons: { services: ["Whitening", "Implants", "Braces", "Pediatric care", "Hygiene", "Prosthetics"] },
+    whyUs: {
+      benefits: [
+        { title: "Experienced team", shortText: "Best practices and continuous improvement." },
+        { title: "Safe environment", shortText: "Full sterilization and quality control." },
+        { title: "International standards", shortText: "Modern equipment and methods." }
+      ]
+    },
+    testimonials: {
+      testimonials: [
+        { name: "Nino", quote: "Comfortable experience and professional care." },
+        { name: "Giorgi", quote: "Great team and fast results." },
+        { name: "Maria", quote: "Clean and attentive to detail." }
+      ]
+    },
+    faq: {
+      faq: [
+        { question: "How do I book a visit?", answer: "Contact us by phone or online." },
+        { question: "Is the consultation paid?", answer: "Initial assessment is often free." },
+        { question: "Do you treat children?", answer: "Yes, we have pediatric services." },
+        { question: "How long does whitening take?", answer: "Usually 60–90 minutes." },
+        { question: "Do you accept insurance?", answer: "Contact us for details." }
+      ]
+    },
+    contact: {
+      address: "Tbilisi, Vake",
+      phone: "+995...",
+      workingHours: "Mon-Sat 09:00-20:00",
+      formCtaLabel: "Send"
+    }
+  };
+}
+
+function ensureDentalTemplates(blueprint: Blueprint): Blueprint {
+  if (blueprint.site.category !== "Dental Clinic") return blueprint;
+  const defaults = dentalDefaults(blueprint.site.language);
+  const templateIds = new Set(DENTAL_TEMPLATES.map((t) => t.templateId));
+  const pages = blueprint.pages.map((page) => {
+    const sections = page.sections.map((section) => {
+      let templateId = section.templateId;
+      let slots = (section.slots ?? {}) as Record<string, unknown>;
+
+      if (!templateId || !templateIds.has(templateId)) {
+        switch (section.type) {
+          case "hero":
+            templateId = "hero_dental_split_01";
+            slots = defaults.heroSplit;
+            break;
+          case "trust_strip":
+            templateId = "trust_strip_dental_03";
+            slots = defaults.trustStrip;
+            break;
+          case "about":
+            templateId = "about_dental_simple_04";
+            slots = defaults.about;
+            break;
+          case "services":
+            templateId = "services_dental_cards_05";
+            slots = defaults.servicesCards;
+            break;
+          case "why_us":
+            templateId = "whyus_dental_07";
+            slots = defaults.whyUs;
+            break;
+          case "testimonials":
+            templateId = "testimonials_dental_08";
+            slots = defaults.testimonials;
+            break;
+          case "faq":
+            templateId = "faq_dental_09";
+            slots = defaults.faq;
+            break;
+          case "contact":
+            templateId = "contact_dental_10";
+            slots = defaults.contact;
+            break;
+          default:
+            break;
+        }
+      } else {
+        const isValid = validateDentalSlots(templateId, slots);
+        if (!isValid) {
+          slots = fallbackSlotsForTemplate(templateId, defaults);
+        }
+      }
+
+      return { ...section, templateId, slots };
+    });
+    return { ...page, sections };
+  });
+  return { ...blueprint, pages };
+}
+
+function fallbackSlotsForTemplate(templateId: string, defaults: ReturnType<typeof dentalDefaults>) {
+  switch (templateId) {
+    case "hero_dental_split_01":
+      return defaults.heroSplit;
+    case "hero_dental_centered_02":
+      return defaults.heroCentered;
+    case "trust_strip_dental_03":
+      return defaults.trustStrip;
+    case "about_dental_simple_04":
+      return defaults.about;
+    case "services_dental_cards_05":
+      return defaults.servicesCards;
+    case "services_dental_icons_06":
+      return defaults.servicesIcons;
+    case "whyus_dental_07":
+      return defaults.whyUs;
+    case "testimonials_dental_08":
+      return defaults.testimonials;
+    case "faq_dental_09":
+      return defaults.faq;
+    case "contact_dental_10":
+      return defaults.contact;
+    default:
+      return defaults.about;
+  }
+}
+
+function validateDentalSlots(templateId: string, slots: Record<string, unknown>) {
+  switch (templateId) {
+    case "hero_dental_split_01":
+      return Boolean(
+        slots.headline &&
+          slots.subtext &&
+          (slots as any).ctaPrimary?.label &&
+          (slots as any).ctaSecondary?.label
+      );
+    case "hero_dental_centered_02":
+      return Boolean(slots.headline && slots.subtext && (slots as any).cta?.label);
+    case "trust_strip_dental_03":
+      return Array.isArray((slots as any).badges) && (slots as any).badges.length >= 4;
+    case "about_dental_simple_04":
+      return Boolean(slots.title && slots.paragraph);
+    case "services_dental_cards_05":
+      return Array.isArray((slots as any).services) && (slots as any).services.length >= 3;
+    case "services_dental_icons_06":
+      return Array.isArray((slots as any).services) && (slots as any).services.length >= 6;
+    case "whyus_dental_07":
+      return Array.isArray((slots as any).benefits) && (slots as any).benefits.length >= 3;
+    case "testimonials_dental_08":
+      return Array.isArray((slots as any).testimonials) && (slots as any).testimonials.length >= 3;
+    case "faq_dental_09":
+      return Array.isArray((slots as any).faq) && (slots as any).faq.length >= 5;
+    case "contact_dental_10":
+      return Boolean(slots.address && slots.phone && slots.workingHours && slots.formCtaLabel);
+    default:
+      return false;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as GeneratorInputs;
@@ -314,7 +556,7 @@ export async function POST(request: NextRequest) {
     let raw = await callOpenAI(initialPrompt);
     try {
       const blueprint = applyThemeColors(
-        withFallbackUI(parseBlueprint(raw), body.targetPage),
+        ensureDentalTemplates(withFallbackUI(parseBlueprint(raw), body.targetPage)),
         body.primaryColor,
         body.secondaryColor
       );
@@ -323,7 +565,7 @@ export async function POST(request: NextRequest) {
       const strictPrompt = buildPrompt(body, true);
       raw = await callOpenAI(strictPrompt);
       const blueprint = applyThemeColors(
-        withFallbackUI(parseBlueprint(raw), body.targetPage),
+        ensureDentalTemplates(withFallbackUI(parseBlueprint(raw), body.targetPage)),
         body.primaryColor,
         body.secondaryColor
       );

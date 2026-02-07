@@ -392,6 +392,25 @@ export default function GeneratorClient() {
     });
   };
 
+  const updateSectionSlots = (
+    type: SectionType,
+    updater: (slots: Record<string, unknown>) => Record<string, unknown>
+  ) => {
+    if (!blueprint) return;
+    setBlueprint((prev) => {
+      if (!prev) return prev;
+      const pages = [...prev.pages];
+      const page = { ...pages[0] };
+      page.sections = page.sections.map((section) =>
+        section.type === type
+          ? { ...section, slots: updater((section.slots ?? {}) as Record<string, unknown>) }
+          : section
+      );
+      pages[0] = page;
+      return { ...prev, pages };
+    });
+  };
+
   const updateSeo = (field: "metaTitle" | "metaDescription", value: string) => {
     if (!blueprint) return;
     setBlueprint((prev) =>
@@ -1100,9 +1119,7 @@ export default function GeneratorClient() {
                   logoDataUrl={inputs.logoDataUrl}
                   sections={pageSections}
                   onReorder={applySectionOrder}
-                  onUpdateField={updateSectionField}
-                  onUpdateBullet={updateSectionBullet}
-                  onUpdateCta={updateSectionCta}
+                  onUpdateSlots={updateSectionSlots}
                 />
               ) : wireframeMode ? (
                 <WireframePage
