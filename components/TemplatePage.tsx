@@ -1,6 +1,13 @@
 "use client";
 
-import { DndContext, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
+import {
+  DndContext,
+  DragEndEvent,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors
+} from "@dnd-kit/core";
 import { SortableContext, arrayMove, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import EditableText from "@/components/EditableText";
 import SortableSection from "@/components/SortableSection";
@@ -92,12 +99,12 @@ export default function TemplatePage({
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
   const orderedSections = sections;
 
-  const handleDragEnd = (event: { active: { id: string }; over?: { id: string } }) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
     const currentIds = orderedSections.map((section) => section.type);
-    const oldIndex = currentIds.indexOf(active.id as SectionType);
-    const newIndex = currentIds.indexOf(over.id as SectionType);
+    const oldIndex = currentIds.indexOf(String(active.id) as SectionType);
+    const newIndex = currentIds.indexOf(String(over.id) as SectionType);
     const nextOrder = arrayMove(currentIds, oldIndex, newIndex);
     onReorder(nextOrder);
   };
