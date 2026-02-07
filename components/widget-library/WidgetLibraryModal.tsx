@@ -189,7 +189,6 @@ export default function WidgetLibraryModal({
         </div>
       </div>
 
-      <CreateWidgetFromImageModal
       <CreateWidgetFromPromptModal
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
