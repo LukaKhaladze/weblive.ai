@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Blueprint, GeneratorInputs, SectionType } from "@/lib/types";
+import {
+  Blueprint,
+  GeneratorInputs,
+  SectionType,
+  SectionUI,
+  UIBlock
+} from "@/lib/types";
 
 export const runtime = "nodejs";
 
@@ -180,7 +186,10 @@ function toLocalizedFields(language: "ka" | "en") {
   return ["Name", "Phone", "Email", "Message"];
 }
 
-function fallbackVariant(type: SectionType, targetPage: string) {
+function fallbackVariant(
+  type: SectionType,
+  targetPage: string
+): SectionUI["variant"] {
   const normalized = targetPage.toLowerCase();
   if (type === "faq" || normalized === "faq") return "faqAccordion";
   if (type === "contact" || normalized === "contact") return "contactForm";
@@ -192,20 +201,16 @@ function fallbackVariant(type: SectionType, targetPage: string) {
   return "simple";
 }
 
-function withFallbackUI(blueprint: Blueprint, targetPage: string): Blueprint {
+function withFallbackUI(
+  blueprint: Blueprint,
+  targetPage: string
+): Blueprint {
   const fields = toLocalizedFields(blueprint.site.language);
   const pages = blueprint.pages.map((page) => {
     const sections = page.sections.map((section) => {
       if (section.ui) return section;
       const variant = fallbackVariant(section.type, targetPage);
-      const blocks: Array<
-        | { type: "heading"; value: string }
-        | { type: "text"; value: string }
-        | { type: "bullets"; items: string[] }
-        | { type: "image"; alt: string; hint: string }
-        | { type: "button"; label: string; href: string }
-        | { type: "form"; fields: string[] }
-      > = [
+      const blocks: UIBlock[] = [
         { type: "heading", value: section.heading },
         { type: "text", value: section.content }
       ];
@@ -230,7 +235,8 @@ function withFallbackUI(blueprint: Blueprint, targetPage: string): Blueprint {
         });
       }
 
-      return { ...section, ui: { variant, blocks } };
+      const ui: SectionUI = { variant, blocks };
+      return { ...section, ui };
     });
     return { ...page, sections };
   });
