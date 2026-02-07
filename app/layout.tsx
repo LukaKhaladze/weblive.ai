@@ -1,25 +1,18 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Manrope, Fraunces } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-display"
-});
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-body" });
+const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-display" });
 
 export const metadata: Metadata = {
-  title: "Weblive AI",
-  description: "Generate website blueprints from a prompt"
+  title: "Weblive.ai",
+  description: "Generate AI-ready website plans with editable previews.",
 };
 
-export default function RootLayout({
-  children
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
+    <html lang="en" className={`${manrope.variable} ${fraunces.variable}`}>
       <body>{children}</body>
     </html>
   );

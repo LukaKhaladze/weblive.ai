@@ -1,201 +1,134 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { WIDGET_CATEGORIES, WIDGET_DEFINITIONS } from "@/lib/widgets/registry";
-import {
-  loadProjects,
-  upsertProject,
-  getProjectById,
-  getCurrentProjectId
-} from "@/lib/storage";
-import { PageBlueprint, WidgetInstance } from "@/lib/types";
+import { useSearchParams } from "next/navigation";
+import { widgetRegistry } from "@/widgets/registry";
+
+const businessFilters = [
+  { id: "all", label: "All" },
+  { id: "clinic", label: "Clinic" },
+  { id: "lawyer", label: "Lawyer" },
+  { id: "ecommerce", label: "E-commerce" },
+  { id: "restaurant", label: "Restaurant" },
+  { id: "agency", label: "Agency" },
+  { id: "generic", label: "Generic" },
+] as const;
 
 export default function WidgetReferencesPage() {
-  const [category, setCategory] = useState<(typeof WIDGET_CATEGORIES)[number]>("All");
-  const [search, setSearch] = useState("");
-  const [selectedWidget, setSelectedWidget] = useState<string | null>(null);
-  const [targetProjectId, setTargetProjectId] = useState<string>("");
-  const [targetPageId, setTargetPageId] = useState<string>("");
-  const [status, setStatus] = useState("");
+  const searchParams = useSearchParams();
+  const editToken = searchParams.get("edit_token");
+  const [filter, setFilter] = useState<(typeof businessFilters)[number]["id"]>("all");
 
-  const projects = useMemo(() => loadProjects(), [status]);
-  const filtered = useMemo(() => {
-    return WIDGET_DEFINITIONS.filter((widget) => {
-      if (category !== "All" && widget.category !== category) return false;
-      if (!search.trim()) return true;
-      const term = search.toLowerCase();
-      return (
-        widget.name.toLowerCase().includes(term) ||
-        widget.tags?.some((tag) => tag.toLowerCase().includes(term))
-      );
-    });
-  }, [category, search]);
-
-  const openInsert = (id: string) => {
-    setSelectedWidget(id);
-    setTargetProjectId(getCurrentProjectId() ?? projects[0]?.id ?? "");
-    setTargetPageId("");
-  };
-
-  const handleInsert = () => {
-    if (!selectedWidget || !targetProjectId) return;
-    const project = getProjectById(targetProjectId);
-    if (!project) return;
-    const widgetDef = WIDGET_DEFINITIONS.find((w) => w.id === selectedWidget);
-    if (!widgetDef) return;
-
-    const pageBlueprints = project.pageBlueprints ?? {};
-    const pageKey =
-      targetPageId || Object.keys(pageBlueprints)[0] || "home";
-    const existingPage = pageBlueprints[pageKey];
-
-    const instance: WidgetInstance = {
-      id: crypto.randomUUID(),
-      widgetType: widgetDef.widgetType,
-      variant: widgetDef.variant,
-      props: { ...widgetDef.defaultProps },
-      createdAt: new Date().toISOString()
-    };
-
-    const nextPage: PageBlueprint =
-      existingPage ??
-      ({
-        page: { slug: pageKey, title: pageKey },
-        theme: {
-          primaryColor: project.inputs.primaryColor,
-          secondaryColor: project.inputs.secondaryColor,
-          logoDataUrl: project.inputs.logoDataUrl
-        },
-        widgets: []
-      } as PageBlueprint);
-
-    const updatedBlueprints = {
-      ...pageBlueprints,
-      [pageKey]: {
-        ...nextPage,
-        widgets: [...nextPage.widgets, instance]
+  const grouped = useMemo(() => {
+    return Object.values(widgetRegistry).reduce((acc, widget) => {
+      if (filter !== "all" && !widget.tags.includes(filter)) {
+        return acc;
       }
+      acc[widget.category] = acc[widget.category] || [];
+      acc[widget.category].push(widget);
+      return acc;
+    }, {} as Record<string, typeof widgetRegistry[keyof typeof widgetRegistry][]>);
+  }, [filter]);
+
+  async function handleAdd(widgetType: string, variant: string) {
+    if (!editToken) return;
+    const res = await fetch(`/api/projects/${editToken}`);
+    const project = await res.json();
+    const page = project.site.pages[0];
+    const newSection = {
+      id: `sec_${Math.random().toString(36).slice(2, 8)}`,
+      widget: widgetType,
+      variant,
+      props: widgetRegistry[widgetType as keyof typeof widgetRegistry].defaultProps(
+        project.input,
+        page.sections.length
+      ),
     };
 
-    upsertProject({ ...project, pageBlueprints: updatedBlueprints });
-    setStatus("Widget inserted.");
-    setSelectedWidget(null);
-  };
+    const updated = {
+      ...project.site,
+      pages: project.site.pages.map((p: any) =>
+        p.id === page.id ? { ...p, sections: [...p.sections, newSection] } : p
+      ),
+    };
+
+    await fetch(`/api/projects/${editToken}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ site: updated }),
+    });
+
+    alert("Section added to your project.");
+  }
 
   return (
-    <div className="min-h-screen bg-shell">
-      <header className="px-6 py-6 border-b border-ink/10 bg-white/70 backdrop-blur">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+    <div className="min-h-screen bg-slate-950 text-white">
+      <div className="mx-auto max-w-6xl px-6 py-12">
+        <header className="flex items-center justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.2em] text-ink/50">Weblive AI</p>
-            <h1 className="text-2xl md:text-3xl font-display">Widget references</h1>
+            <p className="text-xs uppercase tracking-[0.4em] text-white/60">Weblive.ai</p>
+            <h1 className="text-3xl font-semibold">Widget references</h1>
           </div>
-          <a className="text-sm font-medium text-accent hover:text-accentDark" href="/">
-            Back to generator
+          <a
+            href="/build"
+            className="rounded-full border border-white/20 px-4 py-2 text-sm"
+          >
+            Start building
           </a>
-        </div>
-      </header>
+        </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-8 space-y-6">
-        <div className="flex flex-wrap gap-2">
-          {WIDGET_CATEGORIES.map((item) => (
+        <div className="mt-8 flex flex-wrap gap-2">
+          {businessFilters.map((item) => (
             <button
-              key={item}
-              className={`px-3 py-1 rounded-full text-xs border ${
-                category === item
-                  ? "bg-accent text-white border-accent"
-                  : "bg-white border-ink/10 text-ink/70"
+              key={item.id}
+              className={`rounded-full px-4 py-2 text-sm ${
+                filter === item.id ? "bg-white text-slate-900" : "border border-white/20"
               }`}
-              onClick={() => setCategory(item)}
+              onClick={() => setFilter(item.id)}
             >
-              {item}
+              {item.label}
             </button>
           ))}
         </div>
 
-        <input
-          className="w-full rounded-xl border border-ink/10 px-3 py-2"
-          placeholder="Search widgets"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((widget) => (
-            <div key={widget.id} className="rounded-2xl border border-ink/10 bg-white p-4 shadow-soft">
-              <div className="h-24 rounded-xl bg-shell border border-ink/10 flex items-center justify-center text-xs text-ink/40">
-                Preview
-              </div>
-              <div className="mt-3">
-                <p className="font-medium">{widget.name}</p>
-                <p className="text-xs text-ink/50">{widget.category}</p>
-                {widget.tags?.length ? (
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {widget.tags.map((tag) => (
-                      <span key={tag} className="text-[10px] px-2 py-1 rounded-full bg-shell border border-ink/10 text-ink/60">
-                        {tag}
-                      </span>
-                    ))}
+        <div className="mt-10 space-y-10">
+          {Object.entries(grouped).map(([category, widgets]) => (
+            <section key={category}>
+              <h2 className="text-xl font-semibold">{category}</h2>
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                {widgets.map((widget) => (
+                  <div key={widget.type} className="rounded-[28px] border border-white/10 bg-slate-900 p-5">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-lg font-semibold">{widget.name}</h3>
+                        <p className="mt-1 text-sm text-white/60">Variants: {widget.variants.join(", ")}</p>
+                      </div>
+                      {editToken && (
+                        <button
+                          className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-900"
+                          onClick={() => handleAdd(widget.type, widget.variants[0])}
+                        >
+                          Add to project
+                        </button>
+                      )}
+                    </div>
+                    <p className="mt-3 text-sm text-white/60">Tags: {widget.tags.join(", ")}</p>
+                    <div className="mt-4 grid gap-2 md:grid-cols-2">
+                      {widget.variants.map((variant) => (
+                        <div key={variant} className="rounded-2xl border border-white/10 bg-slate-950 p-3">
+                          <p className="text-xs uppercase tracking-[0.3em] text-white/40">Preview</p>
+                          <p className="mt-2 text-sm font-semibold">{variant}</p>
+                          <p className="mt-1 text-xs text-white/50">Widget: {widget.name}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ) : null}
+                ))}
               </div>
-              <button
-                className="mt-4 w-full rounded-xl bg-ink text-white py-2 text-sm"
-                onClick={() => openInsert(widget.id)}
-              >
-                Add to page
-              </button>
-            </div>
+            </section>
           ))}
         </div>
-
-        {selectedWidget && (
-          <div className="rounded-2xl border border-ink/10 bg-white p-4 shadow-soft space-y-3">
-            <p className="font-medium">Insert widget</p>
-            <select
-              className="w-full rounded-xl border border-ink/10 px-3 py-2"
-              value={targetProjectId}
-              onChange={(event) => setTargetProjectId(event.target.value)}
-            >
-              {projects.map((project) => (
-                <option key={project.id} value={project.id}>
-                  {project.inputs.businessName || "Untitled"}
-                </option>
-              ))}
-            </select>
-            <select
-              className="w-full rounded-xl border border-ink/10 px-3 py-2"
-              value={targetPageId}
-              onChange={(event) => setTargetPageId(event.target.value)}
-            >
-              {Object.entries(getProjectById(targetProjectId)?.pageBlueprints ?? {}).map(
-                ([key, page]) => (
-                  <option key={key} value={key}>
-                    {page.page.title}
-                  </option>
-                )
-              )}
-              {!Object.keys(getProjectById(targetProjectId)?.pageBlueprints ?? {}).length ? (
-                <option value="home">Home</option>
-              ) : null}
-            </select>
-            <div className="flex gap-2">
-              <button className="flex-1 rounded-xl bg-accent text-white py-2" onClick={handleInsert}>
-                Confirm insert
-              </button>
-              <button className="flex-1 rounded-xl border border-ink/20 py-2" onClick={() => setSelectedWidget(null)}>
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
-
-        {status && (
-          <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-xl px-3 py-2">
-            {status}
-          </p>
-        )}
-      </main>
+      </div>
     </div>
   );
 }
