@@ -116,20 +116,6 @@ export type GeneratorInputs = {
   logoDataUrl?: string;
   designVariationSeed: string;
   version: number;
-  styleReferences?: Array<{
-    id: string;
-    referenceType:
-      | "General"
-      | "Hero"
-      | "Services"
-      | "About"
-      | "Testimonials"
-      | "Pricing"
-      | "FAQ"
-      | "CTA"
-      | "Footer";
-    dataUrl: string;
-  }>;
 };
 
 export type WidgetCategory =
@@ -158,7 +144,8 @@ export type WidgetType =
   | "FAQ"
   | "CTA"
   | "Contact"
-  | "Footer";
+  | "Footer"
+  | "CustomWidgetPlaceholder";
 
 export type WidgetField = {
   key: string;

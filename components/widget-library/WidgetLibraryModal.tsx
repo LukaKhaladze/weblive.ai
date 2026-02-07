@@ -3,8 +3,16 @@
 import { useMemo, useState } from "react";
 import WidgetSection from "@/components/widgets/WidgetSection";
 import { WIDGET_CATEGORIES } from "@/lib/widgets/registry";
-import { WIDGET_CATALOG } from "@/components/widget-library/widgetCatalog";
+import {
+  BUILTIN_WIDGET_CATALOG,
+  WidgetCatalogItem
+} from "@/components/widget-library/widgetCatalog";
 import { WidgetType } from "@/lib/types";
+import CreateWidgetFromImageModal from "@/components/widget-library/CreateWidgetFromImageModal";
+import {
+  loadCustomWidgetCatalog,
+  upsertCustomWidget
+} from "@/lib/storage/customWidgetCatalog";
 
 type WidgetLibraryModalProps = {
   isOpen: boolean;
@@ -27,9 +35,18 @@ export default function WidgetLibraryModal({
 }: WidgetLibraryModalProps) {
   const [category, setCategory] = useState<(typeof WIDGET_CATEGORIES)[number]>("All");
   const [search, setSearch] = useState("");
+  const [customWidgets, setCustomWidgets] = useState<WidgetCatalogItem[]>(() =>
+    loadCustomWidgetCatalog()
+  );
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  const catalog = useMemo(
+    () => [...customWidgets, ...BUILTIN_WIDGET_CATALOG],
+    [customWidgets]
+  );
 
   const filtered = useMemo(() => {
-    return WIDGET_CATALOG.filter((widget) => {
+    return catalog.filter((widget) => {
       if (category !== "All" && widget.category !== category) return false;
       if (!search.trim()) return true;
       const term = search.toLowerCase();
@@ -38,7 +55,7 @@ export default function WidgetLibraryModal({
         widget.tags.some((tag) => tag.toLowerCase().includes(term))
       );
     });
-  }, [category, search]);
+  }, [category, search, catalog]);
 
   if (!isOpen) return null;
 
@@ -57,12 +74,20 @@ export default function WidgetLibraryModal({
             </p>
             <h2 className="text-xl font-display">Browse widgets</h2>
           </div>
-          <button
-            className="rounded-full border border-ink/20 px-3 py-1 text-sm"
-            onClick={onClose}
-          >
-            ✕
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              className="rounded-full border border-ink/20 px-3 py-1 text-sm"
+              onClick={() => setIsCreateOpen(true)}
+            >
+              + Add widget
+            </button>
+            <button
+              className="rounded-full border border-ink/20 px-3 py-1 text-sm"
+              onClick={onClose}
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2 px-6 py-4">
@@ -103,25 +128,34 @@ export default function WidgetLibraryModal({
                     <div className="absolute left-2 top-2 text-[9px] uppercase tracking-[0.2em] text-ink/40">
                       Preview
                     </div>
-                    <div className="pointer-events-none origin-top-left scale-[0.6] p-3">
-                      <WidgetSection
-                        widget={{
-                          id: `preview-${widget.id}`,
-                          widgetType: widget.widgetType as WidgetType,
-                          variant: widget.variant,
-                          props: previewProps,
-                          createdAt: new Date().toISOString()
-                        }}
-                        theme={{
-                          primaryColor: theme.primaryColor,
-                          secondaryColor: theme.secondaryColor,
-                          logoDataUrl:
-                            theme.logoDataUrl ??
-                            "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><rect width='64' height='64' rx='12' fill='%23e2e8f0'/><text x='32' y='38' font-size='10' text-anchor='middle' fill='%236b7280'>LOGO</text></svg>"
-                        }}
-                        onUpdate={() => {}}
+                    {widget.isCustom && widget.previewImage ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={widget.previewImage}
+                        alt={widget.title}
+                        className="h-full w-full object-cover"
                       />
-                    </div>
+                    ) : (
+                      <div className="pointer-events-none origin-top-left scale-[0.6] p-3">
+                        <WidgetSection
+                          widget={{
+                            id: `preview-${widget.id}`,
+                            widgetType: widget.widgetType as WidgetType,
+                            variant: widget.variant,
+                            props: previewProps ?? {},
+                            createdAt: new Date().toISOString()
+                          }}
+                          theme={{
+                            primaryColor: theme.primaryColor,
+                            secondaryColor: theme.secondaryColor,
+                            logoDataUrl:
+                              theme.logoDataUrl ??
+                              "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><rect width='64' height='64' rx='12' fill='%23e2e8f0'/><text x='32' y='38' font-size='10' text-anchor='middle' fill='%236b7280'>LOGO</text></svg>"
+                          }}
+                          onUpdate={() => {}}
+                        />
+                      </div>
+                    )}
                   </div>
                   <div>
                     <p className="font-medium">{widget.title}</p>
@@ -142,7 +176,11 @@ export default function WidgetLibraryModal({
                   <button
                     className="w-full rounded-xl bg-ink text-white py-2 text-sm"
                     onClick={() =>
-                      onInsert(widget.widgetType as WidgetType, widget.variant, previewProps)
+                      onInsert(
+                        widget.widgetType as WidgetType,
+                        widget.variant,
+                        (widget.defaultProps ?? previewProps) as Record<string, unknown>
+                      )
                     }
                   >
                     Insert
@@ -153,6 +191,16 @@ export default function WidgetLibraryModal({
           </div>
         </div>
       </div>
+
+      <CreateWidgetFromImageModal
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        onCreate={(item) => {
+          const updated = upsertCustomWidget(item);
+          setCustomWidgets(updated);
+          setIsCreateOpen(false);
+        }}
+      />
     </div>
   );
 }

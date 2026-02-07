@@ -95,7 +95,6 @@ const defaultInputs: GeneratorInputs = {
   logoDataUrl: undefined,
   designVariationSeed: "",
   version: 1,
-  styleReferences: []
 };
 
 const createSeed = () => Math.random().toString(36).slice(2, 8);
@@ -345,7 +344,6 @@ export default function GeneratorClient() {
             widgetType: widget.widgetType,
             variant: widget.variant
           })),
-          styleReferences: inputs.styleReferences ?? [],
           styleTokens: currentPage.styleTokens ?? null,
           userPrompt: prompt
         })
@@ -736,105 +734,6 @@ export default function GeneratorClient() {
               ) : null}
             </div>
 
-            <div>
-              <label className="text-sm font-medium text-ink/70">
-                სტილის მაგალითები (სურათები)
-              </label>
-              <p className="text-xs text-ink/50">
-                ატვირთეთ 1–5 დიზაინის მაგალითი. AI გამოიყენებს სტრუქტურასა და სტილს თქვენი გვერდის უნიკალური დიზაინისთვის.
-              </p>
-              <input
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                multiple
-                className="mt-2 w-full rounded-xl border border-ink/10 px-3 py-2 text-sm"
-                onChange={(event) => {
-                  const files = Array.from(event.target.files ?? []).slice(0, 5);
-                  files.forEach((file) => {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                      if (typeof reader.result !== "string") return;
-                      const reference = {
-                        id: crypto.randomUUID(),
-                        referenceType: "General" as const,
-                        dataUrl: reader.result
-                      };
-                      setInputs((prev) => ({
-                        ...prev,
-                        styleReferences: [
-                          ...(prev.styleReferences ?? []),
-                          reference
-                        ].slice(0, 5)
-                      }));
-                    };
-                    reader.readAsDataURL(file);
-                  });
-                }}
-              />
-              <div className="mt-3 space-y-3">
-                {(inputs.styleReferences ?? []).map((ref, index) => (
-                  <div key={ref.id} className="flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={ref.dataUrl}
-                      alt={`Reference ${index + 1}`}
-                      className="h-12 w-12 rounded-xl object-cover border border-ink/10"
-                    />
-                    <select
-                      className="rounded-xl border border-ink/10 px-3 py-2 text-xs"
-                      value={ref.referenceType}
-                      onChange={(event) => {
-                        const referenceType = event.target.value as
-                          | "General"
-                          | "Hero"
-                          | "Services"
-                          | "About"
-                          | "Testimonials"
-                          | "Pricing"
-                          | "FAQ"
-                          | "CTA"
-                          | "Footer";
-                        setInputs((prev) => ({
-                          ...prev,
-                          styleReferences: (prev.styleReferences ?? []).map((item) =>
-                            item.id === ref.id ? { ...item, referenceType } : item
-                          )
-                        }));
-                      }}
-                    >
-                      {[
-                        "General",
-                        "Hero",
-                        "Services",
-                        "About",
-                        "Testimonials",
-                        "Pricing",
-                        "FAQ",
-                        "CTA",
-                        "Footer"
-                      ].map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      className="text-xs text-red-500"
-                      onClick={() =>
-                        setInputs((prev) => ({
-                          ...prev,
-                          styleReferences: (prev.styleReferences ?? []).filter(
-                            (item) => item.id !== ref.id
-                          )
-                        }))
-                      }
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
 
             <div>
               <label className="text-sm font-medium text-ink/70">Prompt</label>

@@ -7,8 +7,11 @@ export type WidgetCatalogItem = {
   widgetType: string;
   variant: string;
   tags: string[];
-  previewPropsKa: Record<string, unknown>;
-  previewPropsEn: Record<string, unknown>;
+  previewPropsKa?: Record<string, unknown>;
+  previewPropsEn?: Record<string, unknown>;
+  previewImage?: string;
+  defaultProps?: Record<string, unknown>;
+  isCustom?: boolean;
 };
 
 const previewData = {
@@ -196,7 +199,7 @@ export function getWidgetPreviewProps(
   }
 }
 
-export const WIDGET_CATALOG: WidgetCatalogItem[] = WIDGET_DEFINITIONS.map((def) => ({
+export const BUILTIN_WIDGET_CATALOG: WidgetCatalogItem[] = WIDGET_DEFINITIONS.map((def) => ({
   id: def.id,
   title: def.name,
   category: def.category,

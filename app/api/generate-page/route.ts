@@ -45,9 +45,6 @@ function allowedList() {
 }
 
 function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
-  const referenceSummary = (inputs.styleReferences ?? [])
-    .map((ref, index) => `#${index + 1} ${ref.referenceType}`)
-    .join(", ");
   const lines = [
     "You are a senior UX writer and UI planner. Output ONLY valid JSON.",
     "",
@@ -59,8 +56,7 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
     "- Generate widgets ONLY for the selected target page (single page).",
     "- Use realistic content for the business category.",
     "- Apply primary/secondary colors in CTA labels and accents.",
-    "- Analyze the uploaded style reference images to extract layout and styling patterns.",
-    "- Convert extracted style into a Style Tokens object (radius, shadow, border, spacing, typography, heroStyle, cardStyle, sectionBg).",
+    "- Create a Style Tokens object (radius, shadow, border, spacing, typography, heroStyle, cardStyle, sectionBg).",
     "- Use styleTokens to choose widget variants and props.",
     "- Keep output compact and practical.",
     strict
@@ -118,23 +114,17 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
     `Primary color: ${inputs.primaryColor}`,
     `Secondary color: ${inputs.secondaryColor}`,
     `Design variation seed: ${inputs.designVariationSeed}`,
-    `User prompt: ${inputs.prompt}`,
-    `Style references: ${referenceSummary || "None"}`
+    `User prompt: ${inputs.prompt}`
   );
 
   return lines.filter(Boolean).join("\n");
 }
 
-async function callOpenAI(prompt: string, inputs: GeneratorInputs) {
+async function callOpenAI(prompt: string) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("Missing OPENAI_API_KEY environment variable.");
   }
-
-  const images = (inputs.styleReferences ?? []).map((ref) => ({
-    type: "image_url",
-    image_url: { url: ref.dataUrl }
-  }));
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -148,10 +138,7 @@ async function callOpenAI(prompt: string, inputs: GeneratorInputs) {
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: "You output only JSON." },
-        {
-          role: "user",
-          content: [{ type: "text", text: prompt }, ...images]
-        }
+        { role: "user", content: prompt }
       ]
     })
   });
@@ -217,14 +204,14 @@ export async function POST(request: NextRequest) {
 
   const prompt = buildPrompt(body, false);
   try {
-    const raw = await callOpenAI(prompt, body);
+    const raw = await callOpenAI(prompt);
     const parsed = safeParse(raw);
     const pageBlueprint = normalizePageBlueprint(body, parsed ?? {});
     return NextResponse.json(pageBlueprint);
   } catch (error) {
     const strictPrompt = buildPrompt(body, true);
     try {
-      const raw = await callOpenAI(strictPrompt, body);
+      const raw = await callOpenAI(strictPrompt);
       const parsed = safeParse(raw);
       const pageBlueprint = normalizePageBlueprint(body, parsed ?? {});
       return NextResponse.json(pageBlueprint);

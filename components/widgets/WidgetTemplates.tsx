@@ -864,6 +864,26 @@ export function FooterSimple({ props, onPropChange }: WidgetComponentProps) {
   );
 }
 
+export function CustomWidgetPlaceholder({ props }: WidgetComponentProps) {
+  const name = getString(props.name, "Custom widget");
+  const image = typeof props.imageDataUrl === "string" ? props.imageDataUrl : "";
+  return (
+    <section className="rounded-3xl border border-dashed border-ink/30 bg-shell/60 p-6 text-center text-sm text-ink/60 space-y-3">
+      <p className="font-medium">Custom widget: {name} (placeholder)</p>
+      {image ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={image}
+          alt={name}
+          className="mx-auto h-40 w-full max-w-md rounded-2xl object-cover border border-ink/10"
+        />
+      ) : (
+        <div className="mx-auto h-32 w-full max-w-md rounded-2xl border border-dashed border-ink/20" />
+      )}
+    </section>
+  );
+}
+
 export const WIDGET_COMPONENTS = {
   Header: {
     minimal: HeaderMinimal,
@@ -913,5 +933,8 @@ export const WIDGET_COMPONENTS = {
   Footer: {
     columns: FooterColumns,
     simple: FooterSimple
+  },
+  CustomWidgetPlaceholder: {
+    image: CustomWidgetPlaceholder
   }
 } as const;
