@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import WidgetSection from "@/components/widgets/WidgetSection";
+import WidgetLibraryModal from "@/components/widget-library/WidgetLibraryModal";
+import { WIDGET_DEFINITIONS } from "@/lib/widgets/registry";
 import { pageBlueprintToMarkdown } from "@/lib/markdown";
 import {
   GeneratorInputs,
@@ -111,6 +113,8 @@ export default function GeneratorClient() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [addWidgetPrompt, setAddWidgetPrompt] = useState("");
+  const [isWidgetLibraryOpen, setIsWidgetLibraryOpen] = useState(false);
+  const [activeWidgetId, setActiveWidgetId] = useState<string | null>(null);
 
   const currentProjects = useMemo(() => loadProjects(), [status]);
 
@@ -268,6 +272,32 @@ export default function GeneratorClient() {
     });
   };
 
+  const insertWidget = (pageKey: string, widget: WidgetInstance, insertAfterId?: string | null) => {
+    setPageBlueprints((prev) => {
+      const page = prev[pageKey];
+      if (!page) return prev;
+      const nextWidgets = [...page.widgets];
+      if (insertAfterId) {
+        const index = nextWidgets.findIndex((item) => item.id === insertAfterId);
+        if (index >= 0) {
+          nextWidgets.splice(index + 1, 0, widget);
+        } else {
+          nextWidgets.push(widget);
+        }
+      } else {
+        nextWidgets.push(widget);
+      }
+      return { ...prev, [pageKey]: { ...page, widgets: nextWidgets } };
+    });
+
+    requestAnimationFrame(() => {
+      const element = document.querySelector(`[data-widget-id="${widget.id}"]`);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
+  };
+
   const removeWidget = (pageKey: string, widgetId: string) => {
     setPageBlueprints((prev) => {
       const page = prev[pageKey];
@@ -324,23 +354,7 @@ export default function GeneratorClient() {
         throw new Error(message || "Failed to add widget.");
       }
       const data = (await response.json()) as { widget: WidgetInstance; insertAfterId?: string };
-      const insertAfterId = data.insertAfterId;
-      setPageBlueprints((prev) => {
-        const page = prev[pageKey];
-        if (!page) return prev;
-        const nextWidgets = [...page.widgets];
-        if (insertAfterId) {
-          const index = nextWidgets.findIndex((w) => w.id === insertAfterId);
-          if (index >= 0) {
-            nextWidgets.splice(index + 1, 0, data.widget);
-          } else {
-            nextWidgets.push(data.widget);
-          }
-        } else {
-          nextWidgets.push(data.widget);
-        }
-        return { ...prev, [pageKey]: { ...page, widgets: nextWidgets } };
-      });
+      insertWidget(pageKey, data.widget, data.insertAfterId ?? activeWidgetId);
       setAddWidgetPrompt("");
       setStatus("Widget added.");
     } catch (err) {
@@ -826,12 +840,13 @@ export default function GeneratorClient() {
                   Target page: {inputs.targetPage} · Version v{inputs.version}
                 </p>
               </div>
-              <a
-                href="/widget-references"
+              <button
+                onClick={() => setIsWidgetLibraryOpen(true)}
                 className="rounded-xl border border-ink/20 px-3 py-2 text-sm"
+                type="button"
               >
                 Open Widget Library
-              </a>
+              </button>
             </div>
 
             <div className="mt-4 flex flex-wrap gap-2">
@@ -854,7 +869,14 @@ export default function GeneratorClient() {
           <div className="space-y-6">
             {currentPage?.widgets?.length ? (
               currentPage.widgets.map((widget, index) => (
-                <div key={widget.id} className="space-y-2">
+                <div
+                  key={widget.id}
+                  data-widget-id={widget.id}
+                  className={`space-y-2 rounded-3xl p-2 transition ${
+                    activeWidgetId === widget.id ? "ring-2 ring-accent/40" : ""
+                  }`}
+                  onClick={() => setActiveWidgetId(widget.id)}
+                >
                   <div className="flex items-center justify-between text-xs text-ink/40">
                     <span>
                       {widget.widgetType} · {widget.variant}
@@ -903,6 +925,28 @@ export default function GeneratorClient() {
           </div>
         </section>
       </main>
+
+      <WidgetLibraryModal
+        isOpen={isWidgetLibraryOpen}
+        onClose={() => setIsWidgetLibraryOpen(false)}
+        theme={theme}
+        onInsert={(widgetType, variant, props) => {
+          const def = WIDGET_DEFINITIONS.find(
+            (item) => item.widgetType === widgetType && item.variant === variant
+          );
+          const instance: WidgetInstance = {
+            id: crypto.randomUUID(),
+            widgetType,
+            variant,
+            props: def ? { ...def.defaultProps, ...props } : props,
+            createdAt: new Date().toISOString()
+          };
+          insertWidget(normalizePageKey(inputs.targetPage), instance, activeWidgetId);
+          setIsWidgetLibraryOpen(false);
+          setActiveWidgetId(instance.id);
+        }}
+        language={inputs.language}
+      />
     </div>
   );
 }
