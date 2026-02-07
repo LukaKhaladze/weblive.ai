@@ -1,5 +1,6 @@
 import { CategorySchema } from "@/lib/schema";
 import { z } from "zod";
+import { WidgetType } from "@/widgets/registry";
 
 export type Category = z.infer<typeof CategorySchema>;
 
@@ -8,7 +9,7 @@ export type Recipe = {
     id: string;
     name: string;
     slug: string;
-    sections: string[];
+    sections: WidgetType[];
   }[];
 };
 
