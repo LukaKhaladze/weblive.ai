@@ -11,28 +11,13 @@ import {
 import { SortableContext, arrayMove, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import SortableSection from "@/components/SortableSection";
 import { Blueprint, SectionType } from "@/lib/types";
-import HeroSplit from "@/components/templates/dental/HeroSplit";
-import HeroCentered from "@/components/templates/dental/HeroCentered";
-import TrustStrip from "@/components/templates/dental/TrustStrip";
-import AboutSimple from "@/components/templates/dental/AboutSimple";
-import ServicesCards from "@/components/templates/dental/ServicesCards";
-import ServicesIcons from "@/components/templates/dental/ServicesIcons";
-import WhyUs from "@/components/templates/dental/WhyUs";
-import Testimonials from "@/components/templates/dental/Testimonials";
-import Faq from "@/components/templates/dental/Faq";
-import Contact from "@/components/templates/dental/Contact";
+import { DENTAL_PACKS } from "@/lib/packs/dentalPacks";
+import { MedicalBlueTemplates } from "@/components/templates/dental/medical-blue";
+import { CleanMinimalTemplates } from "@/components/templates/dental/clean-minimal";
 
-const TEMPLATE_MAP: Record<string, React.ComponentType<any>> = {
-  hero_dental_split_01: HeroSplit,
-  hero_dental_centered_02: HeroCentered,
-  trust_strip_dental_03: TrustStrip,
-  about_dental_simple_04: AboutSimple,
-  services_dental_cards_05: ServicesCards,
-  services_dental_icons_06: ServicesIcons,
-  whyus_dental_07: WhyUs,
-  testimonials_dental_08: Testimonials,
-  faq_dental_09: Faq,
-  contact_dental_10: Contact
+const PACK_REGISTRY: Record<string, Record<string, (props: any) => JSX.Element>> = {
+  dental_medical_blue: MedicalBlueTemplates,
+  dental_clean_minimal: CleanMinimalTemplates
 };
 
 type TemplatePageProps = {
@@ -59,6 +44,8 @@ export default function TemplatePage({
   onUpdateSlots
 }: TemplatePageProps) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  const pack = DENTAL_PACKS.find((p) => p.packId === blueprint.pages[0]?.sections?.[0]?.packId) ?? DENTAL_PACKS[0];
+  const registry = PACK_REGISTRY[pack.packId];
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -103,15 +90,11 @@ export default function TemplatePage({
               <SortableSection key={section.type} id={section.type}>
                 {renderTemplate({
                   section,
-                  primaryColor,
-                  secondaryColor,
+                  registry,
+                  tokens: pack.tokens,
+                  colors: { primary: primaryColor, secondary: secondaryColor },
                   onUpdateSlots
                 })}
-                {section.referenceMatch && section.referenceNotes ? (
-                  <p className="mt-2 text-xs text-ink/50">
-                    Inspired by: {section.referenceNotes}
-                  </p>
-                ) : null}
               </SortableSection>
             ))}
           </div>
@@ -128,22 +111,22 @@ export default function TemplatePage({
 
 function renderTemplate({
   section,
-  primaryColor,
-  secondaryColor,
+  registry,
+  tokens,
+  colors,
   onUpdateSlots
 }: {
   section: Blueprint["pages"][number]["sections"][number];
-  primaryColor: string;
-  secondaryColor: string;
+  registry: Record<string, (props: any) => JSX.Element>;
+  tokens: any;
+  colors: { primary: string; secondary: string };
   onUpdateSlots: (
     type: SectionType,
     updater: (slots: Record<string, unknown>) => Record<string, unknown>
   ) => void;
 }) {
-  const Component = TEMPLATE_MAP[section.templateId ?? ""];
-  if (!Component) {
-    return null;
-  }
+  const Component = registry[section.templateId ?? ""];
+  if (!Component) return null;
 
   const onSlotChange = (path: string, value: string) => {
     onUpdateSlots(section.type, (slots) => setPathValue({ ...slots }, path, value));
@@ -152,8 +135,8 @@ function renderTemplate({
   return (
     <Component
       slots={section.slots ?? {}}
-      primaryColor={primaryColor}
-      secondaryColor={secondaryColor}
+      tokens={tokens}
+      colors={colors}
       onSlotChange={onSlotChange}
     />
   );

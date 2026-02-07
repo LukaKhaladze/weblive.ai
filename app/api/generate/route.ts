@@ -6,7 +6,7 @@ import {
   SectionUI,
   UIBlock
 } from "@/lib/types";
-import { DENTAL_TEMPLATES } from "@/lib/templates/dental";
+import { DENTAL_PACKS } from "@/lib/packs/dentalPacks";
 
 export const runtime = "nodejs";
 
@@ -36,22 +36,13 @@ function validateInputs(body: GeneratorInputs) {
   if (!body.targetPage?.trim()) return "Target page is required.";
   if (!body.primaryColor?.trim()) return "Primary color is required.";
   if (!body.secondaryColor?.trim()) return "Secondary color is required.";
-  if (body.designReferences && body.designReferences.length > 5) {
-    return "Too many design references.";
-  }
-  if (
-    body.designReferences &&
-    body.designReferences.some((ref) => typeof ref !== "string" || ref.length > 1_500_000)
-  ) {
-    return "Design reference image is too large.";
-  }
+  if (!body.packId?.trim()) return "Pack is required.";
   return null;
 }
 
 function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
-  const templateSummary = DENTAL_TEMPLATES.map(
-    (t) => `${t.templateId} | ${t.sectionType} | slots: ${JSON.stringify(t.slotsSchema)}`
-  ).join("\n");
+  const pack = DENTAL_PACKS.find((p) => p.packId === inputs.packId) ?? DENTAL_PACKS[0];
+  const templateSummary = pack.allowedTemplates.join(", ");
   const lines = [
     "You are a senior brand strategist. Produce ONLY valid JSON that matches the schema exactly.",
     "",
@@ -76,10 +67,9 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
     "- If target page is Home, use a hero-style layout with an image + CTA in the hero section.",
     "- Change layouts based on the design variation seed: hero layout (centered vs split vs image-first vs text-first), number of service cards (3–6), testimonials layout (slider vs grid vs quotes), FAQ style (accordion vs list), section order where possible, and button placement.",
     "- Apply the chosen primary and secondary colors consistently across layout components.",
-    "- For category Dental Clinic: choose templateId from the provided catalog for each section and fill slots accordingly. Use the seed to vary hero/services templates.",
-    "- If reference images are provided, extract their section order and layout logic, then select templateIds that match those structures.",
-    "- Add referenceMatch=true and referenceNotes per section when it follows a specific reference image.",
-    "- Keep overall section order inspired by reference images; only vary layout details on regenerate.",
+    "- For category Dental Clinic: use ONLY templateIds from the selected design pack.",
+    "- Select one templateId per section type and fill slots accordingly.",
+    "- Use the designVariationSeed to switch template variants (hero_mb_01 -> hero_mb_02 etc.).",
     "- Choose ONE layout archetype and design accordingly:",
     "- A) Modern SaaS-style (clean hero, split layout, big typography)",
     "- B) Luxury/Clinic-style (large hero image, softer spacing, premium look)",
@@ -97,8 +87,8 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
 
   lines.push(
     "",
-    "Dental Clinic Templates (choose appropriate templateId per sectionType and fill slots):",
-    templateSummary,
+    `Selected Design Pack: ${pack.packId}`,
+    `Allowed templateIds: ${templateSummary}`,
     "",
     "Schema:",
     "{",
@@ -133,10 +123,9 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
     '      "sections": [',
     "        {",
       '          "type": "hero" | "trust_strip" | "about" | "services" | "why_us" | "testimonials" | "faq" | "contact",',
+      '          "packId": string,',
       '          "templateId": string,',
       '          "slots": object,',
-      '          "referenceMatch": boolean,',
-      '          "referenceNotes": string,',
       '          "heading": string,',
       '          "content": string,',
     '          "bullets": string[],',
@@ -184,14 +173,14 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
     `Primary color: ${inputs.primaryColor}`,
     `Secondary color: ${inputs.secondaryColor}`,
     `Design variation seed: ${inputs.designVariationSeed}`,
-    `Reference images count: ${inputs.designReferences?.length ?? 0}`,
+    `Design pack: ${inputs.packId}`,
     `User prompt: ${inputs.prompt}`
   );
 
   return lines.join("\n");
 }
 
-async function callOpenAI(prompt: string, requestImages: string[]) {
+async function callOpenAI(prompt: string) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("Missing OPENAI_API_KEY environment variable.");
@@ -209,16 +198,7 @@ async function callOpenAI(prompt: string, requestImages: string[]) {
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: "You output only JSON." },
-        {
-          role: "user",
-          content: [
-            { type: "text", text: prompt },
-            ...((requestImages ?? []).map((dataUrl) => ({
-              type: "image_url",
-              image_url: { url: dataUrl }
-            })) as any)
-          ]
-        }
+        { role: "user", content: prompt }
       ]
     })
   });
@@ -449,10 +429,14 @@ function dentalDefaults(language: "ka" | "en") {
   };
 }
 
-function ensureDentalTemplates(blueprint: Blueprint): Blueprint {
+function ensureDentalTemplates(
+  blueprint: Blueprint,
+  packId: GeneratorInputs["packId"]
+): Blueprint {
   if (blueprint.site.category !== "Dental Clinic") return blueprint;
   const defaults = dentalDefaults(blueprint.site.language);
-  const templateIds = new Set(DENTAL_TEMPLATES.map((t) => t.templateId));
+  const pack = DENTAL_PACKS.find((p) => p.packId === packId) ?? DENTAL_PACKS[0];
+  const templateIds = new Set(pack.allowedTemplates);
   const pages = blueprint.pages.map((page) => {
     const sections = page.sections.map((section) => {
       let templateId = section.templateId;
@@ -461,35 +445,35 @@ function ensureDentalTemplates(blueprint: Blueprint): Blueprint {
       if (!templateId || !templateIds.has(templateId)) {
         switch (section.type) {
           case "hero":
-            templateId = "hero_dental_split_01";
+            templateId = pack.allowedTemplates.find((id) => id.startsWith("hero_")) ?? pack.allowedTemplates[0];
             slots = defaults.heroSplit;
             break;
           case "trust_strip":
-            templateId = "trust_strip_dental_03";
+            templateId = pack.allowedTemplates.find((id) => id.startsWith("trust_")) ?? pack.allowedTemplates[0];
             slots = defaults.trustStrip;
             break;
           case "about":
-            templateId = "about_dental_simple_04";
+            templateId = pack.allowedTemplates.find((id) => id.startsWith("about_")) ?? pack.allowedTemplates[0];
             slots = defaults.about;
             break;
           case "services":
-            templateId = "services_dental_cards_05";
+            templateId = pack.allowedTemplates.find((id) => id.startsWith("services_")) ?? pack.allowedTemplates[0];
             slots = defaults.servicesCards;
             break;
           case "why_us":
-            templateId = "whyus_dental_07";
+            templateId = pack.allowedTemplates.find((id) => id.startsWith("why_")) ?? pack.allowedTemplates[0];
             slots = defaults.whyUs;
             break;
           case "testimonials":
-            templateId = "testimonials_dental_08";
+            templateId = pack.allowedTemplates.find((id) => id.startsWith("testimonials_")) ?? pack.allowedTemplates[0];
             slots = defaults.testimonials;
             break;
           case "faq":
-            templateId = "faq_dental_09";
+            templateId = pack.allowedTemplates.find((id) => id.startsWith("faq_")) ?? pack.allowedTemplates[0];
             slots = defaults.faq;
             break;
           case "contact":
-            templateId = "contact_dental_10";
+            templateId = pack.allowedTemplates.find((id) => id.startsWith("contact_")) ?? pack.allowedTemplates[0];
             slots = defaults.contact;
             break;
           default:
@@ -504,10 +488,9 @@ function ensureDentalTemplates(blueprint: Blueprint): Blueprint {
 
       return {
         ...section,
+        packId: pack.packId,
         templateId,
-        slots,
-        referenceMatch: section.referenceMatch ?? false,
-        referenceNotes: section.referenceNotes ?? ""
+        slots
       };
     });
     return { ...page, sections };
@@ -516,62 +499,43 @@ function ensureDentalTemplates(blueprint: Blueprint): Blueprint {
 }
 
 function fallbackSlotsForTemplate(templateId: string, defaults: ReturnType<typeof dentalDefaults>) {
-  switch (templateId) {
-    case "hero_dental_split_01":
-      return defaults.heroSplit;
-    case "hero_dental_centered_02":
-      return defaults.heroCentered;
-    case "trust_strip_dental_03":
-      return defaults.trustStrip;
-    case "about_dental_simple_04":
-      return defaults.about;
-    case "services_dental_cards_05":
-      return defaults.servicesCards;
-    case "services_dental_icons_06":
-      return defaults.servicesIcons;
-    case "whyus_dental_07":
-      return defaults.whyUs;
-    case "testimonials_dental_08":
-      return defaults.testimonials;
-    case "faq_dental_09":
-      return defaults.faq;
-    case "contact_dental_10":
-      return defaults.contact;
-    default:
-      return defaults.about;
-  }
+  if (templateId.startsWith("hero_")) return defaults.heroSplit;
+  if (templateId.startsWith("trust_")) return defaults.trustStrip;
+  if (templateId.startsWith("about_")) return defaults.about;
+  if (templateId.startsWith("services_")) return defaults.servicesCards;
+  if (templateId.startsWith("why_")) return defaults.whyUs;
+  if (templateId.startsWith("testimonials_")) return defaults.testimonials;
+  if (templateId.startsWith("faq_")) return defaults.faq;
+  if (templateId.startsWith("contact_")) return defaults.contact;
+  return defaults.about;
 }
 
 function validateDentalSlots(templateId: string, slots: Record<string, unknown>) {
-  switch (templateId) {
-    case "hero_dental_split_01":
-      return Boolean(
-        slots.headline &&
-          slots.subtext &&
-          (slots as any).ctaPrimary?.label &&
-          (slots as any).ctaSecondary?.label
-      );
-    case "hero_dental_centered_02":
-      return Boolean(slots.headline && slots.subtext && (slots as any).cta?.label);
-    case "trust_strip_dental_03":
-      return Array.isArray((slots as any).badges) && (slots as any).badges.length >= 4;
-    case "about_dental_simple_04":
-      return Boolean(slots.title && slots.paragraph);
-    case "services_dental_cards_05":
-      return Array.isArray((slots as any).services) && (slots as any).services.length >= 3;
-    case "services_dental_icons_06":
-      return Array.isArray((slots as any).services) && (slots as any).services.length >= 6;
-    case "whyus_dental_07":
-      return Array.isArray((slots as any).benefits) && (slots as any).benefits.length >= 3;
-    case "testimonials_dental_08":
-      return Array.isArray((slots as any).testimonials) && (slots as any).testimonials.length >= 3;
-    case "faq_dental_09":
-      return Array.isArray((slots as any).faq) && (slots as any).faq.length >= 5;
-    case "contact_dental_10":
-      return Boolean(slots.address && slots.phone && slots.workingHours && slots.formCtaLabel);
-    default:
-      return false;
+  if (templateId.startsWith("hero_")) {
+    return Boolean(slots.headline && slots.subtext);
   }
+  if (templateId.startsWith("trust_")) {
+    return Array.isArray((slots as any).badges) && (slots as any).badges.length >= 4;
+  }
+  if (templateId.startsWith("about_")) {
+    return Boolean(slots.title && slots.paragraph);
+  }
+  if (templateId.startsWith("services_")) {
+    return Array.isArray((slots as any).services) && (slots as any).services.length >= 3;
+  }
+  if (templateId.startsWith("why_")) {
+    return Array.isArray((slots as any).benefits) && (slots as any).benefits.length >= 3;
+  }
+  if (templateId.startsWith("testimonials_")) {
+    return Array.isArray((slots as any).testimonials) && (slots as any).testimonials.length >= 3;
+  }
+  if (templateId.startsWith("faq_")) {
+    return Array.isArray((slots as any).faq) && (slots as any).faq.length >= 5;
+  }
+  if (templateId.startsWith("contact_")) {
+    return Boolean(slots.address && slots.phone && slots.workingHours && slots.formCtaLabel);
+  }
+  return false;
 }
 
 export async function POST(request: NextRequest) {
@@ -583,19 +547,19 @@ export async function POST(request: NextRequest) {
     }
 
     const initialPrompt = buildPrompt(body, false);
-    let raw = await callOpenAI(initialPrompt, body.designReferences ?? []);
+    let raw = await callOpenAI(initialPrompt);
     try {
       const blueprint = applyThemeColors(
-        ensureDentalTemplates(withFallbackUI(parseBlueprint(raw), body.targetPage)),
+        ensureDentalTemplates(withFallbackUI(parseBlueprint(raw), body.targetPage), body.packId),
         body.primaryColor,
         body.secondaryColor
       );
       return NextResponse.json(blueprint);
     } catch {
       const strictPrompt = buildPrompt(body, true);
-      raw = await callOpenAI(strictPrompt, body.designReferences ?? []);
+      raw = await callOpenAI(strictPrompt);
       const blueprint = applyThemeColors(
-        ensureDentalTemplates(withFallbackUI(parseBlueprint(raw), body.targetPage)),
+        ensureDentalTemplates(withFallbackUI(parseBlueprint(raw), body.targetPage), body.packId),
         body.primaryColor,
         body.secondaryColor
       );

@@ -14,6 +14,7 @@ import {
   SectionUI,
   UIBlock
 } from "@/lib/types";
+import { DENTAL_PACKS } from "@/lib/packs/dentalPacks";
 import {
   getProjectById,
   loadProjects,
@@ -108,7 +109,7 @@ const defaultInputs: GeneratorInputs = {
   logoDataUrl: undefined,
   designVariationSeed: "",
   version: 1,
-  designReferences: []
+  packId: "dental_medical_blue"
 };
 
 const defaultFormFields = {
@@ -181,37 +182,7 @@ export default function GeneratorClient() {
   const createSeed = () =>
     Math.random().toString(36).slice(2, 8);
 
-  const resizeImage = (file: File, maxSize = 900, quality = 0.75) =>
-    new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result !== "string") {
-          reject(new Error("Invalid image data."));
-          return;
-        }
-        const img = new Image();
-        img.onload = () => {
-          const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
-          const width = Math.round(img.width * scale);
-          const height = Math.round(img.height * scale);
-          const canvas = document.createElement("canvas");
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          if (!ctx) {
-            reject(new Error("Canvas not supported."));
-            return;
-          }
-          ctx.drawImage(img, 0, 0, width, height);
-          const dataUrl = canvas.toDataURL("image/jpeg", quality);
-          resolve(dataUrl);
-        };
-        img.onerror = () => reject(new Error("Failed to load image."));
-        img.src = reader.result;
-      };
-      reader.onerror = () => reject(new Error("Failed to read image."));
-      reader.readAsDataURL(file);
-    });
+  // (reference image logic removed)
 
   useEffect(() => {
     const projectId = searchParams.get("projectId");
@@ -1011,63 +982,28 @@ export default function GeneratorClient() {
 
             <div>
               <label className="text-sm font-medium text-ink/70">
-                Design References (Upload images)
+                დიზაინის პაკეტი
               </label>
-              <p className="text-xs text-ink/50">Upload design examples you like</p>
-              <input
-                type="file"
-                accept="image/png,image/jpeg"
-                multiple
-                className="mt-2 w-full rounded-xl border border-ink/10 px-3 py-2 text-sm"
-                onChange={async (event) => {
-                  const files = Array.from(event.target.files ?? []);
-                  if (files.length === 0) return;
-                  const remaining = 5 - inputs.designReferences.length;
-                  const limited = files.slice(0, Math.max(0, remaining));
-                  try {
-                    const resized = await Promise.all(
-                      limited.map((file) => resizeImage(file))
-                    );
-                    setInputs((prev) => ({
-                      ...prev,
-                      designReferences: [...prev.designReferences, ...resized].slice(0, 5)
-                    }));
-                  } catch (err) {
-                    setError(
-                      err instanceof Error
-                        ? err.message
-                        : "Failed to process reference images."
-                    );
-                  } finally {
-                    event.currentTarget.value = "";
-                  }
+              <select
+                className="mt-1 w-full rounded-xl border border-ink/10 px-3 py-2"
+                value={inputs.packId}
+                onChange={(event) => {
+                  const packId = event.target.value as GeneratorInputs["packId"];
+                  const pack = DENTAL_PACKS.find((p) => p.packId === packId);
+                  setInputs((prev) => ({
+                    ...prev,
+                    packId,
+                    primaryColor: pack?.tokens.primaryColorDefault ?? prev.primaryColor,
+                    secondaryColor: pack?.tokens.secondaryColorDefault ?? prev.secondaryColor
+                  }));
                 }}
-              />
-              {inputs.designReferences.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {inputs.designReferences.map((src, index) => (
-                    <div key={`ref-${index}`} className="relative">
-                      <img
-                        src={src}
-                        alt={`Reference ${index + 1}`}
-                        className="h-14 w-20 rounded-lg object-cover border border-ink/10"
-                      />
-                      <button
-                        type="button"
-                        className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-ink text-white text-xs"
-                        onClick={() =>
-                          setInputs((prev) => ({
-                            ...prev,
-                            designReferences: prev.designReferences.filter((_, i) => i !== index)
-                          }))
-                        }
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+              >
+                {DENTAL_PACKS.map((pack) => (
+                  <option key={pack.packId} value={pack.packId}>
+                    {pack.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>

@@ -63,10 +63,9 @@ export type Blueprint = {
     };
     sections: Array<{
       type: SectionType;
+      packId?: string;
       templateId?: string;
       slots?: Record<string, unknown>;
-      referenceMatch?: boolean;
-      referenceNotes?: string;
       heading: string;
       content: string;
       bullets: string[];
@@ -117,7 +116,7 @@ export type GeneratorInputs = {
   logoDataUrl?: string;
   designVariationSeed: string;
   version: number;
-  designReferences: string[];
+  packId: "dental_medical_blue" | "dental_clean_minimal";
 };
 
 export type Project = {
