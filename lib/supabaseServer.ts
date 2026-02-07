@@ -8,7 +8,11 @@ export function getSupabaseServer() {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error("Supabase env vars missing");
+    const missing = [
+      !supabaseUrl ? "NEXT_PUBLIC_SUPABASE_URL" : null,
+      !serviceRoleKey ? "SUPABASE_SERVICE_ROLE_KEY" : null,
+    ].filter(Boolean);
+    throw new Error(`Supabase env vars missing: ${missing.join(", ")}`);
   }
 
   if (!cached) {

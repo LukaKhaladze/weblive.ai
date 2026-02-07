@@ -216,7 +216,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Generator output invalid." }, { status: 500 });
   }
 
-  const supabaseServer = getSupabaseServer();
+  let supabaseServer;
+  try {
+    supabaseServer = getSupabaseServer();
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Supabase env vars missing" },
+      { status: 500 }
+    );
+  }
   const { data, error } = await supabaseServer
     .from("projects")
     .insert({
