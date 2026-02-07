@@ -4,6 +4,8 @@ import { generateEditToken, generateShareSlug } from "@/lib/tokens";
 import { getSupabaseServer } from "@/lib/supabaseServer";
 import { generateWithAiStub } from "@/lib/generator/aiStub";
 
+const OPENAI_MODEL = "gpt-4o-mini";
+
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 5;
 const rateLimitStore = new Map<string, { count: number; start: number }>();
@@ -40,7 +42,174 @@ export async function POST(req: Request) {
   const shareSlug = generateShareSlug();
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-  const { site, seo } = await generateWithAiStub(input);
+  let site: unknown;
+  let seo: unknown;
+
+  try {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error("OPENAI_API_KEY missing");
+    }
+
+    const schema = {
+      type: "object",
+      additionalProperties: false,
+      required: ["site", "seo"],
+      properties: {
+        site: {
+          type: "object",
+          additionalProperties: false,
+          required: ["theme", "pages"],
+          properties: {
+            theme: {
+              type: "object",
+              additionalProperties: false,
+              required: ["primaryColor", "secondaryColor", "fontFamily", "radius", "buttonStyle"],
+              properties: {
+                primaryColor: { type: "string" },
+                secondaryColor: { type: "string" },
+                fontFamily: { type: "string" },
+                radius: { type: "number" },
+                buttonStyle: { type: "string", enum: ["solid", "outline"] },
+              },
+            },
+            pages: {
+              type: "array",
+              items: {
+                type: "object",
+                additionalProperties: false,
+                required: ["id", "slug", "name", "seo", "sections"],
+                properties: {
+                  id: { type: "string" },
+                  slug: { type: "string" },
+                  name: { type: "string" },
+                  seo: {
+                    type: "object",
+                    additionalProperties: false,
+                    required: ["title", "description", "keywords"],
+                    properties: {
+                      title: { type: "string" },
+                      description: { type: "string" },
+                      keywords: { type: "array", items: { type: "string" } },
+                    },
+                  },
+                  sections: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      additionalProperties: false,
+                      required: ["id", "widget", "variant", "props"],
+                      properties: {
+                        id: { type: "string" },
+                        widget: { type: "string" },
+                        variant: { type: "string" },
+                        props: { type: "object" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        seo: {
+          type: "object",
+          additionalProperties: false,
+          required: ["project", "pages", "recommendations"],
+          properties: {
+            project: {
+              type: "object",
+              additionalProperties: false,
+              required: ["businessName", "category"],
+              properties: {
+                businessName: { type: "string" },
+                category: { type: "string" },
+              },
+            },
+            pages: {
+              type: "array",
+              items: {
+                type: "object",
+                additionalProperties: false,
+                required: ["slug", "title", "description", "keywords"],
+                properties: {
+                  slug: { type: "string" },
+                  title: { type: "string" },
+                  description: { type: "string" },
+                  keywords: { type: "array", items: { type: "string" } },
+                },
+              },
+            },
+            recommendations: { type: "array", items: { type: "string" } },
+          },
+        },
+      },
+    };
+
+    const response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: OPENAI_MODEL,
+        input: [
+          {
+            role: "system",
+            content: [
+              {
+                type: "text",
+                text:
+                  "You are an AI website planner. Return ONLY structured JSON that matches the provided schema. " +
+                  "Use the provided widget types and variants when possible. No HTML.",
+              },
+            ],
+          },
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `Business input JSON: ${JSON.stringify(input)}`,
+              },
+            ],
+          },
+        ],
+        text: {
+          format: {
+            type: "json_schema",
+            name: "weblive_site_plan",
+            strict: true,
+            schema,
+          },
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`OpenAI error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const outputText = data.output_text as string | undefined;
+    if (outputText) {
+      const parsed = JSON.parse(outputText);
+      site = parsed.site;
+      seo = parsed.seo;
+    } else if (data.output?.[0]?.content?.[0]?.text) {
+      const parsed = JSON.parse(data.output[0].content[0].text);
+      site = parsed.site;
+      seo = parsed.seo;
+    } else {
+      throw new Error("No output from OpenAI");
+    }
+  } catch (error) {
+    const fallback = await generateWithAiStub(input);
+    site = fallback.site;
+    seo = fallback.seo;
+  }
+
   const siteParsed = SiteSchema.safeParse(site);
   const seoParsed = SeoSchema.safeParse(seo);
   if (!siteParsed.success || !seoParsed.success) {

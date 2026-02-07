@@ -26,6 +26,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 APP_BASE_URL=http://localhost:3000
 CRON_SECRET=your_secret_here
+OPENAI_API_KEY=your_openai_key_here
 ```
 
 ## Supabase Schema (SQL)
@@ -111,4 +112,5 @@ Set the `CRON_SECRET` in Vercel and call the endpoint with `Authorization: Beare
 ## Notes
 - Share and edit links expire 7 days after generation.
 - AI generation must return JSON only. The stub in `lib/generator/aiStub.ts` is deterministic.
+- `/api/generate` will use OpenAI (`gpt-4o-mini`) when `OPENAI_API_KEY` is set, otherwise it falls back to the stub.
 - Placeholder images live in `public/placeholders`.
