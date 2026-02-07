@@ -181,6 +181,38 @@ export default function GeneratorClient() {
   const createSeed = () =>
     Math.random().toString(36).slice(2, 8);
 
+  const resizeImage = (file: File, maxSize = 900, quality = 0.75) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result !== "string") {
+          reject(new Error("Invalid image data."));
+          return;
+        }
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+          const width = Math.round(img.width * scale);
+          const height = Math.round(img.height * scale);
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            reject(new Error("Canvas not supported."));
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL("image/jpeg", quality);
+          resolve(dataUrl);
+        };
+        img.onerror = () => reject(new Error("Failed to load image."));
+        img.src = reader.result;
+      };
+      reader.onerror = () => reject(new Error("Failed to read image."));
+      reader.readAsDataURL(file);
+    });
+
   useEffect(() => {
     const projectId = searchParams.get("projectId");
     if (!projectId) return;
@@ -987,23 +1019,28 @@ export default function GeneratorClient() {
                 accept="image/png,image/jpeg"
                 multiple
                 className="mt-2 w-full rounded-xl border border-ink/10 px-3 py-2 text-sm"
-                onChange={(event) => {
+                onChange={async (event) => {
                   const files = Array.from(event.target.files ?? []);
                   if (files.length === 0) return;
-                  const limited = files.slice(0, 5 - inputs.designReferences.length);
-                  limited.forEach((file) => {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                      const result = reader.result;
-                      if (typeof result !== "string") return;
-                      setInputs((prev) => ({
-                        ...prev,
-                        designReferences: [...prev.designReferences, result].slice(0, 5)
-                      }));
-                    };
-                    reader.readAsDataURL(file);
-                  });
-                  event.currentTarget.value = "";
+                  const remaining = 5 - inputs.designReferences.length;
+                  const limited = files.slice(0, Math.max(0, remaining));
+                  try {
+                    const resized = await Promise.all(
+                      limited.map((file) => resizeImage(file))
+                    );
+                    setInputs((prev) => ({
+                      ...prev,
+                      designReferences: [...prev.designReferences, ...resized].slice(0, 5)
+                    }));
+                  } catch (err) {
+                    setError(
+                      err instanceof Error
+                        ? err.message
+                        : "Failed to process reference images."
+                    );
+                  } finally {
+                    event.currentTarget.value = "";
+                  }
                 }}
               />
               {inputs.designReferences.length > 0 && (

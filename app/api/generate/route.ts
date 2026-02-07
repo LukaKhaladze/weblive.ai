@@ -39,6 +39,12 @@ function validateInputs(body: GeneratorInputs) {
   if (body.designReferences && body.designReferences.length > 5) {
     return "Too many design references.";
   }
+  if (
+    body.designReferences &&
+    body.designReferences.some((ref) => typeof ref !== "string" || ref.length > 1_500_000)
+  ) {
+    return "Design reference image is too large.";
+  }
   return null;
 }
 
