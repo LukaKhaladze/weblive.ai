@@ -12,6 +12,7 @@ export default function SectionFrame({
   onDuplicate,
   onMoveUp,
   onMoveDown,
+  toolbar,
 }: {
   id: string;
   children: React.ReactNode;
@@ -21,6 +22,7 @@ export default function SectionFrame({
   onDuplicate: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
+  toolbar?: React.ReactNode;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
   const style = {
@@ -83,6 +85,7 @@ export default function SectionFrame({
         ≡
       </div>
       <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm">
+        {toolbar}
         {children}
       </div>
     </div>

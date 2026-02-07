@@ -55,6 +55,18 @@ export default function EditorShell({
     (section) => section.id === selectedSectionId
   );
 
+  const defaultSectionStyle = {
+    bg: "none",
+    padding: "md",
+    align: "left",
+    width: "contained",
+    hidden: false,
+  };
+
+  function getSectionStyle(section: any) {
+    return { ...defaultSectionStyle, ...(section.props?._style || {}) };
+  }
+
   useEffect(() => {
     if (currentPage && !selectedSection) {
       setSelectedSectionId(currentPage.sections[0]?.id || null);
@@ -321,6 +333,16 @@ export default function EditorShell({
                 <div className="space-y-8 p-4">
                   {currentPage.sections.map((section, index) => {
                     const isSelected = section.id === selectedSectionId;
+                    const style = getSectionStyle(section);
+                    const wrapperClasses = [
+                      style.padding === "sm" ? "py-6" : style.padding === "lg" ? "py-16" : "py-10",
+                      style.align === "center" ? "text-center" : "text-left",
+                      style.width === "full" ? "w-full" : "max-w-6xl mx-auto",
+                    ].join(" ");
+                    const wrapperStyle =
+                      style.bg === "none"
+                        ? undefined
+                        : { backgroundColor: style.bg };
                     return (
                     <SectionFrame
                       key={section.id}
@@ -374,22 +396,143 @@ export default function EditorShell({
                           ),
                         }));
                       }}
+                      toolbar={
+                        isSelected ? (
+                          <div className="border-b border-slate-200 bg-slate-50 px-4 py-2 text-xs text-slate-600">
+                            <div className="flex flex-wrap items-center gap-3">
+                              <label className="flex items-center gap-2">
+                                ფონი
+                                <input
+                                  type="color"
+                                  value={style.bg === "none" ? "#ffffff" : style.bg}
+                                  onChange={(event) => {
+                                    updateSection(section.id, (sectionData) => ({
+                                      ...sectionData,
+                                      props: updateByPath(sectionData.props, "_style", {
+                                        ...style,
+                                        bg: event.target.value,
+                                      }),
+                                    }));
+                                  }}
+                                />
+                                <button
+                                  className="rounded-full border border-slate-200 bg-white px-2 py-1"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    updateSection(section.id, (sectionData) => ({
+                                      ...sectionData,
+                                      props: updateByPath(sectionData.props, "_style", {
+                                        ...style,
+                                        bg: "none",
+                                      }),
+                                    }));
+                                  }}
+                                >
+                                  გამორთვა
+                                </button>
+                              </label>
+                              <label className="flex items-center gap-2">
+                                შიდა დაშორება
+                                <select
+                                  className="rounded-full border border-slate-200 bg-white px-2 py-1"
+                                  value={style.padding}
+                                  onChange={(event) =>
+                                    updateSection(section.id, (sectionData) => ({
+                                      ...sectionData,
+                                      props: updateByPath(sectionData.props, "_style", {
+                                        ...style,
+                                        padding: event.target.value,
+                                      }),
+                                    }))
+                                  }
+                                >
+                                  <option value="sm">კომპაქტური</option>
+                                  <option value="md">სტანდარტული</option>
+                                  <option value="lg">ფართო</option>
+                                </select>
+                              </label>
+                              <label className="flex items-center gap-2">
+                                ტექსტის განლაგება
+                                <select
+                                  className="rounded-full border border-slate-200 bg-white px-2 py-1"
+                                  value={style.align}
+                                  onChange={(event) =>
+                                    updateSection(section.id, (sectionData) => ({
+                                      ...sectionData,
+                                      props: updateByPath(sectionData.props, "_style", {
+                                        ...style,
+                                        align: event.target.value,
+                                      }),
+                                    }))
+                                  }
+                                >
+                                  <option value="left">მარცხნივ</option>
+                                  <option value="center">ცენტრში</option>
+                                </select>
+                              </label>
+                              <label className="flex items-center gap-2">
+                                სიგანე
+                                <select
+                                  className="rounded-full border border-slate-200 bg-white px-2 py-1"
+                                  value={style.width}
+                                  onChange={(event) =>
+                                    updateSection(section.id, (sectionData) => ({
+                                      ...sectionData,
+                                      props: updateByPath(sectionData.props, "_style", {
+                                        ...style,
+                                        width: event.target.value,
+                                      }),
+                                    }))
+                                  }
+                                >
+                                  <option value="contained">შეკუმშული</option>
+                                  <option value="full">სრული</option>
+                                </select>
+                              </label>
+                              <label className="flex items-center gap-2">
+                                დამალვა
+                                <input
+                                  type="checkbox"
+                                  checked={style.hidden}
+                                  onChange={(event) =>
+                                    updateSection(section.id, (sectionData) => ({
+                                      ...sectionData,
+                                      props: updateByPath(sectionData.props, "_style", {
+                                        ...style,
+                                        hidden: event.target.checked,
+                                      }),
+                                    }))
+                                  }
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        ) : null
+                      }
                     >
-                      {renderWidget(
-                        section.widget as WidgetType,
-                        section.variant,
-                        section.props,
-                        site.theme,
-                        isSelected,
-                        (path, value) => {
-                          updateSection(section.id, (sectionData) => ({
-                            ...sectionData,
-                            props: updateByPath(sectionData.props, path, value),
-                          }));
-                        }
-                      )}
+                      <div className={wrapperClasses} style={wrapperStyle}>
+                        {style.hidden ? (
+                          <div className="rounded-[20px] border border-dashed border-slate-300 bg-white/60 px-6 py-10 text-center text-sm text-slate-500">
+                            სექცია დამალულია
+                          </div>
+                        ) : (
+                          renderWidget(
+                            section.widget as WidgetType,
+                            section.variant,
+                            section.props,
+                            site.theme,
+                            isSelected,
+                            (path, value) => {
+                              updateSection(section.id, (sectionData) => ({
+                                ...sectionData,
+                                props: updateByPath(sectionData.props, path, value),
+                              }));
+                            }
+                          )
+                        )}
+                      </div>
                     </SectionFrame>
-                  );
+                    );
                   })}
                 </div>
               </SortableContext>
