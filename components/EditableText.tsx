@@ -8,6 +8,7 @@ type EditableTextProps = {
   as?: "h2" | "h3" | "p" | "span";
   className?: string;
   placeholder?: string;
+  style?: React.CSSProperties;
 };
 
 export default function EditableText({
@@ -15,7 +16,8 @@ export default function EditableText({
   onChange,
   as = "p",
   className,
-  placeholder
+  placeholder,
+  style
 }: EditableTextProps) {
   const ref = useRef<HTMLElement>(null);
 
@@ -34,6 +36,7 @@ export default function EditableText({
       contentEditable
       suppressContentEditableWarning
       className={className}
+      style={style}
       data-placeholder={placeholder}
       onBlur={(event: React.FocusEvent<HTMLElement>) =>
         onChange(event.currentTarget.innerText.trim())

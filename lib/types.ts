@@ -119,48 +119,80 @@ export type GeneratorInputs = {
   packId: "dental_medical_blue" | "dental_clean_minimal";
 };
 
-export type Project = {
-  id: string;
-  createdAt: string;
-  inputs: GeneratorInputs;
-  blueprint: Blueprint;
-  widgetPages?: WidgetPage[];
-};
+export type WidgetCategory =
+  | "Headers"
+  | "Heroes"
+  | "Features"
+  | "About"
+  | "Services"
+  | "Portfolio / Gallery"
+  | "Testimonials"
+  | "Pricing"
+  | "FAQ"
+  | "CTA"
+  | "Footers";
+
+export type WidgetType =
+  | "Header"
+  | "Hero"
+  | "TrustBadges"
+  | "About"
+  | "Services"
+  | "WhyUs"
+  | "Stats"
+  | "Testimonials"
+  | "Pricing"
+  | "FAQ"
+  | "CTA"
+  | "Contact"
+  | "Footer";
 
 export type WidgetField = {
   key: string;
   label: string;
-  type: "text" | "textarea" | "url";
+  type: "text" | "textarea" | "url" | "list";
 };
 
 export type WidgetDefinition = {
   id: string;
   name: string;
-  category:
-    | "Headers"
-    | "Heroes"
-    | "Features"
-    | "About"
-    | "Services"
-    | "Portfolio / Gallery"
-    | "Testimonials"
-    | "Pricing"
-    | "FAQ"
-    | "CTA"
-    | "Footers";
+  category: WidgetCategory;
+  widgetType: WidgetType;
+  variant: string;
   tags?: string[];
   thumbnail?: string;
-  fields: WidgetField[];
-  defaultContent: Record<string, string>;
+  editableFields: WidgetField[];
+  defaultProps: Record<string, unknown>;
 };
 
 export type WidgetInstance = {
   id: string;
-  widgetId: string;
-  name: string;
-  category: WidgetDefinition["category"];
-  content: Record<string, string>;
+  widgetType: WidgetType;
+  variant: string;
+  props: Record<string, unknown>;
   createdAt: string;
+};
+
+export type PageBlueprint = {
+  page: {
+    slug: string;
+    title: string;
+  };
+  theme: {
+    primaryColor: string;
+    secondaryColor: string;
+    logoDataUrl?: string;
+  };
+  widgets: WidgetInstance[];
+};
+
+export type Project = {
+  id: string;
+  createdAt: string;
+  inputs: GeneratorInputs;
+  blueprint?: Blueprint;
+  pageBlueprints?: Record<string, PageBlueprint>;
+  widgetPages?: WidgetPage[];
 };
 
 export type WidgetPage = {

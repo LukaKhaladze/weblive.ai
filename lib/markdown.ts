@@ -1,4 +1,4 @@
-import { Blueprint } from "./types";
+import { Blueprint, PageBlueprint } from "./types";
 
 export function blueprintToMarkdown(blueprint: Blueprint) {
   const lines: string[] = [];
@@ -51,6 +51,28 @@ export function blueprintToMarkdown(blueprint: Blueprint) {
   lines.push(`Style keywords: ${blueprint.theme.styleKeywords.join(", ")}`);
   lines.push(`Color suggestions: ${blueprint.theme.colorSuggestions.join(", ")}`);
   lines.push(`Font suggestions: ${blueprint.theme.fontSuggestions.join(", ")}`);
+
+  return lines.join("\n");
+}
+
+export function pageBlueprintToMarkdown(blueprint: PageBlueprint) {
+  const lines: string[] = [];
+  lines.push(`# ${blueprint.page.title}`);
+  lines.push("");
+  lines.push(`Primary color: ${blueprint.theme.primaryColor}`);
+  lines.push(`Secondary color: ${blueprint.theme.secondaryColor}`);
+  lines.push("");
+
+  blueprint.widgets.forEach((widget, index) => {
+    lines.push(`## Widget ${index + 1}`);
+    lines.push(`Type: ${widget.widgetType}`);
+    lines.push(`Variant: ${widget.variant}`);
+    lines.push("Props:");
+    Object.entries(widget.props ?? {}).forEach(([key, value]) => {
+      lines.push(`- ${key}: ${JSON.stringify(value)}`);
+    });
+    lines.push("");
+  });
 
   return lines.join("\n");
 }

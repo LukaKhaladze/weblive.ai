@@ -8,7 +8,7 @@ import {
   getProjectById,
   getCurrentProjectId
 } from "@/lib/storage";
-import { WidgetInstance, WidgetPage } from "@/lib/types";
+import { PageBlueprint, WidgetInstance } from "@/lib/types";
 
 export default function WidgetReferencesPage() {
   const [category, setCategory] = useState<(typeof WIDGET_CATEGORIES)[number]>("All");
@@ -44,32 +44,40 @@ export default function WidgetReferencesPage() {
     const widgetDef = WIDGET_DEFINITIONS.find((w) => w.id === selectedWidget);
     if (!widgetDef) return;
 
-    const widgetPages: WidgetPage[] = project.widgetPages ?? project.blueprint.pages.map((page) => ({
-      id: page.slug,
-      title: page.title,
-      widgets: []
-    }));
-
-    const pageId = targetPageId || widgetPages[0]?.id;
-    const pageIndex = widgetPages.findIndex((page) => page.id === pageId);
-    if (pageIndex < 0) return;
+    const pageBlueprints = project.pageBlueprints ?? {};
+    const pageKey =
+      targetPageId || Object.keys(pageBlueprints)[0] || "home";
+    const existingPage = pageBlueprints[pageKey];
 
     const instance: WidgetInstance = {
       id: crypto.randomUUID(),
-      widgetId: widgetDef.id,
-      name: widgetDef.name,
-      category: widgetDef.category,
-      content: { ...widgetDef.defaultContent },
+      widgetType: widgetDef.widgetType,
+      variant: widgetDef.variant,
+      props: { ...widgetDef.defaultProps },
       createdAt: new Date().toISOString()
     };
 
-    const updatedPages = [...widgetPages];
-    updatedPages[pageIndex] = {
-      ...updatedPages[pageIndex],
-      widgets: [...updatedPages[pageIndex].widgets, instance]
+    const nextPage: PageBlueprint =
+      existingPage ??
+      ({
+        page: { slug: pageKey, title: pageKey },
+        theme: {
+          primaryColor: project.inputs.primaryColor,
+          secondaryColor: project.inputs.secondaryColor,
+          logoDataUrl: project.inputs.logoDataUrl
+        },
+        widgets: []
+      } as PageBlueprint);
+
+    const updatedBlueprints = {
+      ...pageBlueprints,
+      [pageKey]: {
+        ...nextPage,
+        widgets: [...nextPage.widgets, instance]
+      }
     };
 
-    upsertProject({ ...project, widgetPages: updatedPages });
+    upsertProject({ ...project, pageBlueprints: updatedBlueprints });
     setStatus("Widget inserted.");
     setSelectedWidget(null);
   };
@@ -160,11 +168,16 @@ export default function WidgetReferencesPage() {
               value={targetPageId}
               onChange={(event) => setTargetPageId(event.target.value)}
             >
-              {(getProjectById(targetProjectId)?.widgetPages ?? []).map((page) => (
-                <option key={page.id} value={page.id}>
-                  {page.title}
-                </option>
-              ))}
+              {Object.entries(getProjectById(targetProjectId)?.pageBlueprints ?? {}).map(
+                ([key, page]) => (
+                  <option key={key} value={key}>
+                    {page.page.title}
+                  </option>
+                )
+              )}
+              {!Object.keys(getProjectById(targetProjectId)?.pageBlueprints ?? {}).length ? (
+                <option value="home">Home</option>
+              ) : null}
             </select>
             <div className="flex gap-2">
               <button className="flex-1 rounded-xl bg-accent text-white py-2" onClick={handleInsert}>
