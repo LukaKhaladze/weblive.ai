@@ -124,4 +124,47 @@ export type Project = {
   createdAt: string;
   inputs: GeneratorInputs;
   blueprint: Blueprint;
+  widgetPages?: WidgetPage[];
+};
+
+export type WidgetField = {
+  key: string;
+  label: string;
+  type: "text" | "textarea" | "url";
+};
+
+export type WidgetDefinition = {
+  id: string;
+  name: string;
+  category:
+    | "Headers"
+    | "Heroes"
+    | "Features"
+    | "About"
+    | "Services"
+    | "Portfolio / Gallery"
+    | "Testimonials"
+    | "Pricing"
+    | "FAQ"
+    | "CTA"
+    | "Footers";
+  tags?: string[];
+  thumbnail?: string;
+  fields: WidgetField[];
+  defaultContent: Record<string, string>;
+};
+
+export type WidgetInstance = {
+  id: string;
+  widgetId: string;
+  name: string;
+  category: WidgetDefinition["category"];
+  content: Record<string, string>;
+  createdAt: string;
+};
+
+export type WidgetPage = {
+  id: string;
+  title: string;
+  widgets: WidgetInstance[];
 };

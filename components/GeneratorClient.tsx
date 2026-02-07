@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import EditableText from "@/components/EditableText";
 import WireframePage from "@/components/WireframePage";
 import TemplatePage from "@/components/TemplatePage";
+import WidgetRenderer from "@/components/widgets/WidgetRenderer";
+import { WIDGET_DEFINITIONS } from "@/lib/widgets/registry";
 import { blueprintToMarkdown } from "@/lib/markdown";
 import {
   Blueprint,
@@ -12,13 +14,16 @@ import {
   Project,
   SectionType,
   SectionUI,
-  UIBlock
+  UIBlock,
+  WidgetInstance,
+  WidgetPage
 } from "@/lib/types";
 import { DENTAL_PACKS } from "@/lib/packs/dentalPacks";
 import {
   getProjectById,
   loadProjects,
-  upsertProject
+  upsertProject,
+  setCurrentProjectId
 } from "@/lib/storage";
 
 const categories = [
@@ -172,6 +177,7 @@ export default function GeneratorClient() {
   const searchParams = useSearchParams();
   const [inputs, setInputs] = useState<GeneratorInputs>(defaultInputs);
   const [blueprint, setBlueprint] = useState<Blueprint | null>(null);
+  const [widgetPages, setWidgetPages] = useState<WidgetPage[]>([]);
   const [status, setStatus] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
@@ -191,9 +197,28 @@ export default function GeneratorClient() {
     if (project) {
       setInputs({ ...defaultInputs, ...project.inputs });
       setBlueprint(project.blueprint);
+      setWidgetPages(
+        project.widgetPages ??
+          project.blueprint.pages.map((page) => ({
+            id: page.slug,
+            title: page.title,
+            widgets: []
+          }))
+      );
       setStatus("Project loaded.");
+      setCurrentProjectId(project.id);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    if (!status) return;
+    const projectId = searchParams.get("projectId");
+    if (!projectId) return;
+    const project = getProjectById(projectId);
+    if (project?.widgetPages) {
+      setWidgetPages(project.widgetPages);
+    }
+  }, [status, searchParams]);
 
   const canGenerate = useMemo(() => {
     return (
@@ -303,9 +328,11 @@ export default function GeneratorClient() {
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
       inputs,
-      blueprint
+      blueprint,
+      widgetPages
     };
     upsertProject(project);
+    setCurrentProjectId(project.id);
     setStatus("Project saved.");
   };
 
@@ -413,6 +440,12 @@ export default function GeneratorClient() {
       pages[0] = page;
       return { ...prev, pages };
     });
+  };
+
+  const updateWidgetPage = (pageId: string, widgets: WidgetInstance[]) => {
+    setWidgetPages((prev) =>
+      prev.map((page) => (page.id === pageId ? { ...page, widgets } : page))
+    );
   };
 
   const updateSeo = (field: "metaTitle" | "metaDescription", value: string) => {
@@ -1284,6 +1317,51 @@ export default function GeneratorClient() {
                       Components: {design.components.join(", ")}
                     </p>
                   </div>
+                </div>
+              )}
+
+              {widgetPages.length > 0 && (
+                <div className="space-y-4 border-t border-ink/10 pt-6">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs uppercase tracking-[0.3em] text-ink/40">
+                      Page Widgets
+                    </p>
+                    <a
+                      className="text-xs text-accent hover:text-accentDark"
+                      href="/widget-references"
+                    >
+                      Open library
+                    </a>
+                  </div>
+                  {(
+                    widgetPages.find(
+                      (page) =>
+                        page.id === inputs.targetPage.toLowerCase() || page.id === "home"
+                    )?.widgets ?? []
+                  ).map(
+                    (widget) => {
+                      const definition = WIDGET_DEFINITIONS.find(
+                        (def) => def.id === widget.widgetId
+                      );
+                      if (!definition) return null;
+                      return (
+                        <WidgetRenderer
+                          key={widget.id}
+                          widget={widget}
+                          definition={definition}
+                          onUpdate={(next) => {
+                            const pageId = inputs.targetPage.toLowerCase() || "home";
+                            const page = widgetPages.find((p) => p.id === pageId) ?? widgetPages[0];
+                            if (!page) return;
+                            const nextWidgets = page.widgets.map((item) =>
+                              item.id === next.id ? next : item
+                            );
+                            updateWidgetPage(page.id, nextWidgets);
+                          }}
+                        />
+                      );
+                    }
+                  )}
                 </div>
               )}
             </div>
