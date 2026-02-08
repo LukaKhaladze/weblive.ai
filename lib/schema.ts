@@ -1,13 +1,6 @@
 import { z } from "zod";
 
-export const CategorySchema = z.enum([
-  "clinic",
-  "lawyer",
-  "ecommerce",
-  "restaurant",
-  "agency",
-  "generic",
-]);
+export const CategorySchema = z.enum(["ecommerce", "informational"]);
 
 export const GoalSchema = z.enum(["calls", "leads", "bookings", "sell", "visit"]);
 

@@ -78,7 +78,7 @@ export default function EditorShell({
       fetch(`/api/projects/${project.edit_token}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ site, seo, input }),
+        body: JSON.stringify({ site, seo }),
       }).catch(() => null);
     }, 800);
 
@@ -220,6 +220,14 @@ export default function EditorShell({
 
       <div className="mx-auto grid max-w-7xl grid-cols-[280px_1fr] gap-6 px-6 py-6">
         <aside className="space-y-6 rounded-[28px] border border-white/10 bg-slate-900 p-5 text-white">
+          <a
+            href="/rules"
+            className="rounded-full border border-white/20 px-4 py-2 text-xs text-white/70"
+            target="_blank"
+            rel="noreferrer"
+          >
+            შაბლონების წესები (დროებითი)
+          </a>
           <div className="space-y-2">
             {tabs.map((tab) => (
               <button

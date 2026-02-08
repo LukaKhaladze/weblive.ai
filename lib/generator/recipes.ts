@@ -14,62 +14,6 @@ export type Recipe = {
 };
 
 export const recipes: Record<Category, Recipe> = {
-  clinic: {
-    pages: [
-      {
-        id: "home",
-        name: "მთავარი",
-        slug: "/",
-        sections: ["header"],
-      },
-      {
-        id: "about",
-        name: "ჩვენ შესახებ",
-        slug: "/about",
-        sections: ["header"],
-      },
-      {
-        id: "services",
-        name: "სერვისები",
-        slug: "/services",
-        sections: ["header"],
-      },
-      {
-        id: "contact",
-        name: "კონტაქტი",
-        slug: "/contact",
-        sections: ["header"],
-      },
-    ],
-  },
-  lawyer: {
-    pages: [
-      {
-        id: "home",
-        name: "მთავარი",
-        slug: "/",
-        sections: ["header"],
-      },
-      {
-        id: "practice",
-        name: "საქმის მიმართულებები",
-        slug: "/practice",
-        sections: ["header"],
-      },
-      {
-        id: "about",
-        name: "ჩვენ შესახებ",
-        slug: "/about",
-        sections: ["header"],
-      },
-      {
-        id: "contact",
-        name: "კონტაქტი",
-        slug: "/contact",
-        sections: ["header"],
-      },
-    ],
-  },
   ecommerce: {
     pages: [
       {
@@ -98,63 +42,7 @@ export const recipes: Record<Category, Recipe> = {
       },
     ],
   },
-  restaurant: {
-    pages: [
-      {
-        id: "home",
-        name: "მთავარი",
-        slug: "/",
-        sections: ["header"],
-      },
-      {
-        id: "menu",
-        name: "მენიუ",
-        slug: "/menu",
-        sections: ["header"],
-      },
-      {
-        id: "about",
-        name: "ჩვენ შესახებ",
-        slug: "/about",
-        sections: ["header"],
-      },
-      {
-        id: "contact",
-        name: "კონტაქტი",
-        slug: "/contact",
-        sections: ["header"],
-      },
-    ],
-  },
-  agency: {
-    pages: [
-      {
-        id: "home",
-        name: "მთავარი",
-        slug: "/",
-        sections: ["header"],
-      },
-      {
-        id: "services",
-        name: "სერვისები",
-        slug: "/services",
-        sections: ["header"],
-      },
-      {
-        id: "work",
-        name: "ნამუშევრები",
-        slug: "/work",
-        sections: ["header"],
-      },
-      {
-        id: "contact",
-        name: "კონტაქტი",
-        slug: "/contact",
-        sections: ["header"],
-      },
-    ],
-  },
-  generic: {
+  informational: {
     pages: [
       {
         id: "home",
@@ -166,6 +54,12 @@ export const recipes: Record<Category, Recipe> = {
         id: "about",
         name: "ჩვენ შესახებ",
         slug: "/about",
+        sections: ["header"],
+      },
+      {
+        id: "blog",
+        name: "ბლოგი",
+        slug: "/blog",
         sections: ["header"],
       },
       {

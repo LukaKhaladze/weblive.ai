@@ -14,14 +14,7 @@ import Contact from "@/widgets/contact";
 import Footer from "@/widgets/footer";
 import ProductGrid from "@/widgets/productGrid";
 
-const businessTags = [
-  "clinic",
-  "lawyer",
-  "ecommerce",
-  "restaurant",
-  "agency",
-  "generic",
-];
+const businessTags = ["ecommerce", "informational"];
 
 const goalLabels: Record<string, string> = {
   calls: "ზარებისთვის",

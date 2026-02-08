@@ -7,12 +7,8 @@ import { recipes } from "@/lib/generator/recipes";
 import { widgetRegistry } from "@/widgets/registry";
 
 const categories = [
-  { id: "clinic", label: "კლინიკა" },
-  { id: "lawyer", label: "იურისტი" },
   { id: "ecommerce", label: "ელ-კომერცია" },
-  { id: "restaurant", label: "რესტორანი" },
-  { id: "agency", label: "სააგენტო" },
-  { id: "generic", label: "ზოგადი" },
+  { id: "informational", label: "საინფორმაციო" },
 ] as const;
 
 const goals = [
@@ -25,7 +21,7 @@ const goals = [
 
 const defaultInput: WizardInput = {
   businessName: "",
-  category: "generic",
+  category: "informational",
   description: "",
   goal: "leads",
   pages: ["home", "about", "contact"],
@@ -69,7 +65,7 @@ export default function BuildPage() {
   const [loading, setLoading] = useState(false);
 
   const availablePages = useMemo(() => {
-    const recipe = recipes[input.category] || recipes.generic;
+    const recipe = recipes[input.category] || recipes.informational;
     return recipe.pages.map((page) => ({ id: page.id, name: page.name }));
   }, [input.category]);
 

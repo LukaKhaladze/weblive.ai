@@ -6,12 +6,8 @@ import { widgetRegistry } from "@/widgets/registry";
 
 const businessFilters = [
   { id: "all", label: "ყველა" },
-  { id: "clinic", label: "კლინიკა" },
-  { id: "lawyer", label: "იურისტი" },
   { id: "ecommerce", label: "ელ-კომერცია" },
-  { id: "restaurant", label: "რესტორანი" },
-  { id: "agency", label: "სააგენტო" },
-  { id: "generic", label: "ზოგადი" },
+  { id: "informational", label: "საინფორმაციო" },
 ] as const;
 
 export default function WidgetReferencesClient() {

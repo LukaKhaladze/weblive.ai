@@ -44,12 +44,8 @@ export function generateRuleBasedSite(
 ): { site: Site; seo: SeoPayload } {
   const rng = createRng(options.seed);
   const categoryLabels: Record<string, string> = {
-    clinic: "კლინიკა",
-    lawyer: "იურისტი",
     ecommerce: "ელ-კომერცია",
-    restaurant: "რესტორანი",
-    agency: "სააგენტო",
-    generic: "ზოგადი",
+    informational: "საინფორმაციო",
   };
   const goalLabels: Record<string, string> = {
     calls: "ზარები",
@@ -58,7 +54,7 @@ export function generateRuleBasedSite(
     sell: "გაყიდვა",
     visit: "ვიზიტები",
   };
-  const recipe = recipes[input.category] ?? recipes.generic;
+  const recipe = recipes[input.category] ?? recipes.informational;
   const fontOptions = ["Space Grotesk", "Sora", "Manrope", "Urbanist", "Plus Jakarta Sans"];
   const radiusOptions = [12, 16, 20, 24];
   const buttonOptions: Array<"solid" | "outline"> = ["solid", "outline"];

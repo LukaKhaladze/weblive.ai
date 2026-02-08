@@ -152,15 +152,7 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
             </>
           )}
 
-          {!isMinimal && CtaButton}
-          {isMinimal && (
-            <div className="flex items-center gap-3">
-              <button className={`rounded-full border px-3 py-2 text-xs ${mutedText}`}>
-                ☰
-              </button>
-              {CtaButton}
-            </div>
-          )}
+          {CtaButton}
         </div>
 
         {!isMinimal && (
