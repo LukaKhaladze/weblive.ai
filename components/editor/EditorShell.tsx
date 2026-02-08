@@ -165,6 +165,49 @@ export default function EditorShell({
     }));
   }
 
+  function updateWidgetEverywhere(widget: WidgetType, updater: (section: any) => any) {
+    setSite((prev) => ({
+      ...prev,
+      pages: prev.pages.map((page) => ({
+        ...page,
+        sections: page.sections.map((section) =>
+          section.widget === widget ? updater(section) : section
+        ),
+      })),
+    }));
+  }
+
+  async function handleSectionUpload(
+    sectionId: string,
+    widgetType: WidgetType,
+    path: string,
+    file: File,
+    kind: "logo" | "images" = "images"
+  ) {
+    const form = new FormData();
+    form.append("file", file);
+    form.append("projectId", project.id);
+    form.append("type", kind);
+    const res = await fetch("/api/upload", { method: "POST", body: form });
+    const data = await res.json();
+    if (!data?.url) return;
+
+    const applyUpdate = (sectionData: any) => ({
+      ...sectionData,
+      props: updateByPath(sectionData.props, path, data.url),
+    });
+
+    if (widgetType === "header" || widgetType === "hero") {
+      updateWidgetEverywhere(widgetType, applyUpdate);
+      if (widgetType === "header") {
+        setInput((prev) => ({ ...prev, logoUrl: data.url }));
+      }
+      return;
+    }
+
+    updateSection(sectionId, applyUpdate);
+  }
+
   function updatePageName(pageId: string, name: string) {
     setSite((prev) => ({
       ...prev,
@@ -675,10 +718,16 @@ export default function EditorShell({
                                 site.theme,
                                 isSelected,
                                 (path, value) => {
-                                  updateSection(section.id, (sectionData) => ({
+                                  const applyUpdate = (sectionData: any) => ({
                                     ...sectionData,
                                     props: updateByPath(sectionData.props, path, value),
-                                  }));
+                                  });
+
+                                  if (section.widget === "header" || section.widget === "hero") {
+                                    updateWidgetEverywhere(section.widget as WidgetType, applyUpdate);
+                                  } else {
+                                    updateSection(section.id, applyUpdate);
+                                  }
 
                                   if (section.widget === "header" && path.startsWith("nav.")) {
                                     const parts = path.split(".");
@@ -699,7 +748,14 @@ export default function EditorShell({
                                   }
                                 }
                               ,
-                                section.widget === "header" ? handleLogoUpload : undefined
+                                (path, file, kind) =>
+                                  handleSectionUpload(
+                                    section.id,
+                                    section.widget as WidgetType,
+                                    path,
+                                    file,
+                                    kind
+                                  )
                               )
                             )}
                           </div>

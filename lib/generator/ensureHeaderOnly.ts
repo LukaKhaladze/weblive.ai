@@ -6,6 +6,9 @@ export function ensureHeaderOnly(site: Site, input: WizardInput): Site {
   const pickVariant = () =>
     headerVariants[Math.floor(Math.random() * headerVariants.length)] || "v1-classic";
   const selectedVariant = pickVariant();
+  const heroVariants = widgetRegistry.hero?.variants || [];
+  const heroVariant =
+    heroVariants[Math.floor(Math.random() * heroVariants.length)] || "v1-split";
 
   const navLinks = site.pages.map((page) => ({ label: page.name, href: page.slug }));
 
@@ -18,6 +21,16 @@ export function ensureHeaderOnly(site: Site, input: WizardInput): Site {
       props: createWidgetProps("header", input, 0),
     };
 
+    const heroSection =
+      page.id === "home"
+        ? page.sections.find((section) => section.widget === "hero") || {
+            id: `sec_hero_${index}_${Math.random().toString(36).slice(2, 6)}`,
+            widget: "hero",
+            variant: heroVariant,
+            props: createWidgetProps("hero", input, 0),
+          }
+        : null;
+
     return {
       ...page,
       sections: [
@@ -25,6 +38,7 @@ export function ensureHeaderOnly(site: Site, input: WizardInput): Site {
           ...nextHeader,
           variant: selectedVariant,
         },
+        ...(heroSection ? [heroSection] : []),
       ],
     };
   });

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Theme } from "@/lib/schema";
 import EditableText from "@/components/EditableText";
-import LogoClickUpload from "@/components/LogoClickUpload";
+import ClickUpload from "@/components/ClickUpload";
 
 type HeaderProps = {
   variant: string;
@@ -16,10 +16,10 @@ type HeaderProps = {
   theme: Theme;
   editable?: boolean;
   onEdit?: (path: string, value: any) => void;
-  onLogoUpload?: (file: File) => void;
+  onImageUpload?: (path: string, file: File, kind?: "logo" | "images") => void;
 };
 
-export default function Header({ variant, props, editable, onEdit, onLogoUpload }: HeaderProps) {
+export default function Header({ variant, props, editable, onEdit, onImageUpload }: HeaderProps) {
   const textStyles = (props as any)._textStyles || {};
   const styleFor = (path: string) => textStyles[path];
   const isDark = variant === "v7-dark";
@@ -79,8 +79,8 @@ export default function Header({ variant, props, editable, onEdit, onLogoUpload 
   const logoSrc = (props.logo || "").trim();
   const LogoBlock = (
     <div className="flex items-center gap-3">
-      {editable && onLogoUpload ? (
-        <LogoClickUpload onUpload={onLogoUpload}>
+      {editable && onImageUpload ? (
+        <ClickUpload onUpload={(file) => onImageUpload("logo", file, "logo")}>
           {logoSrc ? (
             <img
               src={logoSrc}
@@ -96,7 +96,7 @@ export default function Header({ variant, props, editable, onEdit, onLogoUpload 
               responsiveStyle={styleFor("brand")}
             />
           )}
-        </LogoClickUpload>
+        </ClickUpload>
       ) : logoSrc ? (
         <img
           src={logoSrc}

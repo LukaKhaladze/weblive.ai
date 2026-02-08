@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 
-export default function LogoClickUpload({
+export default function ClickUpload({
   onUpload,
   children,
 }: {
