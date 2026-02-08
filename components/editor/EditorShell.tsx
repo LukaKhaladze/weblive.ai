@@ -74,6 +74,39 @@ export default function EditorShell({
   }, [currentPage, selectedSection]);
 
   useEffect(() => {
+    if (!site.pages.length) return;
+    const navLinks = site.pages.map((page) => ({ label: page.name, href: page.slug }));
+    let needsUpdate = false;
+
+    const nextPages = site.pages.map((page) => ({
+      ...page,
+      sections: page.sections.map((section) => {
+        if (section.widget !== "header") return section;
+        const nextNav = navLinks;
+        const nextCta = section.props?.cta?.label ? section.props.cta : { label: "დაწყება", href: "#contact" };
+        const navChanged = JSON.stringify(section.props?.nav || []) !== JSON.stringify(nextNav);
+        const ctaChanged = JSON.stringify(section.props?.cta || {}) !== JSON.stringify(nextCta);
+        if (navChanged || ctaChanged) {
+          needsUpdate = true;
+          return {
+            ...section,
+            props: {
+              ...section.props,
+              nav: nextNav,
+              cta: nextCta,
+            },
+          };
+        }
+        return section;
+      }),
+    }));
+
+    if (needsUpdate) {
+      setSite((prev) => ({ ...prev, pages: nextPages }));
+    }
+  }, [site.pages]);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       fetch(`/api/projects/${project.edit_token}`, {
         method: "PUT",

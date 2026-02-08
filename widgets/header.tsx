@@ -91,9 +91,11 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
     </div>
   );
 
+  const ctaLabel = props.cta?.label || "დაწყება";
+  const ctaHref = props.cta?.href || "#contact";
   const CtaButton = (
     <Link
-      href={props.cta.href}
+      href={ctaHref}
       className={`px-6 py-2.5 text-sm font-semibold shadow ${
         isBordered
           ? "rounded-lg border-2 border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white"
@@ -110,12 +112,12 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
         <EditableText
           as="span"
           className="font-semibold"
-          value={props.cta.label}
+          value={ctaLabel}
           onChange={(value) => onEdit("cta.label", value)}
           responsiveStyle={styleFor("cta.label")}
         />
       ) : (
-        props.cta.label
+        ctaLabel
       )}
     </Link>
   );
