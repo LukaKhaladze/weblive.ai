@@ -376,40 +376,52 @@ export default function EditorShell({
         <main>
           {selectedTab === "ვიჯეტები" ? (
             <div className="space-y-10">
-              {Object.values(widgetRegistry).map((widget) => (
-                <section key={widget.type} className="rounded-[28px] border border-white/10 bg-slate-900 p-6">
-                  <div className="flex items-center justify-between text-white">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.3em] text-white/40">{widget.category}</p>
-                      <h3 className="mt-1 text-lg font-semibold">{widget.name}</h3>
-                    </div>
-                    <span className="text-xs text-white/50">{widget.type}</span>
+              {Object.entries(
+                Object.values(widgetRegistry).reduce((acc, widget) => {
+                  acc[widget.category] = acc[widget.category] || [];
+                  acc[widget.category].push(widget);
+                  return acc;
+                }, {} as Record<string, typeof widgetRegistry[keyof typeof widgetRegistry][]>)
+              ).map(([category, widgets]) => (
+                <section key={category} className="space-y-6">
+                  <div className="rounded-full border border-white/10 bg-slate-900 px-4 py-2 text-xs uppercase tracking-[0.3em] text-white/70">
+                    {category}
                   </div>
-                  <div className="mt-6 space-y-6">
-                    {widget.variants.map((variant) => (
-                      <div key={`${widget.type}-${variant}`} className="rounded-[24px] border border-white/10 bg-white">
-                        <div className="border-b border-slate-200 px-4 py-2 text-xs text-slate-500">
-                          ვარიანტი: {variant}
+                  {widgets.map((widget) => (
+                    <div key={widget.type} className="rounded-[28px] border border-white/10 bg-slate-900 p-6">
+                      <div className="flex items-center justify-between text-white">
+                        <div>
+                          <h3 className="text-lg font-semibold">{widget.name}</h3>
                         </div>
-                        <div
-                          className="p-4"
-                          style={{
-                            "--primary": site.theme.primaryColor,
-                            "--secondary": site.theme.secondaryColor,
-                            "--radius": `${site.theme.radius}px`,
-                          } as React.CSSProperties}
-                        >
-                          {renderWidget(
-                            widget.type as WidgetType,
-                            variant,
-                            widget.defaultProps(input, 0),
-                            site.theme,
-                            false
-                          )}
-                        </div>
+                        <span className="text-xs text-white/50">{widget.type}</span>
                       </div>
-                    ))}
-                  </div>
+                      <div className="mt-6 space-y-6">
+                        {widget.variants.map((variant) => (
+                          <div key={`${widget.type}-${variant}`} className="rounded-[24px] border border-white/10 bg-white">
+                            <div className="border-b border-slate-200 px-4 py-2 text-xs text-slate-500">
+                              ვარიანტი: {variant}
+                            </div>
+                            <div
+                              className="p-4"
+                              style={{
+                                "--primary": site.theme.primaryColor,
+                                "--secondary": site.theme.secondaryColor,
+                                "--radius": `${site.theme.radius}px`,
+                              } as React.CSSProperties}
+                            >
+                              {renderWidget(
+                                widget.type as WidgetType,
+                                variant,
+                                widget.defaultProps(input, 0),
+                                site.theme,
+                                false
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </section>
               ))}
             </div>
