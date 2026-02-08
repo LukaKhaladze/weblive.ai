@@ -166,6 +166,29 @@ export default function EditorShell({
     }
   }
 
+  async function handleLogoUpload(file: File) {
+    const form = new FormData();
+    form.append("file", file);
+    form.append("projectId", project.id);
+    form.append("type", "logo");
+
+    const res = await fetch("/api/upload", { method: "POST", body: form });
+    const data = await res.json();
+    if (!data?.url) return;
+
+    setSite((prev) => ({
+      ...prev,
+      pages: prev.pages.map((page) => ({
+        ...page,
+        sections: page.sections.map((section) =>
+          section.widget === "header"
+            ? { ...section, props: { ...section.props, logo: data.url } }
+            : section
+        ),
+      })),
+    }));
+  }
+
   const expiresAt = new Date(project.expires_at).toLocaleDateString("ka-GE", {
     year: "numeric",
     month: "long",
@@ -261,6 +284,20 @@ export default function EditorShell({
 
           {selectedTab === "თემა" && (
             <div className="space-y-4 text-sm">
+              <label className="block">
+                ლოგო
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="mt-2 w-full rounded-xl border border-white/20 bg-transparent p-2 text-xs"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (!file) return;
+                    handleLogoUpload(file);
+                    event.currentTarget.value = "";
+                  }}
+                />
+              </label>
               <label className="block">
                 მთავარი ფერი
                 <input

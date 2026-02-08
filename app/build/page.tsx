@@ -25,6 +25,8 @@ const defaultInput: WizardInput = {
   description: "",
   goal: "leads",
   pages: ["home", "about", "contact"],
+  includeProductPage: false,
+  products: [],
   brand: {
     primaryColor: "#1c3d7a",
     secondaryColor: "#f4b860",
@@ -45,12 +47,13 @@ const defaultInput: WizardInput = {
   },
 };
 
-const steps = [
+const stepsBase = [
   "ბიზნესის დასახელება",
   "კატეგორია",
   "აღწერა",
   "მთავარი მიზანი",
   "გვერდები",
+  "პროდუქტები",
   "ბრენდის ფერები",
   "ლოგო",
   "კონტაქტი",
@@ -62,16 +65,28 @@ export default function BuildPage() {
   const [step, setStep] = useState(0);
   const [input, setInput] = useState<WizardInput>(defaultInput);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [productFiles, setProductFiles] = useState<Record<number, File | null>>({});
   const [loading, setLoading] = useState(false);
+
+  const steps = useMemo(() => {
+    if (input.category === "ecommerce") return stepsBase;
+    return stepsBase.filter((item) => item !== "პროდუქტები");
+  }, [input.category]);
 
   const availablePages = useMemo(() => {
     const recipe = recipes[input.category] || recipes.informational;
-    return recipe.pages.map((page) => ({ id: page.id, name: page.name }));
+    return recipe.pages
+      .filter((page) => (page.id === "product" ? input.includeProductPage : true))
+      .map((page) => ({ id: page.id, name: page.name }));
   }, [input.category]);
 
   const canNext = () => {
     if (step === 0) return input.businessName.trim().length > 0;
     if (step === 2) return input.description.trim().length > 0;
+    if (steps[step] === "პროდუქტები" && input.category === "ecommerce") {
+      if (!input.includeProductPage) return true;
+      return input.products.length > 0 && input.products.every((p) => p.name && p.price);
+    }
     return true;
   };
 
@@ -124,6 +139,31 @@ export default function BuildPage() {
       }
     }
 
+    if (input.category === "ecommerce" && input.products.length > 0) {
+      const updatedProducts = [...input.products];
+      for (let i = 0; i < updatedProducts.length; i += 1) {
+        const file = productFiles[i];
+        if (!file) continue;
+        const form = new FormData();
+        form.append("file", file);
+        form.append("projectId", data.id);
+        form.append("type", "images");
+        const uploadRes = await fetch("/api/upload", { method: "POST", body: form });
+        const upload = await uploadRes.json();
+        if (upload?.url) {
+          updatedProducts[i] = { ...updatedProducts[i], imageUrl: upload.url };
+        }
+      }
+
+      await fetch(`/api/projects/${data.edit_token}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          input: { ...input, products: updatedProducts },
+        }),
+      });
+    }
+
     router.push(`/e/${data.edit_token}`);
   }
 
@@ -168,7 +208,16 @@ export default function BuildPage() {
                     setInput((prev) => ({
                       ...prev,
                       category: category.id,
-                      pages: recipes[category.id].pages.map((page) => page.id),
+                      includeProductPage:
+                        category.id === "ecommerce" ? prev.includeProductPage : false,
+                      products: category.id === "ecommerce" ? prev.products : [],
+                      pages: recipes[category.id].pages
+                        .filter((page) =>
+                          page.id === "product"
+                            ? category.id === "ecommerce" && prev.includeProductPage
+                            : true
+                        )
+                        .map((page) => page.id),
                     }))
                   }
                 >
@@ -209,7 +258,7 @@ export default function BuildPage() {
             </div>
           )}
 
-          {step === 4 && (
+          {steps[step] === "გვერდები" && (
             <div className="mt-6 space-y-3">
               {availablePages.map((page) => (
                 <label key={page.id} className="flex items-center gap-3 text-sm">
@@ -229,7 +278,98 @@ export default function BuildPage() {
             </div>
           )}
 
-          {step === 5 && (
+          {steps[step] === "პროდუქტები" && input.category === "ecommerce" && (
+            <div className="mt-6 space-y-4">
+              <label className="flex items-center gap-3 text-sm text-white/70">
+                <input
+                  type="checkbox"
+                  checked={input.includeProductPage}
+                  onChange={(event) => {
+                    const checked = event.target.checked;
+                    setInput((prev) => ({
+                      ...prev,
+                      includeProductPage: checked,
+                      pages: checked
+                        ? Array.from(new Set([...prev.pages, "product"]))
+                        : prev.pages.filter((id) => id !== "product"),
+                    }));
+                  }}
+                />
+                დამატება: პროდუქტის ერთეული გვერდი
+              </label>
+              <div className="text-sm text-white/70">რამდენი პროდუქტი გაქვთ? (მაქს. 3)</div>
+              <div className="flex gap-3">
+                {[1, 2, 3].map((count) => (
+                  <button
+                    key={count}
+                    className={`rounded-full border px-4 py-2 text-sm ${
+                      input.products.length === count
+                        ? "border-white bg-white text-slate-900"
+                        : "border-white/10 bg-slate-950 text-white/70"
+                    }`}
+                    onClick={() => {
+                      const next = Array.from({ length: count }).map((_, index) => ({
+                        name: input.products[index]?.name || "",
+                        price: input.products[index]?.price || "",
+                        imageUrl: input.products[index]?.imageUrl || "",
+                      }));
+                      setInput((prev) => ({ ...prev, products: next }));
+                    }}
+                  >
+                    {count}
+                  </button>
+                ))}
+              </div>
+
+              {input.products.map((product, index) => (
+                <div key={index} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
+                  <p className="text-sm font-semibold text-white/80">პროდუქტი {index + 1}</p>
+                  <div className="mt-3 grid gap-3 md:grid-cols-3">
+                    <label className="text-sm text-white/70">
+                      დასახელება
+                      <input
+                        className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 p-3 text-white placeholder-white/40"
+                        value={product.name}
+                        onChange={(event) => {
+                          const next = [...input.products];
+                          next[index] = { ...next[index], name: event.target.value };
+                          setInput((prev) => ({ ...prev, products: next }));
+                        }}
+                      />
+                    </label>
+                    <label className="text-sm text-white/70">
+                      ფასი
+                      <input
+                        className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 p-3 text-white placeholder-white/40"
+                        value={product.price}
+                        onChange={(event) => {
+                          const next = [...input.products];
+                          next[index] = { ...next[index], price: event.target.value };
+                          setInput((prev) => ({ ...prev, products: next }));
+                        }}
+                      />
+                    </label>
+                    <label className="text-sm text-white/70">
+                      სურათი
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(event) =>
+                          setProductFiles((prev) => ({
+                            ...prev,
+                            [index]: event.target.files?.[0] || null,
+                          }))
+                        }
+                        className="mt-2 text-sm"
+                      />
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {steps[step] === "ბრენდის ფერები" && (
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               <label className="text-sm text-white/70">
                 მთავარი ფერი
@@ -266,7 +406,7 @@ export default function BuildPage() {
             </div>
           )}
 
-          {step === 6 && (
+          {steps[step] === "ლოგო" && (
             <div className="mt-6 space-y-3">
               <label className="text-sm text-white/70">ლოგოს ატვირთვა (არასავალდებულო)</label>
               <input
@@ -278,7 +418,7 @@ export default function BuildPage() {
             </div>
           )}
 
-          {step === 7 && (
+          {steps[step] === "კონტაქტი" && (
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               <label className="text-sm text-white/70">
                 ტელეფონი
@@ -335,7 +475,7 @@ export default function BuildPage() {
             </div>
           )}
 
-          {step === 8 && (
+          {steps[step] === "გადახედვა" && (
             <div className="mt-6 space-y-4 text-sm text-white/70">
               <div>
                 <p className="text-xs uppercase tracking-[0.3em] text-white/50">შეჯამება</p>

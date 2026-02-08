@@ -26,6 +26,18 @@ export const WizardInputSchema = z.object({
   description: z.string().min(1),
   goal: GoalSchema,
   pages: z.array(z.string()).min(1),
+  includeProductPage: z.boolean().optional().default(false),
+  products: z
+    .array(
+      z.object({
+        name: z.string().min(1),
+        price: z.string().min(1),
+        imageUrl: z.string().optional().default(""),
+      })
+    )
+    .max(3)
+    .optional()
+    .default([]),
   brand: z.object({
     primaryColor: z.string().min(3),
     secondaryColor: z.string().min(3),

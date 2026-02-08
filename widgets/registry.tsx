@@ -97,7 +97,7 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
       ],
       cta: { label: "დაწყება", href: "#contact" },
       tagline: "AI-ით შექმნილი ვებგვერდი",
-      announcement: "🚀 ახალი შეთავაზება — 50% ფასდაკლება პირველ თვეზე",
+      announcement: "ახალი შეთავაზება — 50% ფასდაკლება პირველ თვეზე",
       logo: input.logoUrl || "",
     }),
     editable: [

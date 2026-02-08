@@ -6,6 +6,8 @@ export function ensureHeaderOnly(site: Site, input: WizardInput): Site {
   const pickVariant = () =>
     headerVariants[Math.floor(Math.random() * headerVariants.length)] || "v1-classic";
 
+  const navLinks = site.pages.map((page) => ({ label: page.name, href: page.slug }));
+
   const pages = site.pages.map((page, index) => {
     const headerSection = page.sections.find((section) => section.widget === "header");
     const nextHeader = headerSection || {
@@ -21,5 +23,20 @@ export function ensureHeaderOnly(site: Site, input: WizardInput): Site {
     };
   });
 
-  return { ...site, pages };
+  return {
+    ...site,
+    pages: pages.map((page) => ({
+      ...page,
+      sections: page.sections.map((section) => {
+        if (section.widget !== "header") return section;
+        return {
+          ...section,
+          props: {
+            ...section.props,
+            nav: navLinks,
+          },
+        };
+      }),
+    })),
+  };
 }

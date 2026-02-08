@@ -29,6 +29,12 @@ export const recipes: Record<Category, Recipe> = {
         sections: ["header"],
       },
       {
+        id: "product",
+        name: "პროდუქტი",
+        slug: "/products/1",
+        sections: ["header"],
+      },
+      {
         id: "about",
         name: "ჩვენ შესახებ",
         slug: "/about",

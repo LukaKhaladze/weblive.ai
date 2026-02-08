@@ -126,19 +126,19 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
           {!isCenteredLogo && LogoBlock}
 
           {(isClassic || isBordered) && (
-            <nav className={`hidden items-center gap-6 text-sm ${mutedText} md:flex`}>
+            <nav className={`flex flex-wrap items-center justify-center gap-4 text-xs ${mutedText} md:text-sm`}>
               {props.nav.map(renderNavItem)}
             </nav>
           )}
 
           {isSplitTagline && (
-            <div className="hidden flex-1 justify-center md:flex">
-              <p className={`text-sm ${mutedText}`}>{props.tagline}</p>
+            <div className="flex-1 text-center">
+              <p className={`text-xs md:text-sm ${mutedText}`}>{props.tagline}</p>
             </div>
           )}
 
           {isCompact && (
-            <nav className={`hidden items-center gap-4 text-sm ${mutedText} md:flex`}>
+            <nav className={`flex flex-wrap items-center justify-center gap-4 text-xs ${mutedText} md:text-sm`}>
               {props.nav.map(renderNavItem)}
             </nav>
           )}
@@ -146,7 +146,7 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
           {isCenteredLogo && (
             <>
               {LogoBlock}
-              <nav className={`hidden items-center gap-6 text-sm ${mutedText} md:flex`}>
+              <nav className={`flex flex-wrap items-center justify-center gap-4 text-xs ${mutedText} md:text-sm`}>
                 {props.nav.map(renderNavItem)}
               </nav>
             </>
@@ -154,12 +154,6 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
 
           {CtaButton}
         </div>
-
-        {!isMinimal && (
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-xs md:hidden">
-            {props.nav.map(renderNavItem)}
-          </div>
-        )}
       </div>
     </header>
   );
