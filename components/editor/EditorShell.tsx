@@ -74,13 +74,24 @@ export default function EditorShell({
   }, [currentPage, selectedSection]);
 
   useEffect(() => {
+    if (input.logoUrl) return;
+    const headerLogo =
+      site.pages
+        .flatMap((page) => page.sections)
+        .find((section) => section.widget === "header")?.props?.logo || "";
+    if (headerLogo) {
+      setInput((prev) => (prev.logoUrl ? prev : { ...prev, logoUrl: headerLogo }));
+    }
+  }, [input.logoUrl, site.pages]);
+
+  useEffect(() => {
     if (!input.logoUrl) return;
     setSite((prev) => ({
       ...prev,
       pages: prev.pages.map((page) => ({
         ...page,
         sections: page.sections.map((section) =>
-          section.widget === "header" && !section.props?.logo
+          section.widget === "header"
             ? { ...section, props: { ...section.props, logo: input.logoUrl } }
             : section
         ),
