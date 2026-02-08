@@ -442,6 +442,8 @@ export default function EditorShell({
                     const textStyles = section.props?._textStyles || {};
                     const activeStyle =
                       (selectedField && textStyles[selectedField.path]?.[styleBreakpoint]) || {};
+                    const availableVariants =
+                      widgetRegistry[section.widget as WidgetType]?.variants || [];
 
                     return (
                     <SectionFrame
@@ -529,6 +531,25 @@ export default function EditorShell({
                                   Mobile
                                 </button>
                               </div>
+                              {availableVariants.length > 1 && (
+                                <button
+                                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    const currentIndex = availableVariants.indexOf(section.variant);
+                                    const nextIndex =
+                                      currentIndex === -1
+                                        ? 0
+                                        : (currentIndex + 1) % availableVariants.length;
+                                    updateSection(section.id, (sectionData) => ({
+                                      ...sectionData,
+                                      variant: availableVariants[nextIndex],
+                                    }));
+                                  }}
+                                >
+                                  დიზაინის შეცვლა
+                                </button>
+                              )}
                               <label className="flex items-center gap-2 whitespace-nowrap">
                                 ფონი
                                 <input
