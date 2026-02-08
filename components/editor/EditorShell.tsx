@@ -74,6 +74,21 @@ export default function EditorShell({
   }, [currentPage, selectedSection]);
 
   useEffect(() => {
+    if (!input.logoUrl) return;
+    setSite((prev) => ({
+      ...prev,
+      pages: prev.pages.map((page) => ({
+        ...page,
+        sections: page.sections.map((section) =>
+          section.widget === "header" && !section.props?.logo
+            ? { ...section, props: { ...section.props, logo: input.logoUrl } }
+            : section
+        ),
+      })),
+    }));
+  }, [input.logoUrl]);
+
+  useEffect(() => {
     if (!site.pages.length) return;
     const navLinks = site.pages.map((page) => ({ label: page.name, href: page.slug }));
     let needsUpdate = false;
