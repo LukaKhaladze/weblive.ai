@@ -79,19 +79,42 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
   const LogoBlock = (
     <div className="flex items-center gap-3">
       {logoSrc ? (
-        <img
-          src={logoSrc}
-          alt={`${props.brand} logo`}
-          className="h-10 w-10 rounded-xl object-contain"
-        />
+        <button
+          type="button"
+          className="inline-flex"
+          onClick={() => {
+            if (!editable || !onEdit) return;
+            const next = window.prompt("შეიყვანე ლოგოს ბმული", logoSrc);
+            if (next && next.trim()) {
+              onEdit("logo", next.trim());
+            }
+          }}
+        >
+          <img
+            src={logoSrc}
+            alt={`${props.brand} logo`}
+            className="h-10 w-10 rounded-xl object-contain"
+          />
+        </button>
       ) : editable && onEdit ? (
-        <EditableText
-          as="span"
-          className={`font-semibold text-lg tracking-tight ${baseText}`}
-          value={props.brand}
-          onChange={(value) => onEdit("brand", value)}
-          responsiveStyle={styleFor("brand")}
-        />
+        <button
+          type="button"
+          className="text-left"
+          onClick={() => {
+            const next = window.prompt("შეიყვანე ლოგოს ბმული", "");
+            if (next && next.trim()) {
+              onEdit("logo", next.trim());
+            }
+          }}
+        >
+          <EditableText
+            as="span"
+            className={`font-semibold text-lg tracking-tight ${baseText}`}
+            value={props.brand}
+            onChange={(value) => onEdit("brand", value)}
+            responsiveStyle={styleFor("brand")}
+          />
+        </button>
       ) : (
         <span className={`font-semibold text-lg tracking-tight ${baseText}`}>{props.brand}</span>
       )}

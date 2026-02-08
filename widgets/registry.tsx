@@ -49,8 +49,6 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
       "v1-classic",
       "v2-compact-right",
       "v3-centered-logo",
-      "v4-split-tagline",
-      "v5-minimal",
       "v6-glass",
       "v9-bordered",
       "v10-announcement",
