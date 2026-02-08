@@ -24,23 +24,30 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
   const isTransparent = variant === "v8-transparent";
   const isGlass = variant === "v6-glass";
   const isBordered = variant === "v9-bordered";
-  const isMinimal = variant === "v5-minimal";
   const isCenteredLogo = variant === "v3-centered-logo";
   const isClassic = variant === "v1-classic";
   const isCompact = variant === "v2-compact-right";
   const isSplitTagline = variant === "v4-split-tagline";
   const isAnnouncement = variant === "v10-announcement";
 
-  const baseText = isDark || isTransparent ? "text-white" : "text-slate-900";
-  const mutedText = isDark || isTransparent ? "text-white/70" : "text-slate-600";
-  const wrapperClasses = [
-    "relative px-6 py-5",
-    isTransparent ? "bg-transparent" : "bg-white",
-    isDark ? "bg-slate-950" : "",
-    isGlass ? "bg-white/60 backdrop-blur border border-white/30" : "",
-    isBordered ? "border border-slate-200" : "",
-    "rounded-[22px]",
+  const baseText = isDark || isTransparent ? "text-white" : "text-neutral-900";
+  const mutedText = isDark || isTransparent ? "text-white/70" : "text-neutral-700";
+
+  const frameClasses = [
+    "rounded-[18px]",
     "shadow-sm",
+    isTransparent ? "bg-transparent" : "bg-white",
+    isDark ? "bg-neutral-900 border border-neutral-800" : "",
+    isGlass ? "bg-white/70 backdrop-blur-md border border-white/20 shadow-lg" : "",
+    isBordered ? "border-2 border-neutral-900" : "border border-neutral-200",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const containerClasses = [
+    "mx-auto flex w-full items-center justify-between gap-6 px-6",
+    isCenteredLogo ? "py-4" : "h-20",
+    variant === "v5-minimal" ? "h-16" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -87,13 +94,17 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
   const CtaButton = (
     <Link
       href={props.cta.href}
-      className={`rounded-full px-4 py-2 text-sm font-semibold shadow ${
-        isBordered || isTransparent
-          ? "border border-white/50 text-white"
+      className={`px-6 py-2.5 text-sm font-semibold shadow ${
+        isBordered
+          ? "rounded-lg border-2 border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white"
+          : isTransparent
+          ? "rounded-lg border-2 border-white text-white hover:bg-white hover:text-neutral-900"
           : isDark
-          ? "bg-white text-slate-900"
-          : "bg-[color:var(--primary)] text-white"
-      } ${isCompact ? "px-5" : ""}`}
+          ? "rounded-lg bg-white text-neutral-900 hover:bg-neutral-100"
+          : isCompact
+          ? "rounded-full bg-neutral-900 text-white hover:bg-neutral-800"
+          : "rounded-lg bg-[color:var(--primary)] text-white hover:opacity-90"
+      }`}
     >
       {editable && onEdit ? (
         <EditableText
@@ -117,43 +128,38 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
         </div>
       )}
 
-      <div className={`mx-auto max-w-6xl ${wrapperClasses}`}>
-        <div
-          className={`flex items-center gap-4 ${
-            isCenteredLogo ? "justify-center" : "justify-between"
-          }`}
-        >
-          {!isCenteredLogo && LogoBlock}
-
-          {(isClassic || isBordered) && (
-            <nav className={`flex flex-wrap items-center justify-center gap-4 text-xs ${mutedText} md:text-sm`}>
-              {props.nav.map(renderNavItem)}
-            </nav>
-          )}
-
-          {isSplitTagline && (
-            <div className="flex-1 text-center">
-              <p className={`text-xs md:text-sm ${mutedText}`}>{props.tagline}</p>
-            </div>
-          )}
-
-          {isCompact && (
-            <nav className={`flex flex-wrap items-center justify-center gap-4 text-xs ${mutedText} md:text-sm`}>
-              {props.nav.map(renderNavItem)}
-            </nav>
-          )}
-
-          {isCenteredLogo && (
-            <>
+      <div className={`mx-auto max-w-6xl ${frameClasses}`}>
+        {isCenteredLogo ? (
+          <div className="px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex-1" />
               {LogoBlock}
-              <nav className={`flex flex-wrap items-center justify-center gap-4 text-xs ${mutedText} md:text-sm`}>
-                {props.nav.map(renderNavItem)}
-              </nav>
-            </>
-          )}
+              <div className="flex-1 flex justify-end">{CtaButton}</div>
+            </div>
+            <nav className={`mt-4 flex flex-wrap items-center justify-center gap-6 pb-2 text-xs ${mutedText} md:text-sm`}>
+              {props.nav.map(renderNavItem)}
+            </nav>
+          </div>
+        ) : (
+          <div className={containerClasses}>
+            {isSplitTagline ? (
+              <div className="flex flex-col">
+                {LogoBlock}
+                {props.tagline && (
+                  <span className={`mt-1 text-xs ${mutedText}`}>{props.tagline}</span>
+                )}
+              </div>
+            ) : (
+              LogoBlock
+            )}
 
-          {CtaButton}
-        </div>
+            <nav className={`flex flex-wrap items-center justify-center gap-6 text-xs ${mutedText} md:text-sm`}>
+              {props.nav.map(renderNavItem)}
+            </nav>
+
+            {CtaButton}
+          </div>
+        )}
       </div>
     </header>
   );
