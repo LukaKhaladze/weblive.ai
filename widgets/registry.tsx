@@ -143,7 +143,7 @@ export function renderWidget(
   theme: Theme,
   editable?: boolean,
   onEdit?: (path: string, value: any) => void,
-  onLogoUpload?: (file: File) => void
+  onImageUpload?: (path: string, file: File, kind?: "logo" | "images") => void
 ) {
   const WidgetComponent = widgetRegistry[widgetType]?.Component;
   if (!WidgetComponent) {
@@ -156,7 +156,7 @@ export function renderWidget(
       theme={theme}
       editable={editable}
       onEdit={onEdit}
-      onLogoUpload={onLogoUpload}
+      onImageUpload={onImageUpload}
     />
   );
 }
