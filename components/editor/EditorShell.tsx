@@ -367,146 +367,169 @@ export default function EditorShell({
           {selectedTab === "ვიჯეტები" && (
             <div className="space-y-4 text-sm">
               <p className="text-white/70">
-                ქვემოთ არის ყველა არსებული ვიჯეტი. ეს სია არის მხოლოდ სანახავად.
+                ქვემოთ ხედავთ ყველა ვიჯეტის სრულ ვიზუალურ პრევიუს (ყველა ვარიანტი).
               </p>
-              <div className="space-y-2">
-                {Object.values(widgetRegistry).map((widget) => (
-                  <div
-                    key={widget.type}
-                    className="rounded-xl border border-white/10 bg-slate-950 px-3 py-2"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold">{widget.name}</span>
-                      <span className="text-xs text-white/50">{widget.type}</span>
-                    </div>
-                    <div className="mt-1 text-xs text-white/60">
-                      ვარიანტები: {widget.variants.join(", ")}
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           )}
         </aside>
 
         <main>
-          <div
-            className={`rounded-[32px] border border-slate-200 bg-white ${
-              viewMode === "mobile" ? "mx-auto max-w-[420px]" : "" 
-            }`}
-            style={{
-              "--primary": site.theme.primaryColor,
-              "--secondary": site.theme.secondaryColor,
-              "--radius": `${site.theme.radius}px`,
-            } as React.CSSProperties}
-          >
-            <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-              <SortableContext items={currentPage.sections.map((section) => section.id)}>
-                <div className="space-y-8 p-4">
-                  {currentPage.sections.map((section, index) => {
-                    const isSelected = section.id === selectedSectionId;
-                    const style = getSectionStyle(section);
-                    const wrapperClasses = [
-                      style.padding === "sm" ? "py-6" : style.padding === "lg" ? "py-16" : "py-10",
-                      style.align === "center" ? "text-center" : "text-left",
-                      style.width === "full" ? "w-full" : "max-w-6xl mx-auto",
-                    ].join(" ");
-                    const wrapperStyle =
-                      style.bg === "none" && !style.bgImage
-                        ? undefined
-                        : {
-                            backgroundColor: style.bg === "none" ? "transparent" : style.bg,
-                            backgroundImage: style.bgImage ? `url(${style.bgImage})` : undefined,
-                            backgroundSize: style.bgImage ? "cover" : undefined,
-                            backgroundPosition: style.bgImage ? "center" : undefined,
-                            backgroundRepeat: style.bgImage ? "no-repeat" : undefined,
-                          };
-                    return (
-                    <SectionFrame
-                      key={section.id}
-                      id={section.id}
-                      selected={isSelected}
-                      onSelect={() => setSelectedSectionId(section.id)}
-                      onDelete={() => handleDeleteSection(section.id)}
-                      onDuplicate={() => {
-                        const copy = { ...section, id: `sec_${Math.random().toString(36).slice(2, 8)}` };
-                        setSite((prev) => ({
-                          ...prev,
-                          pages: prev.pages.map((page) =>
-                            page.id === currentPage.id
-                              ? {
-                                  ...page,
-                                  sections: [
-                                    ...page.sections.slice(0, index + 1),
-                                    copy,
-                                    ...page.sections.slice(index + 1),
-                                  ],
-                                }
-                              : page
-                          ),
-                        }));
-                      }}
-                      onMoveUp={() => {
-                        if (index === 0) return;
-                        setSite((prev) => ({
-                          ...prev,
-                          pages: prev.pages.map((page) =>
-                            page.id === currentPage.id
-                              ? {
-                                  ...page,
-                                  sections: arrayMove(page.sections, index, index - 1),
-                                }
-                              : page
-                          ),
-                        }));
-                      }}
-                      onMoveDown={() => {
-                        if (index === currentPage.sections.length - 1) return;
-                        setSite((prev) => ({
-                          ...prev,
-                          pages: prev.pages.map((page) =>
-                            page.id === currentPage.id
-                              ? {
-                                  ...page,
-                                  sections: arrayMove(page.sections, index, index + 1),
-                                }
-                              : page
-                          ),
-                        }));
-                      }}
-                      toolbar={
-                        null
-                      }
-                      disableControls
-                    >
-                      <div className={wrapperClasses} style={wrapperStyle}>
-                        {style.hidden ? (
-                          <div className="rounded-[20px] border border-dashed border-slate-300 bg-white/60 px-6 py-10 text-center text-sm text-slate-500">
-                            სექცია დამალულია
-                          </div>
-                        ) : (
-                          renderWidget(
-                            section.widget as WidgetType,
-                            section.variant,
-                            section.props,
+          {selectedTab === "ვიჯეტები" ? (
+            <div className="space-y-10">
+              {Object.values(widgetRegistry).map((widget) => (
+                <section key={widget.type} className="rounded-[28px] border border-white/10 bg-slate-900 p-6">
+                  <div className="flex items-center justify-between text-white">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.3em] text-white/40">{widget.category}</p>
+                      <h3 className="mt-1 text-lg font-semibold">{widget.name}</h3>
+                    </div>
+                    <span className="text-xs text-white/50">{widget.type}</span>
+                  </div>
+                  <div className="mt-6 space-y-6">
+                    {widget.variants.map((variant) => (
+                      <div key={`${widget.type}-${variant}`} className="rounded-[24px] border border-white/10 bg-white">
+                        <div className="border-b border-slate-200 px-4 py-2 text-xs text-slate-500">
+                          ვარიანტი: {variant}
+                        </div>
+                        <div
+                          className="p-4"
+                          style={{
+                            "--primary": site.theme.primaryColor,
+                            "--secondary": site.theme.secondaryColor,
+                            "--radius": `${site.theme.radius}px`,
+                          } as React.CSSProperties}
+                        >
+                          {renderWidget(
+                            widget.type as WidgetType,
+                            variant,
+                            widget.defaultProps(input, 0),
                             site.theme,
-                            isSelected,
-                            (path, value) => {
-                              updateSection(section.id, (sectionData) => ({
-                                ...sectionData,
-                                props: updateByPath(sectionData.props, path, value),
-                              }));
-                            }
-                          )
-                        )}
+                            false
+                          )}
+                        </div>
                       </div>
-                    </SectionFrame>
-                    );
-                  })}
-                </div>
-              </SortableContext>
-            </DndContext>
-          </div>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+          ) : (
+            <div
+              className={`rounded-[32px] border border-slate-200 bg-white ${
+                viewMode === "mobile" ? "mx-auto max-w-[420px]" : ""
+              }`}
+              style={{
+                "--primary": site.theme.primaryColor,
+                "--secondary": site.theme.secondaryColor,
+                "--radius": `${site.theme.radius}px`,
+              } as React.CSSProperties}
+            >
+              <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+                <SortableContext items={currentPage.sections.map((section) => section.id)}>
+                  <div className="space-y-8 p-4">
+                    {currentPage.sections.map((section, index) => {
+                      const isSelected = section.id === selectedSectionId;
+                      const style = getSectionStyle(section);
+                      const wrapperClasses = [
+                        style.padding === "sm" ? "py-6" : style.padding === "lg" ? "py-16" : "py-10",
+                        style.align === "center" ? "text-center" : "text-left",
+                        style.width === "full" ? "w-full" : "max-w-6xl mx-auto",
+                      ].join(" ");
+                      const wrapperStyle =
+                        style.bg === "none" && !style.bgImage
+                          ? undefined
+                          : {
+                              backgroundColor: style.bg === "none" ? "transparent" : style.bg,
+                              backgroundImage: style.bgImage ? `url(${style.bgImage})` : undefined,
+                              backgroundSize: style.bgImage ? "cover" : undefined,
+                              backgroundPosition: style.bgImage ? "center" : undefined,
+                              backgroundRepeat: style.bgImage ? "no-repeat" : undefined,
+                            };
+                      return (
+                        <SectionFrame
+                          key={section.id}
+                          id={section.id}
+                          selected={isSelected}
+                          onSelect={() => setSelectedSectionId(section.id)}
+                          onDelete={() => handleDeleteSection(section.id)}
+                          onDuplicate={() => {
+                            const copy = { ...section, id: `sec_${Math.random().toString(36).slice(2, 8)}` };
+                            setSite((prev) => ({
+                              ...prev,
+                              pages: prev.pages.map((page) =>
+                                page.id === currentPage.id
+                                  ? {
+                                      ...page,
+                                      sections: [
+                                        ...page.sections.slice(0, index + 1),
+                                        copy,
+                                        ...page.sections.slice(index + 1),
+                                      ],
+                                    }
+                                  : page
+                              ),
+                            }));
+                          }}
+                          onMoveUp={() => {
+                            if (index === 0) return;
+                            setSite((prev) => ({
+                              ...prev,
+                              pages: prev.pages.map((page) =>
+                                page.id === currentPage.id
+                                  ? {
+                                      ...page,
+                                      sections: arrayMove(page.sections, index, index - 1),
+                                    }
+                                  : page
+                              ),
+                            }));
+                          }}
+                          onMoveDown={() => {
+                            if (index === currentPage.sections.length - 1) return;
+                            setSite((prev) => ({
+                              ...prev,
+                              pages: prev.pages.map((page) =>
+                                page.id === currentPage.id
+                                  ? {
+                                      ...page,
+                                      sections: arrayMove(page.sections, index, index + 1),
+                                    }
+                                  : page
+                              ),
+                            }));
+                          }}
+                          toolbar={null}
+                          disableControls
+                        >
+                          <div className={wrapperClasses} style={wrapperStyle}>
+                            {style.hidden ? (
+                              <div className="rounded-[20px] border border-dashed border-slate-300 bg-white/60 px-6 py-10 text-center text-sm text-slate-500">
+                                სექცია დამალულია
+                              </div>
+                            ) : (
+                              renderWidget(
+                                section.widget as WidgetType,
+                                section.variant,
+                                section.props,
+                                site.theme,
+                                isSelected,
+                                (path, value) => {
+                                  updateSection(section.id, (sectionData) => ({
+                                    ...sectionData,
+                                    props: updateByPath(sectionData.props, path, value),
+                                  }));
+                                }
+                              )
+                            )}
+                          </div>
+                        </SectionFrame>
+                      );
+                    })}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            </div>
+          )}
         </main>
       </div>
 
