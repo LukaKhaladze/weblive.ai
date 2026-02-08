@@ -45,6 +45,26 @@ export default function Hero({
     }
   };
 
+  const renderText = (
+    as: "h2" | "p" | "span",
+    className: string,
+    value: string,
+    path: string
+  ) => {
+    if (editable && onEdit) {
+      return (
+        <EditableText
+          as={as}
+          className={className}
+          value={value}
+          onChange={(next) => onEdit(path, next)}
+        />
+      );
+    }
+    const Tag = as as React.ElementType;
+    return <Tag className={className}>{value}</Tag>;
+  };
+
   const heroStyle = isFullBg
     ? {
         backgroundImage: `url(${props.backgroundImage || props.image?.src || ""})`,
@@ -70,11 +90,6 @@ export default function Hero({
           className="h-full w-full object-cover"
         />
       )}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-slate-900 shadow">
-          ▶
-        </div>
-      </div>
     </div>
   );
 
@@ -82,27 +97,22 @@ export default function Hero({
     <div className="space-y-4">
       {props.eyebrow && (
         <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-          <EditableText
-            as="span"
-            className="font-semibold"
-            value={props.eyebrow}
-            onChange={(value) => onEdit?.("eyebrow", value)}
-          />
+          {renderText("span", "font-semibold", props.eyebrow, "eyebrow")}
         </div>
       )}
-      <EditableText
-        as="h2"
-        className="text-4xl font-semibold tracking-tight text-slate-900"
-        value={props.headline}
-        onChange={(value) => onEdit?.("headline", value)}
-      />
+      {renderText(
+        "h2",
+        "text-4xl font-semibold tracking-tight text-slate-900",
+        props.headline,
+        "headline"
+      )}
       {props.subheadline && (
-        <EditableText
-          as="p"
-          className="max-w-xl text-base text-slate-600"
-          value={props.subheadline}
-          onChange={(value) => onEdit?.("subheadline", value)}
-        />
+        renderText(
+          "p",
+          "max-w-xl text-base text-slate-600",
+          props.subheadline,
+          "subheadline"
+        )
       )}
       <div className="flex flex-wrap items-center gap-3">
         <button
@@ -110,36 +120,22 @@ export default function Hero({
           className="rounded-xl bg-[color:var(--primary)] px-5 py-2.5 text-sm font-semibold text-white"
           onClick={() => handleCtaClick("ctaPrimary.href", primary.href)}
         >
-          <EditableText
-            as="span"
-            className="font-semibold"
-            value={primary.label}
-            onChange={(value) => onEdit?.("ctaPrimary.label", value)}
-          />
+          {renderText("span", "font-semibold", primary.label, "ctaPrimary.label")}
         </button>
         <button
           type="button"
           className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700"
           onClick={() => handleCtaClick("ctaSecondary.href", secondary.href)}
         >
-          <EditableText
-            as="span"
-            className="font-semibold"
-            value={secondary.label}
-            onChange={(value) => onEdit?.("ctaSecondary.label", value)}
-          />
+          {renderText("span", "font-semibold", secondary.label, "ctaSecondary.label")}
         </button>
       </div>
       {props.bullets && props.bullets.length > 0 && (
         <div className="flex flex-wrap gap-4 text-sm text-slate-600">
           {props.bullets.map((item, index) => (
-            <EditableText
-              key={index}
-              as="span"
-              className="flex items-center gap-2"
-              value={item}
-              onChange={(value) => onEdit?.(`bullets.${index}`, value)}
-            />
+            <span key={index} className="flex items-center gap-2">
+              {renderText("span", "flex items-center gap-2", item, `bullets.${index}`)}
+            </span>
           ))}
         </div>
       )}
@@ -154,27 +150,22 @@ export default function Hero({
           <div className="max-w-2xl space-y-5">
             {props.eyebrow && (
               <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white">
-                <EditableText
-                  as="span"
-                  className="font-semibold"
-                  value={props.eyebrow}
-                  onChange={(value) => onEdit?.("eyebrow", value)}
-                />
+                {renderText("span", "font-semibold", props.eyebrow, "eyebrow")}
               </div>
             )}
-            <EditableText
-              as="h2"
-              className="text-4xl font-semibold tracking-tight text-white"
-              value={props.headline}
-              onChange={(value) => onEdit?.("headline", value)}
-            />
+            {renderText(
+              "h2",
+              "text-4xl font-semibold tracking-tight text-white",
+              props.headline,
+              "headline"
+            )}
             {props.subheadline && (
-              <EditableText
-                as="p"
-                className="max-w-xl text-base text-white/80"
-                value={props.subheadline}
-                onChange={(value) => onEdit?.("subheadline", value)}
-              />
+              renderText(
+                "p",
+                "max-w-xl text-base text-white/80",
+                props.subheadline,
+                "subheadline"
+              )
             )}
             <div className="flex flex-wrap items-center gap-3">
               <button
@@ -182,36 +173,22 @@ export default function Hero({
                 className="rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-slate-900"
                 onClick={() => handleCtaClick("ctaPrimary.href", primary.href)}
               >
-                <EditableText
-                  as="span"
-                  className="font-semibold"
-                  value={primary.label}
-                  onChange={(value) => onEdit?.("ctaPrimary.label", value)}
-                />
+                {renderText("span", "font-semibold", primary.label, "ctaPrimary.label")}
               </button>
               <button
                 type="button"
                 className="rounded-xl border border-white/50 px-5 py-2.5 text-sm font-semibold text-white"
                 onClick={() => handleCtaClick("ctaSecondary.href", secondary.href)}
               >
-                <EditableText
-                  as="span"
-                  className="font-semibold"
-                  value={secondary.label}
-                  onChange={(value) => onEdit?.("ctaSecondary.label", value)}
-                />
+                {renderText("span", "font-semibold", secondary.label, "ctaSecondary.label")}
               </button>
             </div>
             {props.bullets && props.bullets.length > 0 && (
               <div className="flex flex-wrap gap-4 text-sm text-white/80">
                 {props.bullets.map((item, index) => (
-                  <EditableText
-                    key={index}
-                    as="span"
-                    className="flex items-center gap-2"
-                    value={item}
-                    onChange={(value) => onEdit?.(`bullets.${index}`, value)}
-                  />
+                  <span key={index} className="flex items-center gap-2">
+                    {renderText("span", "flex items-center gap-2", item, `bullets.${index}`)}
+                  </span>
                 ))}
               </div>
             )}
@@ -263,48 +240,43 @@ export default function Hero({
       <section className="space-y-8">
         <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
           <div className="space-y-5">
-            <EditableText
-              as="h2"
-              className="text-4xl font-semibold tracking-tight text-slate-900"
-              value={props.headline}
-              onChange={(value) => onEdit?.("headline", value)}
-            />
+            {renderText(
+              "h2",
+              "text-4xl font-semibold tracking-tight text-slate-900",
+              props.headline,
+              "headline"
+            )}
             {props.subheadline && (
-              <EditableText
-                as="p"
-                className="max-w-xl text-base text-slate-600"
-                value={props.subheadline}
-                onChange={(value) => onEdit?.("subheadline", value)}
-              />
+              renderText(
+                "p",
+                "max-w-xl text-base text-slate-600",
+                props.subheadline,
+                "subheadline"
+              )
             )}
             <button
               type="button"
               className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white"
               onClick={() => handleCtaClick("ctaPrimary.href", primary.href)}
             >
-              <EditableText
-                as="span"
-                className="font-semibold"
-                value={primary.label}
-                onChange={(value) => onEdit?.("ctaPrimary.label", value)}
-              />
+              {renderText("span", "font-semibold", primary.label, "ctaPrimary.label")}
             </button>
           </div>
           <div className="space-y-6">
             {(props.stats || []).map((stat, index) => (
               <div key={index} className="border-b border-slate-200 pb-4">
-                <EditableText
-                  as="p"
-                  className="text-xs uppercase tracking-[0.3em] text-slate-400"
-                  value={stat.label}
-                  onChange={(value) => onEdit?.(`stats.${index}.label`, value)}
-                />
-                <EditableText
-                  as="p"
-                  className="text-2xl font-semibold text-slate-900"
-                  value={stat.value}
-                  onChange={(value) => onEdit?.(`stats.${index}.value`, value)}
-                />
+                {renderText(
+                  "p",
+                  "text-xs uppercase tracking-[0.3em] text-slate-400",
+                  stat.label,
+                  `stats.${index}.label`
+                )}
+                {renderText(
+                  "p",
+                  "text-2xl font-semibold text-slate-900",
+                  stat.value,
+                  `stats.${index}.value`
+                )}
               </div>
             ))}
           </div>
