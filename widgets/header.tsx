@@ -75,19 +75,21 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
           className="h-10 w-10 rounded-xl object-cover"
         />
       ) : (
-        <div className="h-10 w-10 rounded-xl bg-[color:var(--primary)]/15" />
+        <div className="text-lg font-semibold tracking-tight">{props.brand}</div>
       )}
-      {editable && onEdit ? (
-        <EditableText
-          as="span"
-          className={`font-semibold text-lg tracking-tight ${baseText}`}
-          value={props.brand}
-          onChange={(value) => onEdit("brand", value)}
-          responsiveStyle={styleFor("brand")}
-        />
-      ) : (
-        <span className={`font-semibold text-lg tracking-tight ${baseText}`}>{props.brand}</span>
-      )}
+      {props.logo ? (
+        editable && onEdit ? (
+          <EditableText
+            as="span"
+            className={`font-semibold text-lg tracking-tight ${baseText}`}
+            value={props.brand}
+            onChange={(value) => onEdit("brand", value)}
+            responsiveStyle={styleFor("brand")}
+          />
+        ) : (
+          <span className={`font-semibold text-lg tracking-tight ${baseText}`}>{props.brand}</span>
+        )
+      ) : null}
     </div>
   );
 

@@ -415,6 +415,9 @@ export default function BuildPage() {
                 onChange={(event) => setLogoFile(event.target.files?.[0] || null)}
                 className="text-sm"
               />
+              <p className="text-xs text-white/50">
+                რეკომენდებული ზომა: 120×120px ან 240×240px (კვადრატი).
+              </p>
             </div>
           )}
 

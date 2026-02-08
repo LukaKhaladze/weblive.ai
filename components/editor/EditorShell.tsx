@@ -222,6 +222,20 @@ export default function EditorShell({
     }));
   }
 
+  function removeLogo() {
+    setSite((prev) => ({
+      ...prev,
+      pages: prev.pages.map((page) => ({
+        ...page,
+        sections: page.sections.map((section) =>
+          section.widget === "header"
+            ? { ...section, props: { ...section.props, logo: "" } }
+            : section
+        ),
+      })),
+    }));
+  }
+
   const expiresAt = new Date(project.expires_at).toLocaleDateString("ka-GE", {
     year: "numeric",
     month: "long",
@@ -330,6 +344,18 @@ export default function EditorShell({
                     event.currentTarget.value = "";
                   }}
                 />
+                <p className="mt-2 text-xs text-white/60">
+                  რეკომენდებული ზომა: 120×120px ან 240×240px (კვადრატი).
+                </p>
+                <button
+                  className="mt-2 rounded-full border border-white/20 px-3 py-1 text-xs text-white/70"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    removeLogo();
+                  }}
+                >
+                  ლოგოს წაშლა
+                </button>
               </label>
               <label className="block">
                 მთავარი ფერი
