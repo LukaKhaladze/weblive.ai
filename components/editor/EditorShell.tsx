@@ -46,6 +46,7 @@ export default function EditorShell({
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
   const [styleBreakpoint, setStyleBreakpoint] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [selectedElementPath, setSelectedElementPath] = useState<string | null>(null);
+  const [selectedImagePath, setSelectedImagePath] = useState<string | null>(null);
   const [regenerating, setRegenerating] = useState(false);
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -60,6 +61,7 @@ export default function EditorShell({
 
   const defaultSectionStyle = {
     bg: "none",
+    bgImage: "",
     padding: "md",
     align: "left",
     width: "contained",
@@ -84,6 +86,43 @@ export default function EditorShell({
       ) || [];
     setSelectedElementPath(editableFields[0]?.path || null);
   }, [selectedSection]);
+
+  function findImagePaths(value: any, path: string[] = [], acc: string[] = []) {
+    if (!value || typeof value !== "object") return acc;
+    if (Array.isArray(value)) {
+      value.forEach((item, index) => findImagePaths(item, [...path, String(index)], acc));
+      return acc;
+    }
+
+    Object.entries(value).forEach(([key, val]) => {
+      if (key === "_style" || key === "_textStyles") return;
+      const nextPath = [...path, key];
+      if (key === "logo" && typeof val === "string") {
+        acc.push(nextPath.join("."));
+        return;
+      }
+      if (key === "src" && typeof val === "string") {
+        const parent = path[path.length - 1];
+        if (parent === "image") {
+          acc.push(nextPath.join("."));
+          return;
+        }
+      }
+      if (typeof val === "object") {
+        findImagePaths(val, nextPath, acc);
+      }
+    });
+    return acc;
+  }
+
+  const imagePaths = useMemo(
+    () => (selectedSection ? findImagePaths(selectedSection.props) : []),
+    [selectedSection]
+  );
+
+  useEffect(() => {
+    setSelectedImagePath(imagePaths[0] || null);
+  }, [selectedSectionId, JSON.stringify(imagePaths)]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -179,6 +218,10 @@ export default function EditorShell({
         props: updateByPath(section.props, path, data.url),
       }));
     }
+  }
+
+  async function handleBackgroundUpload(sectionId: string, file: File) {
+    await handleImageUpload(sectionId, "_style.bgImage", file);
   }
 
   function downloadSeo() {
@@ -380,9 +423,15 @@ export default function EditorShell({
                       style.width === "full" ? "w-full" : "max-w-6xl mx-auto",
                     ].join(" ");
                     const wrapperStyle =
-                      style.bg === "none"
+                      style.bg === "none" && !style.bgImage
                         ? undefined
-                        : { backgroundColor: style.bg };
+                        : {
+                            backgroundColor: style.bg === "none" ? "transparent" : style.bg,
+                            backgroundImage: style.bgImage ? `url(${style.bgImage})` : undefined,
+                            backgroundSize: style.bgImage ? "cover" : undefined,
+                            backgroundPosition: style.bgImage ? "center" : undefined,
+                            backgroundRepeat: style.bgImage ? "no-repeat" : undefined,
+                          };
                     const textFields =
                       widgetRegistry[section.widget as WidgetType]?.editable.filter(
                         (field) => field.type === "text" || field.type === "textarea"
@@ -511,6 +560,84 @@ export default function EditorShell({
                                   გამორთვა
                                 </button>
                               </label>
+                              <label className="flex items-center gap-2 whitespace-nowrap">
+                                ფონის სურათი
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  id={`bg-${section.id}`}
+                                  onChange={(event) => {
+                                    const file = event.target.files?.[0];
+                                    if (!file) return;
+                                    handleBackgroundUpload(section.id, file);
+                                    event.currentTarget.value = "";
+                                  }}
+                                />
+                                <button
+                                  className="rounded-full border border-slate-200 bg-white px-2 py-1"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    document.getElementById(`bg-${section.id}`)?.click();
+                                  }}
+                                >
+                                  ატვირთვა
+                                </button>
+                                {style.bgImage && (
+                                  <button
+                                    className="rounded-full border border-slate-200 bg-white px-2 py-1"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      updateSection(section.id, (sectionData) => ({
+                                        ...sectionData,
+                                        props: updateByPath(sectionData.props, "_style", {
+                                          ...style,
+                                          bgImage: "",
+                                        }),
+                                      }));
+                                    }}
+                                  >
+                                    წაშლა
+                                  </button>
+                                )}
+                              </label>
+                              {imagePaths.length > 0 && (
+                                <label className="flex items-center gap-2 whitespace-nowrap">
+                                  სექციის სურათი
+                                  <select
+                                    className="rounded-full border border-slate-200 bg-white px-2 py-1"
+                                    value={selectedImagePath || ""}
+                                    onChange={(event) => setSelectedImagePath(event.target.value)}
+                                  >
+                                    {imagePaths.map((path) => (
+                                      <option key={path} value={path}>
+                                        {path}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    id={`img-${section.id}`}
+                                    onChange={(event) => {
+                                      const file = event.target.files?.[0];
+                                      if (!file || !selectedImagePath) return;
+                                      handleImageUpload(section.id, selectedImagePath, file);
+                                      event.currentTarget.value = "";
+                                    }}
+                                  />
+                                  <button
+                                    className="rounded-full border border-slate-200 bg-white px-2 py-1"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      document.getElementById(`img-${section.id}`)?.click();
+                                    }}
+                                  >
+                                    შეცვლა
+                                  </button>
+                                </label>
+                              )}
                               <label className="flex items-center gap-2 whitespace-nowrap">
                                 შიდა დაშორება
                                 <select
