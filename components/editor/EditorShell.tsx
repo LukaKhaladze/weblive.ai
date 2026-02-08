@@ -35,6 +35,7 @@ export default function EditorShell({
   const [site, setSite] = useState<Site>(project.site);
   const [seo, setSeo] = useState<SeoPayload>(project.seo);
   const [input, setInput] = useState<WizardInput>(project.input);
+  const resolvedLogoUrl = input.logoUrl || project.input.logoUrl || "";
   const [selectedTab, setSelectedTab] = useState<(typeof tabs)[number]>("გვერდები");
   const [selectedPageId, setSelectedPageId] = useState(site.pages[0]?.id);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
@@ -524,7 +525,7 @@ export default function EditorShell({
                             widget.type as WidgetType,
                             variant,
                             headerSample
-                              ? { ...headerSample, logo: input.logoUrl || headerSample.logo || "" }
+                              ? { ...headerSample, logo: resolvedLogoUrl || headerSample.logo || "" }
                               : widget.defaultProps(input, 0),
                             site.theme,
                             false
@@ -637,7 +638,7 @@ export default function EditorShell({
                                 section.widget as WidgetType,
                                 section.variant,
                                 section.widget === "header"
-                                  ? { ...section.props, logo: input.logoUrl || section.props?.logo || "" }
+                                  ? { ...section.props, logo: resolvedLogoUrl || section.props?.logo || "" }
                                   : section.props,
                                 site.theme,
                                 isSelected,
