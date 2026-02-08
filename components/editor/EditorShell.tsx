@@ -111,7 +111,7 @@ export default function EditorShell({
       fetch(`/api/projects/${project.edit_token}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ site, seo }),
+        body: JSON.stringify({ site, seo, input }),
       }).catch(() => null);
     }, 800);
 
@@ -209,6 +209,7 @@ export default function EditorShell({
     const data = await res.json();
     if (!data?.url) return;
 
+    setInput((prev) => ({ ...prev, logoUrl: data.url }));
     setSite((prev) => ({
       ...prev,
       pages: prev.pages.map((page) => ({
@@ -223,6 +224,7 @@ export default function EditorShell({
   }
 
   function removeLogo() {
+    setInput((prev) => ({ ...prev, logoUrl: "" }));
     setSite((prev) => ({
       ...prev,
       pages: prev.pages.map((page) => ({
@@ -379,6 +381,11 @@ export default function EditorShell({
                 >
                   ლოგოს წაშლა
                 </button>
+                {input.logoUrl && (
+                  <p className="mt-2 break-all text-[10px] text-white/40">
+                    მიმდინარე ლოგო: {input.logoUrl}
+                  </p>
+                )}
               </label>
               <label className="block">
                 მთავარი ფერი

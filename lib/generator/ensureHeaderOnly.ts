@@ -33,6 +33,7 @@ export function ensureHeaderOnly(site: Site, input: WizardInput): Site {
           ...section,
           props: {
             ...section.props,
+            logo: section.props?.logo || input.logoUrl || "",
             nav: navLinks,
           },
         };
