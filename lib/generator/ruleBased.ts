@@ -118,15 +118,6 @@ export function generateRuleBasedSite(
           },
         };
       }
-      if (section.widget === "footer") {
-        return {
-          ...section,
-          props: {
-            ...section.props,
-            links: navLinks.slice(0, 3),
-          },
-        };
-      }
       return section;
     }),
   }));
