@@ -44,6 +44,8 @@ export default function EditorShell({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
+  const [styleBreakpoint, setStyleBreakpoint] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [selectedElementPath, setSelectedElementPath] = useState<string | null>(null);
   const sensors = useSensors(useSensor(PointerSensor));
 
   const currentPage = useMemo(
@@ -72,6 +74,15 @@ export default function EditorShell({
       setSelectedSectionId(currentPage.sections[0]?.id || null);
     }
   }, [currentPage, selectedSection]);
+
+  useEffect(() => {
+    if (!selectedSection) return;
+    const editableFields =
+      widgetRegistry[selectedSection.widget as WidgetType]?.editable.filter(
+        (field) => field.type === "text" || field.type === "textarea"
+      ) || [];
+    setSelectedElementPath(editableFields[0]?.path || null);
+  }, [selectedSection]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -343,6 +354,17 @@ export default function EditorShell({
                       style.bg === "none"
                         ? undefined
                         : { backgroundColor: style.bg };
+                    const textFields =
+                      widgetRegistry[section.widget as WidgetType]?.editable.filter(
+                        (field) => field.type === "text" || field.type === "textarea"
+                      ) || [];
+                    const selectedField =
+                      textFields.find((field) => field.path === selectedElementPath) ||
+                      textFields[0];
+                    const textStyles = section.props?._textStyles || {};
+                    const activeStyle =
+                      (selectedField && textStyles[selectedField.path]?.[styleBreakpoint]) || {};
+
                     return (
                     <SectionFrame
                       key={section.id}
@@ -400,6 +422,35 @@ export default function EditorShell({
                         isSelected ? (
                           <div className="border-b border-slate-200 bg-slate-50 px-4 py-2 text-xs text-slate-600">
                             <div className="flex flex-wrap items-center gap-3 overflow-x-auto">
+                              <div className="flex items-center gap-2">
+                                <button
+                                  className={`rounded-full border px-2 py-1 ${styleBreakpoint === "desktop" ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white"}`}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    setStyleBreakpoint("desktop");
+                                  }}
+                                >
+                                  Desktop
+                                </button>
+                                <button
+                                  className={`rounded-full border px-2 py-1 ${styleBreakpoint === "tablet" ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white"}`}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    setStyleBreakpoint("tablet");
+                                  }}
+                                >
+                                  Tablet
+                                </button>
+                                <button
+                                  className={`rounded-full border px-2 py-1 ${styleBreakpoint === "mobile" ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white"}`}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    setStyleBreakpoint("mobile");
+                                  }}
+                                >
+                                  Mobile
+                                </button>
+                              </div>
                               <label className="flex items-center gap-2 whitespace-nowrap">
                                 ფონი
                                 <input
@@ -505,6 +556,190 @@ export default function EditorShell({
                                   }
                                 />
                               </label>
+                              {textFields.length > 0 && (
+                                <>
+                                  <label className="flex items-center gap-2 whitespace-nowrap">
+                                    ელემენტი
+                                    <select
+                                      className="rounded-full border border-slate-200 bg-white px-2 py-1"
+                                      value={selectedField?.path || ""}
+                                      onChange={(event) => setSelectedElementPath(event.target.value)}
+                                    >
+                                      {textFields.map((field) => (
+                                        <option key={field.path} value={field.path}>
+                                          {field.label}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </label>
+                                  <label className="flex items-center gap-2 whitespace-nowrap">
+                                    ფერი
+                                    <input
+                                      type="color"
+                                      value={activeStyle.color || "#111827"}
+                                      onChange={(event) => {
+                                        if (!selectedField) return;
+                                        updateSection(section.id, (sectionData) => {
+                                          const nextStyles = {
+                                            ...(sectionData.props?._textStyles || {}),
+                                            [selectedField.path]: {
+                                              ...(sectionData.props?._textStyles?.[selectedField.path] || {}),
+                                              [styleBreakpoint]: {
+                                                ...(sectionData.props?._textStyles?.[selectedField.path]?.[styleBreakpoint] || {}),
+                                                color: event.target.value,
+                                              },
+                                            },
+                                          };
+                                          return {
+                                            ...sectionData,
+                                            props: updateByPath(sectionData.props, "_textStyles", nextStyles),
+                                          };
+                                        });
+                                      }}
+                                    />
+                                  </label>
+                                  <label className="flex items-center gap-2 whitespace-nowrap">
+                                    ზომა
+                                    <input
+                                      type="number"
+                                      className="w-20 rounded-full border border-slate-200 bg-white px-2 py-1"
+                                      value={activeStyle.fontSize || ""}
+                                      onChange={(event) => {
+                                        if (!selectedField) return;
+                                        const value = Number(event.target.value);
+                                        updateSection(section.id, (sectionData) => {
+                                          const nextStyles = {
+                                            ...(sectionData.props?._textStyles || {}),
+                                            [selectedField.path]: {
+                                              ...(sectionData.props?._textStyles?.[selectedField.path] || {}),
+                                              [styleBreakpoint]: {
+                                                ...(sectionData.props?._textStyles?.[selectedField.path]?.[styleBreakpoint] || {}),
+                                                fontSize: value || undefined,
+                                              },
+                                            },
+                                          };
+                                          return {
+                                            ...sectionData,
+                                            props: updateByPath(sectionData.props, "_textStyles", nextStyles),
+                                          };
+                                        });
+                                      }}
+                                    />
+                                  </label>
+                                  <label className="flex items-center gap-2 whitespace-nowrap">
+                                    Margin Top
+                                    <input
+                                      type="number"
+                                      className="w-20 rounded-full border border-slate-200 bg-white px-2 py-1"
+                                      value={activeStyle.marginTop || ""}
+                                      onChange={(event) => {
+                                        if (!selectedField) return;
+                                        const value = Number(event.target.value);
+                                        updateSection(section.id, (sectionData) => {
+                                          const nextStyles = {
+                                            ...(sectionData.props?._textStyles || {}),
+                                            [selectedField.path]: {
+                                              ...(sectionData.props?._textStyles?.[selectedField.path] || {}),
+                                              [styleBreakpoint]: {
+                                                ...(sectionData.props?._textStyles?.[selectedField.path]?.[styleBreakpoint] || {}),
+                                                marginTop: value || undefined,
+                                              },
+                                            },
+                                          };
+                                          return {
+                                            ...sectionData,
+                                            props: updateByPath(sectionData.props, "_textStyles", nextStyles),
+                                          };
+                                        });
+                                      }}
+                                    />
+                                  </label>
+                                  <label className="flex items-center gap-2 whitespace-nowrap">
+                                    Margin Bottom
+                                    <input
+                                      type="number"
+                                      className="w-20 rounded-full border border-slate-200 bg-white px-2 py-1"
+                                      value={activeStyle.marginBottom || ""}
+                                      onChange={(event) => {
+                                        if (!selectedField) return;
+                                        const value = Number(event.target.value);
+                                        updateSection(section.id, (sectionData) => {
+                                          const nextStyles = {
+                                            ...(sectionData.props?._textStyles || {}),
+                                            [selectedField.path]: {
+                                              ...(sectionData.props?._textStyles?.[selectedField.path] || {}),
+                                              [styleBreakpoint]: {
+                                                ...(sectionData.props?._textStyles?.[selectedField.path]?.[styleBreakpoint] || {}),
+                                                marginBottom: value || undefined,
+                                              },
+                                            },
+                                          };
+                                          return {
+                                            ...sectionData,
+                                            props: updateByPath(sectionData.props, "_textStyles", nextStyles),
+                                          };
+                                        });
+                                      }}
+                                    />
+                                  </label>
+                                  <label className="flex items-center gap-2 whitespace-nowrap">
+                                    Padding Top
+                                    <input
+                                      type="number"
+                                      className="w-20 rounded-full border border-slate-200 bg-white px-2 py-1"
+                                      value={activeStyle.paddingTop || ""}
+                                      onChange={(event) => {
+                                        if (!selectedField) return;
+                                        const value = Number(event.target.value);
+                                        updateSection(section.id, (sectionData) => {
+                                          const nextStyles = {
+                                            ...(sectionData.props?._textStyles || {}),
+                                            [selectedField.path]: {
+                                              ...(sectionData.props?._textStyles?.[selectedField.path] || {}),
+                                              [styleBreakpoint]: {
+                                                ...(sectionData.props?._textStyles?.[selectedField.path]?.[styleBreakpoint] || {}),
+                                                paddingTop: value || undefined,
+                                              },
+                                            },
+                                          };
+                                          return {
+                                            ...sectionData,
+                                            props: updateByPath(sectionData.props, "_textStyles", nextStyles),
+                                          };
+                                        });
+                                      }}
+                                    />
+                                  </label>
+                                  <label className="flex items-center gap-2 whitespace-nowrap">
+                                    Padding Bottom
+                                    <input
+                                      type="number"
+                                      className="w-20 rounded-full border border-slate-200 bg-white px-2 py-1"
+                                      value={activeStyle.paddingBottom || ""}
+                                      onChange={(event) => {
+                                        if (!selectedField) return;
+                                        const value = Number(event.target.value);
+                                        updateSection(section.id, (sectionData) => {
+                                          const nextStyles = {
+                                            ...(sectionData.props?._textStyles || {}),
+                                            [selectedField.path]: {
+                                              ...(sectionData.props?._textStyles?.[selectedField.path] || {}),
+                                              [styleBreakpoint]: {
+                                                ...(sectionData.props?._textStyles?.[selectedField.path]?.[styleBreakpoint] || {}),
+                                                paddingBottom: value || undefined,
+                                              },
+                                            },
+                                          };
+                                          return {
+                                            ...sectionData,
+                                            props: updateByPath(sectionData.props, "_textStyles", nextStyles),
+                                          };
+                                        });
+                                      }}
+                                    />
+                                  </label>
+                                </>
+                              )}
                             </div>
                           </div>
                         ) : null

@@ -16,6 +16,8 @@ type HeroProps = {
 };
 
 export default function Hero({ variant, props, editable, onEdit }: HeroProps) {
+  const textStyles = (props as any)._textStyles || {};
+  const styleFor = (path: string) => textStyles[path];
   const isCentered = variant === "centered";
   const reverse = variant === "split-image-right";
 
@@ -36,6 +38,7 @@ export default function Hero({ variant, props, editable, onEdit }: HeroProps) {
               className="text-4xl font-semibold tracking-tight text-slate-900 md:text-5xl"
               value={props.headline}
               onChange={(value) => onEdit("headline", value)}
+              responsiveStyle={styleFor("headline")}
             />
           ) : (
             <h1 className="text-4xl font-semibold tracking-tight text-slate-900 md:text-5xl">
@@ -48,6 +51,7 @@ export default function Hero({ variant, props, editable, onEdit }: HeroProps) {
               className="text-lg text-slate-600"
               value={props.subheadline}
               onChange={(value) => onEdit("subheadline", value)}
+              responsiveStyle={styleFor("subheadline")}
             />
           ) : (
             <p className="text-lg text-slate-600">{props.subheadline}</p>
@@ -63,6 +67,7 @@ export default function Hero({ variant, props, editable, onEdit }: HeroProps) {
                   className="font-semibold"
                   value={props.ctaText}
                   onChange={(value) => onEdit("ctaText", value)}
+                  responsiveStyle={styleFor("ctaText")}
                 />
               ) : (
                 props.ctaText

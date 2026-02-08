@@ -13,6 +13,8 @@ type FeaturesProps = {
 };
 
 export default function Features({ props, editable, onEdit }: FeaturesProps) {
+  const textStyles = (props as any)._textStyles || {};
+  const styleFor = (path: string) => textStyles[path];
   return (
     <section className="px-6 py-16">
       <div className="mx-auto max-w-6xl rounded-[36px] bg-[color:var(--secondary)]/15 p-10">
@@ -22,6 +24,7 @@ export default function Features({ props, editable, onEdit }: FeaturesProps) {
             className="text-3xl font-semibold text-slate-900"
             value={props.title}
             onChange={(value) => onEdit("title", value)}
+            responsiveStyle={styleFor("title")}
           />
         ) : (
           <h2 className="text-3xl font-semibold text-slate-900">{props.title}</h2>
@@ -39,6 +42,7 @@ export default function Features({ props, editable, onEdit }: FeaturesProps) {
                     next[index] = { ...next[index], title: value };
                     onEdit("items", next);
                   }}
+                  responsiveStyle={styleFor("items")}
                 />
               ) : (
                 <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
@@ -53,6 +57,7 @@ export default function Features({ props, editable, onEdit }: FeaturesProps) {
                     next[index] = { ...next[index], desc: value };
                     onEdit("items", next);
                   }}
+                  responsiveStyle={styleFor("items")}
                 />
               ) : (
                 <p className="text-sm text-slate-600">{item.desc}</p>

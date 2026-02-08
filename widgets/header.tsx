@@ -16,6 +16,8 @@ type HeaderProps = {
 };
 
 export default function Header({ variant, props, editable, onEdit }: HeaderProps) {
+  const textStyles = (props as any)._textStyles || {};
+  const styleFor = (path: string) => textStyles[path];
   const renderNavItem = (item: { label: string; href: string }) => {
     if (editable) {
       return (
@@ -50,6 +52,7 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
               className="font-semibold text-lg tracking-tight"
               value={props.brand}
               onChange={(value) => onEdit("brand", value)}
+              responsiveStyle={styleFor("brand")}
             />
           ) : (
             <span className="font-semibold text-lg tracking-tight">{props.brand}</span>
@@ -66,6 +69,7 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
                 className="font-semibold"
                 value={props.cta.label}
                 onChange={(value) => onEdit("cta.label", value)}
+                responsiveStyle={styleFor("cta.label")}
               />
             ) : (
               props.cta.label

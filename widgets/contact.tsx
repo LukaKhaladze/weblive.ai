@@ -16,6 +16,8 @@ type ContactProps = {
 };
 
 export default function Contact({ variant, props, editable, onEdit }: ContactProps) {
+  const textStyles = (props as any)._textStyles || {};
+  const styleFor = (path: string) => textStyles[path];
   const centered = variant === "centered";
   return (
     <section id="contact" className="px-6 py-16">
@@ -30,6 +32,7 @@ export default function Contact({ variant, props, editable, onEdit }: ContactPro
             className="text-3xl font-semibold text-slate-900"
             value={props.title}
             onChange={(value) => onEdit("title", value)}
+            responsiveStyle={styleFor("title")}
           />
         ) : (
           <h2 className="text-3xl font-semibold text-slate-900">{props.title}</h2>
@@ -47,6 +50,7 @@ export default function Contact({ variant, props, editable, onEdit }: ContactPro
                 className="mt-2 font-semibold text-slate-900"
                 value={props.phone}
                 onChange={(value) => onEdit("phone", value)}
+                responsiveStyle={styleFor("phone")}
               />
             ) : (
               <p className="mt-2 font-semibold text-slate-900">{props.phone}</p>
@@ -60,6 +64,7 @@ export default function Contact({ variant, props, editable, onEdit }: ContactPro
                 className="mt-2 font-semibold text-slate-900"
                 value={props.email}
                 onChange={(value) => onEdit("email", value)}
+                responsiveStyle={styleFor("email")}
               />
             ) : (
               <p className="mt-2 font-semibold text-slate-900">{props.email}</p>
@@ -73,6 +78,7 @@ export default function Contact({ variant, props, editable, onEdit }: ContactPro
                 className="mt-2 font-semibold text-slate-900"
                 value={props.address}
                 onChange={(value) => onEdit("address", value)}
+                responsiveStyle={styleFor("address")}
               />
             ) : (
               <p className="mt-2 font-semibold text-slate-900">{props.address}</p>
@@ -86,6 +92,7 @@ export default function Contact({ variant, props, editable, onEdit }: ContactPro
                 className="mt-2 font-semibold text-slate-900"
                 value={props.hours}
                 onChange={(value) => onEdit("hours", value)}
+                responsiveStyle={styleFor("hours")}
               />
             ) : (
               <p className="mt-2 font-semibold text-slate-900">{props.hours}</p>

@@ -13,6 +13,8 @@ type TestimonialsProps = {
 };
 
 export default function Testimonials({ props, editable, onEdit }: TestimonialsProps) {
+  const textStyles = (props as any)._textStyles || {};
+  const styleFor = (path: string) => textStyles[path];
   return (
     <section className="px-6 py-16">
       <div className="mx-auto max-w-6xl">
@@ -22,6 +24,7 @@ export default function Testimonials({ props, editable, onEdit }: TestimonialsPr
             className="text-3xl font-semibold text-slate-900"
             value={props.title}
             onChange={(value) => onEdit("title", value)}
+            responsiveStyle={styleFor("title")}
           />
         ) : (
           <h2 className="text-3xl font-semibold text-slate-900">{props.title}</h2>
@@ -42,6 +45,7 @@ export default function Testimonials({ props, editable, onEdit }: TestimonialsPr
                     next[index] = { ...next[index], quote: value };
                     onEdit("items", next);
                   }}
+                  responsiveStyle={styleFor("items")}
                 />
               ) : (
                 <p className="text-slate-700">“{item.quote}”</p>
@@ -57,6 +61,7 @@ export default function Testimonials({ props, editable, onEdit }: TestimonialsPr
                       next[index] = { ...next[index], name: value };
                       onEdit("items", next);
                     }}
+                    responsiveStyle={styleFor("items")}
                   />
                 ) : (
                   <strong className="text-slate-900">{item.name}</strong>
@@ -72,6 +77,7 @@ export default function Testimonials({ props, editable, onEdit }: TestimonialsPr
                       next[index] = { ...next[index], role: value };
                       onEdit("items", next);
                     }}
+                    responsiveStyle={styleFor("items")}
                   />
                 ) : (
                   item.role

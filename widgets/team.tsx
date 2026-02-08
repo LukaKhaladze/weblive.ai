@@ -13,6 +13,8 @@ type TeamProps = {
 };
 
 export default function Team({ props, editable, onEdit }: TeamProps) {
+  const textStyles = (props as any)._textStyles || {};
+  const styleFor = (path: string) => textStyles[path];
   return (
     <section className="px-6 py-16">
       <div className="mx-auto max-w-6xl">
@@ -22,6 +24,7 @@ export default function Team({ props, editable, onEdit }: TeamProps) {
             className="text-3xl font-semibold text-slate-900"
             value={props.title}
             onChange={(value) => onEdit("title", value)}
+            responsiveStyle={styleFor("title")}
           />
         ) : (
           <h2 className="text-3xl font-semibold text-slate-900">{props.title}</h2>
@@ -43,6 +46,7 @@ export default function Team({ props, editable, onEdit }: TeamProps) {
                     next[index] = { ...next[index], name: value };
                     onEdit("members", next);
                   }}
+                  responsiveStyle={styleFor("members")}
                 />
               ) : (
                 <h3 className="mt-4 text-lg font-semibold text-slate-900">{member.name}</h3>
@@ -57,6 +61,7 @@ export default function Team({ props, editable, onEdit }: TeamProps) {
                     next[index] = { ...next[index], role: value };
                     onEdit("members", next);
                   }}
+                  responsiveStyle={styleFor("members")}
                 />
               ) : (
                 <p className="text-sm text-slate-500">{member.role}</p>
@@ -71,6 +76,7 @@ export default function Team({ props, editable, onEdit }: TeamProps) {
                     next[index] = { ...next[index], bio: value };
                     onEdit("members", next);
                   }}
+                  responsiveStyle={styleFor("members")}
                 />
               ) : (
                 <p className="mt-3 text-sm text-slate-600">{member.bio}</p>

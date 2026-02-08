@@ -13,6 +13,8 @@ type FaqProps = {
 };
 
 export default function Faq({ props, editable, onEdit }: FaqProps) {
+  const textStyles = (props as any)._textStyles || {};
+  const styleFor = (path: string) => textStyles[path];
   return (
     <section className="px-6 py-16">
       <div className="mx-auto max-w-6xl">
@@ -22,6 +24,7 @@ export default function Faq({ props, editable, onEdit }: FaqProps) {
             className="text-3xl font-semibold text-slate-900"
             value={props.title}
             onChange={(value) => onEdit("title", value)}
+            responsiveStyle={styleFor("title")}
           />
         ) : (
           <h2 className="text-3xl font-semibold text-slate-900">{props.title}</h2>
@@ -42,6 +45,7 @@ export default function Faq({ props, editable, onEdit }: FaqProps) {
                     next[index] = { ...next[index], q: value };
                     onEdit("items", next);
                   }}
+                  responsiveStyle={styleFor("items")}
                 />
               ) : (
                 <p className="font-semibold text-slate-900">{item.q}</p>
@@ -56,6 +60,7 @@ export default function Faq({ props, editable, onEdit }: FaqProps) {
                     next[index] = { ...next[index], a: value };
                     onEdit("items", next);
                   }}
+                  responsiveStyle={styleFor("items")}
                 />
               ) : (
                 <p className="mt-2 text-sm text-slate-600">{item.a}</p>

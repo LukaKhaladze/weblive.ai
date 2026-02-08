@@ -23,3 +23,34 @@ img {
   max-width: 100%;
   height: auto;
 }
+
+.weblive-text {
+  color: var(--text-color-d, inherit);
+  font-size: var(--font-size-d, inherit);
+  margin-top: var(--mt-d, initial);
+  margin-bottom: var(--mb-d, initial);
+  padding-top: var(--pt-d, 0);
+  padding-bottom: var(--pb-d, 0);
+}
+
+@media (max-width: 1024px) {
+  .weblive-text {
+    color: var(--text-color-t, var(--text-color-d, inherit));
+    font-size: var(--font-size-t, var(--font-size-d, inherit));
+    margin-top: var(--mt-t, var(--mt-d, initial));
+    margin-bottom: var(--mb-t, var(--mb-d, initial));
+    padding-top: var(--pt-t, var(--pt-d, 0));
+    padding-bottom: var(--pb-t, var(--pb-d, 0));
+  }
+}
+
+@media (max-width: 640px) {
+  .weblive-text {
+    color: var(--text-color-m, var(--text-color-t, var(--text-color-d, inherit)));
+    font-size: var(--font-size-m, var(--font-size-t, var(--font-size-d, inherit)));
+    margin-top: var(--mt-m, var(--mt-t, var(--mt-d, initial)));
+    margin-bottom: var(--mb-m, var(--mb-t, var(--mb-d, initial)));
+    padding-top: var(--pt-m, var(--pt-t, var(--pt-d, 0)));
+    padding-bottom: var(--pb-m, var(--pb-t, var(--pb-d, 0)));
+  }
+}

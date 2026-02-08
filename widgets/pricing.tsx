@@ -13,6 +13,8 @@ type PricingProps = {
 };
 
 export default function Pricing({ props, editable, onEdit }: PricingProps) {
+  const textStyles = (props as any)._textStyles || {};
+  const styleFor = (path: string) => textStyles[path];
   return (
     <section className="px-6 py-16">
       <div className="mx-auto max-w-6xl">
@@ -22,6 +24,7 @@ export default function Pricing({ props, editable, onEdit }: PricingProps) {
             className="text-3xl font-semibold text-slate-900"
             value={props.title}
             onChange={(value) => onEdit("title", value)}
+            responsiveStyle={styleFor("title")}
           />
         ) : (
           <h2 className="text-3xl font-semibold text-slate-900">{props.title}</h2>
@@ -44,6 +47,7 @@ export default function Pricing({ props, editable, onEdit }: PricingProps) {
                     next[index] = { ...next[index], name: value };
                     onEdit("tiers", next);
                   }}
+                  responsiveStyle={styleFor("tiers")}
                 />
               ) : (
                 <h3 className="text-lg font-semibold text-slate-900">{tier.name}</h3>
@@ -58,6 +62,7 @@ export default function Pricing({ props, editable, onEdit }: PricingProps) {
                     next[index] = { ...next[index], price: value };
                     onEdit("tiers", next);
                   }}
+                  responsiveStyle={styleFor("tiers")}
                 />
               ) : (
                 <p className="mt-2 text-3xl font-semibold text-slate-900">{tier.price}</p>
@@ -72,6 +77,7 @@ export default function Pricing({ props, editable, onEdit }: PricingProps) {
                     next[index] = { ...next[index], desc: value };
                     onEdit("tiers", next);
                   }}
+                  responsiveStyle={styleFor("tiers")}
                 />
               ) : (
                 <p className="mt-3 text-sm text-slate-600">{tier.desc}</p>

@@ -13,6 +13,8 @@ type LogosStripProps = {
 };
 
 export default function LogosStrip({ props, editable, onEdit }: LogosStripProps) {
+  const textStyles = (props as any)._textStyles || {};
+  const styleFor = (path: string) => textStyles[path];
   return (
     <section className="px-6 py-10">
       <div className="mx-auto max-w-6xl rounded-[32px] border border-slate-200 bg-white/70 px-8 py-6 shadow-sm">
@@ -22,6 +24,7 @@ export default function LogosStrip({ props, editable, onEdit }: LogosStripProps)
             className="text-sm text-slate-500"
             value={props.title}
             onChange={(value) => onEdit("title", value)}
+            responsiveStyle={styleFor("title")}
           />
         ) : (
           <p className="text-sm text-slate-500">{props.title}</p>
@@ -39,6 +42,7 @@ export default function LogosStrip({ props, editable, onEdit }: LogosStripProps)
                   next[index] = value;
                   onEdit("logos", next);
                 }}
+                responsiveStyle={styleFor("logos")}
               />
             ) : (
               <span key={logo}>{logo}</span>

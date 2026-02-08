@@ -13,6 +13,8 @@ type BlogPreviewProps = {
 };
 
 export default function BlogPreview({ props, editable, onEdit }: BlogPreviewProps) {
+  const textStyles = (props as any)._textStyles || {};
+  const styleFor = (path: string) => textStyles[path];
   return (
     <section className="px-6 py-16">
       <div className="mx-auto max-w-6xl">
@@ -22,6 +24,7 @@ export default function BlogPreview({ props, editable, onEdit }: BlogPreviewProp
             className="text-3xl font-semibold text-slate-900"
             value={props.title}
             onChange={(value) => onEdit("title", value)}
+            responsiveStyle={styleFor("title")}
           />
         ) : (
           <h2 className="text-3xl font-semibold text-slate-900">{props.title}</h2>
@@ -42,6 +45,7 @@ export default function BlogPreview({ props, editable, onEdit }: BlogPreviewProp
                     next[index] = { ...next[index], date: value };
                     onEdit("posts", next);
                   }}
+                  responsiveStyle={styleFor("posts")}
                 />
               ) : (
                 <p className="text-xs uppercase tracking-[0.3em] text-slate-400">{post.date}</p>
@@ -56,6 +60,7 @@ export default function BlogPreview({ props, editable, onEdit }: BlogPreviewProp
                     next[index] = { ...next[index], title: value };
                     onEdit("posts", next);
                   }}
+                  responsiveStyle={styleFor("posts")}
                 />
               ) : (
                 <h3 className="mt-3 text-lg font-semibold text-slate-900">{post.title}</h3>
@@ -70,6 +75,7 @@ export default function BlogPreview({ props, editable, onEdit }: BlogPreviewProp
                     next[index] = { ...next[index], excerpt: value };
                     onEdit("posts", next);
                   }}
+                  responsiveStyle={styleFor("posts")}
                 />
               ) : (
                 <p className="mt-2 text-sm text-slate-600">{post.excerpt}</p>

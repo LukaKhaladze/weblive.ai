@@ -16,6 +16,8 @@ type FooterProps = {
 };
 
 export default function Footer({ variant, props, editable, onEdit }: FooterProps) {
+  const textStyles = (props as any)._textStyles || {};
+  const styleFor = (path: string) => textStyles[path];
   const minimal = variant === "minimal";
   return (
     <footer className="px-6 py-12">
@@ -32,6 +34,7 @@ export default function Footer({ variant, props, editable, onEdit }: FooterProps
                 className="text-lg font-semibold text-slate-900"
                 value={props.brand}
                 onChange={(value) => onEdit("brand", value)}
+                responsiveStyle={styleFor("brand")}
               />
             ) : (
               <h3 className="text-lg font-semibold text-slate-900">{props.brand}</h3>
@@ -42,6 +45,7 @@ export default function Footer({ variant, props, editable, onEdit }: FooterProps
                 className="mt-2 text-sm text-slate-600"
                 value={props.tagline}
                 onChange={(value) => onEdit("tagline", value)}
+                responsiveStyle={styleFor("tagline")}
               />
             ) : (
               <p className="mt-2 text-sm text-slate-600">{props.tagline}</p>
