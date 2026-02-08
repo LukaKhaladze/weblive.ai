@@ -136,6 +136,9 @@ export default function BuildPage() {
             site: updatedSite,
           }),
         });
+      } else {
+        console.error("Logo upload failed:", upload);
+        alert("ლოგოს ატვირთვა ვერ შესრულდა. სცადე ხელახლა ან ატვირთე მოგვიანებით რედაქტორში.");
       }
     }
 
