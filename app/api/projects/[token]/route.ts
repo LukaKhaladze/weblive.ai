@@ -66,6 +66,27 @@ export async function PUT(req: Request, { params }: { params: { token: string } 
     updates.seo = parsedSeo.data;
   }
 
+  const logoFromSite = updates.site
+    ? updates.site.pages
+        .flatMap((page: any) => page.sections)
+        .find((section: any) => section.widget === "header")?.props?.logo || ""
+    : "";
+
+  if (logoFromSite && !updates.input?.logoUrl) {
+    if (!updates.input) {
+      const { data: existingInput } = await supabaseServer
+        .from("projects")
+        .select("input")
+        .eq("edit_token", params.token)
+        .single();
+      if (existingInput?.input) {
+        updates.input = { ...existingInput.input, logoUrl: logoFromSite };
+      }
+    } else {
+      updates.input = { ...updates.input, logoUrl: logoFromSite };
+    }
+  }
+
   if (updates.input?.logoUrl && !updates.site) {
     const { data: existing } = await supabaseServer
       .from("projects")

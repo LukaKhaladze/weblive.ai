@@ -66,11 +66,12 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
     );
   };
 
+  const logoSrc = (props.logo || "").trim();
   const LogoBlock = (
     <div className="flex items-center gap-3">
-      {props.logo ? (
+      {logoSrc ? (
         <img
-          src={props.logo}
+          src={logoSrc}
           alt={`${props.brand} logo`}
           className="h-10 w-10 rounded-xl object-contain"
         />

@@ -21,7 +21,12 @@ export default function PreviewRenderer({
     >
       {page.sections.map((section) => (
         <div key={section.id}>
-          {renderWidget(section.widget as WidgetType, section.variant, section.props, site.theme)}
+          {renderWidget(
+            section.widget as WidgetType,
+            section.variant,
+            section.props,
+            site.theme
+          )}
         </div>
       ))}
     </div>

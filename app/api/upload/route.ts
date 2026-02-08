@@ -37,5 +37,42 @@ export async function POST(req: Request) {
     .from("weblive-assets")
     .createSignedUrl(path, 60 * 60 * 24 * 7);
 
-  return NextResponse.json({ path, url: signed?.signedUrl || "" });
+  const signedUrl = signed?.signedUrl || "";
+
+  if (safeType === "logo" && signedUrl) {
+    const { data: existingProject } = await supabaseServer
+      .from("projects")
+      .select("input, site")
+      .eq("id", projectId)
+      .single();
+
+    if (existingProject?.input) {
+      const updatedInput = { ...existingProject.input, logoUrl: signedUrl };
+      let updatedSite = existingProject.site;
+      if (existingProject.site?.pages) {
+        updatedSite = {
+          ...existingProject.site,
+          pages: existingProject.site.pages.map((page: any) => ({
+            ...page,
+            sections: page.sections.map((section: any) =>
+              section.widget === "header"
+                ? { ...section, props: { ...section.props, logo: signedUrl } }
+                : section
+            ),
+          })),
+        };
+      }
+
+      await supabaseServer
+        .from("projects")
+        .update({
+          input: updatedInput,
+          site: updatedSite,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", projectId);
+    }
+  }
+
+  return NextResponse.json({ path, url: signedUrl });
 }
