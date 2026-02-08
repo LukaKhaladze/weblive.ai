@@ -38,7 +38,17 @@ export function ensureHeaderOnly(site: Site, input: WizardInput): Site {
           ...nextHeader,
           variant: selectedVariant,
         },
-        ...(heroSection ? [heroSection] : []),
+        ...(heroSection
+          ? [
+              {
+                ...heroSection,
+                props: {
+                  ...createWidgetProps("hero", input, 0),
+                  ...heroSection.props,
+                },
+              },
+            ]
+          : []),
       ],
     };
   });

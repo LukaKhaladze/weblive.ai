@@ -241,7 +241,9 @@ export async function POST(req: Request) {
                 type: "text",
                 text:
                   "You are an AI website planner. Return ONLY structured JSON that matches the provided schema. " +
-                  "Write all copy in Georgian. Use only the provided widget types and variants. " +
+                  "Write all copy in Georgian with correct grammar and natural tone. " +
+                  "Use the business description, services, target audience, location, and tone to craft copy. " +
+                  "Use only the provided widget types and variants. " +
                   "Create a unique layout each time with different section order and variants. No HTML.",
               },
             ],

@@ -23,6 +23,10 @@ const defaultInput: WizardInput = {
   businessName: "",
   category: "informational",
   description: "",
+  services: "",
+  targetAudience: "",
+  location: "",
+  tone: "",
   goal: "leads",
   pages: ["home", "about", "contact"],
   includeProductPage: false,
@@ -51,6 +55,7 @@ const stepsBase = [
   "ბიზნესის დასახელება",
   "კატეგორია",
   "აღწერა",
+  "დეტალები",
   "მთავარი მიზანი",
   "გვერდები",
   "პროდუქტები",
@@ -243,7 +248,48 @@ export default function BuildPage() {
             </div>
           )}
 
-          {step === 3 && (
+          {steps[step] === "დეტალები" && (
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              <label className="text-sm text-white/70">
+                სერვისები (ჩაწერე მძიმით)
+                <input
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  value={input.services}
+                  onChange={(event) => setInput({ ...input, services: event.target.value })}
+                  placeholder="თმის მოვლა, მაკიაჟი, მანიკური"
+                />
+              </label>
+              <label className="text-sm text-white/70">
+                სამიზნე აუდიტორია
+                <input
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  value={input.targetAudience}
+                  onChange={(event) => setInput({ ...input, targetAudience: event.target.value })}
+                  placeholder="ქალები 20-45"
+                />
+              </label>
+              <label className="text-sm text-white/70">
+                ლოკაცია
+                <input
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  value={input.location}
+                  onChange={(event) => setInput({ ...input, location: event.target.value })}
+                  placeholder="თბილისი, ვაკე"
+                />
+              </label>
+              <label className="text-sm text-white/70">
+                ტონი / სტილი
+                <input
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  value={input.tone}
+                  onChange={(event) => setInput({ ...input, tone: event.target.value })}
+                  placeholder="ელეგანტური, პრემიუმ"
+                />
+              </label>
+            </div>
+          )}
+
+          {steps[step] === "მთავარი მიზანი" && (
             <div className="mt-6 grid gap-3 md:grid-cols-5">
               {goals.map((goal) => (
                 <button

@@ -52,8 +52,6 @@ export default function EditorShell({
   const [shareOpen, setShareOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
   const [regenerating, setRegenerating] = useState(false);
-  const [publishing, setPublishing] = useState(false);
-  const [lastPublishedAt, setLastPublishedAt] = useState<string | null>(null);
   const sensors = useSensors(useSensor(PointerSensor));
 
   const currentPage = useMemo(
@@ -282,25 +280,6 @@ export default function EditorShell({
     }
   }
 
-  async function handlePublish() {
-    if (publishing) return;
-    setPublishing(true);
-    try {
-      const res = await fetch(`/api/projects/${project.edit_token}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ site, seo, input, status: "published" }),
-      });
-      if (!res.ok) {
-        throw new Error("Publish failed");
-      }
-      setLastPublishedAt(new Date().toLocaleTimeString("ka-GE"));
-    } catch (error) {
-      alert(error instanceof Error ? error.message : "Publish failed");
-    } finally {
-      setPublishing(false);
-    }
-  }
 
   async function handleLogoUpload(file: File) {
     const form = new FormData();
@@ -401,13 +380,6 @@ export default function EditorShell({
               {regenerating ? "მზადდება..." : "ხელახლა გენერაცია"}
             </button>
             <button
-              className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900"
-              onClick={handlePublish}
-              disabled={publishing}
-            >
-              {publishing ? "პუბლიკაცია..." : "პუბლიკაცია"}
-            </button>
-            <button
               className="rounded-full border border-white/20 px-4 py-2 text-sm"
               onClick={() => setShareOpen(true)}
             >
@@ -419,9 +391,6 @@ export default function EditorShell({
             >
               SEO JSON ჩამოტვირთვა
             </button>
-            {lastPublishedAt && (
-              <span className="text-xs text-white/60">ბოლოს გამოქვეყნდა: {lastPublishedAt}</span>
-            )}
           </div>
         </div>
       </div>

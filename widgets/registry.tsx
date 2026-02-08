@@ -100,13 +100,14 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
       "v4-metrics": "ვერსია 4",
     },
     defaultProps: (input) => ({
-      eyebrow: "⭐️ 5,000+ კმაყოფილი მომხმარებელი",
-      headline: `${input.businessName} წარმატებისთვის`,
-      subheadline:
-        "გამორჩეული გამოცდილება, სუფთა დიზაინი და ძლიერი შედეგები თქვენი ბიზნესისთვის.",
+      eyebrow: input.location ? `📍 ${input.location}` : "⭐️ 5,000+ კმაყოფილი მომხმარებელი",
+      headline: `${input.businessName} — ${input.tone || "თანამედროვე"}`,
+      subheadline: input.description,
       ctaPrimary: { label: "დაწყება", href: "#contact" },
       ctaSecondary: { label: "გაიგე მეტი", href: "#more" },
-      bullets: ["99.9% uptime", "24/7 მხარდაჭერა", "პროფესიონალური გუნდი"],
+      bullets: input.services
+        ? input.services.split(",").map((item) => item.trim()).filter(Boolean).slice(0, 3)
+        : ["პროფესიონალური გუნდი", "მაღალი ხარისხი", "სწრაფი მომსახურება"],
       stats: [
         { label: "საწყისი წელი", value: "2020 წელი" },
         { label: "კლიენტები", value: "150+ კომპანია" },
