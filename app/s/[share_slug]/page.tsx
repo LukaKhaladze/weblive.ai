@@ -2,6 +2,9 @@ import PreviewRenderer from "@/components/PreviewRenderer";
 import { fetchProjectByShareSlug } from "@/lib/projects";
 import { applyShareLinks } from "@/lib/shareLinks";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function SharePage({ params }: { params: { share_slug: string } }) {
   const project = await fetchProjectByShareSlug(params.share_slug);
 

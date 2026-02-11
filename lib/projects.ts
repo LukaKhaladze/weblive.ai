@@ -1,6 +1,8 @@
 import { getSupabaseServer } from "@/lib/supabaseServer";
+import { unstable_noStore as noStore } from "next/cache";
 
 export async function fetchProjectByEditToken(token: string) {
+  noStore();
   const supabaseServer = getSupabaseServer();
   const { data, error } = await supabaseServer
     .from("projects")
@@ -30,6 +32,7 @@ export async function fetchProjectByEditToken(token: string) {
 }
 
 export async function fetchProjectByShareSlug(slug: string) {
+  noStore();
   const supabaseServer = getSupabaseServer();
   const { data, error } = await supabaseServer
     .from("projects")

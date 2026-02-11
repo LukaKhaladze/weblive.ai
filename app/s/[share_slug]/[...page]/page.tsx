@@ -2,6 +2,9 @@ import PreviewRenderer from "@/components/PreviewRenderer";
 import { fetchProjectByShareSlug } from "@/lib/projects";
 import { applyShareLinks } from "@/lib/shareLinks";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function normalizePath(segments: string[]) {
   if (!segments || segments.length === 0) return "/";
   return `/${segments.join("/")}`;

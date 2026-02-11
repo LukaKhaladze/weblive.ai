@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   DndContext,
   DragEndEvent,
@@ -52,6 +52,8 @@ export default function EditorShell({
   const [shareOpen, setShareOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
   const [regenerating, setRegenerating] = useState(false);
+  const [saveState, setSaveState] = useState<"saved" | "saving" | "error">("saved");
+  const lastSavedPayloadRef = useRef(JSON.stringify({ site: project.site, seo: project.seo, input: project.input }));
   const sensors = useSensors(useSensor(PointerSensor));
 
   const currentPage = useMemo(
@@ -106,7 +108,13 @@ export default function EditorShell({
 
   useEffect(() => {
     if (!site.pages.length) return;
-    const navLinks = site.pages.map((page) => ({ label: page.name, href: page.slug }));
+    const navLinks = site.pages
+      .filter((page) => page.slug !== "/product")
+      .reduce<{ label: string; href: string }[]>((acc, page) => {
+        if (acc.some((item) => item.href === page.slug)) return acc;
+        acc.push({ label: page.name, href: page.slug });
+        return acc;
+      }, []);
     let needsUpdate = false;
 
     const nextPages = site.pages.map((page) => ({
@@ -138,12 +146,27 @@ export default function EditorShell({
   }, [site.pages]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      fetch(`/api/projects/${project.edit_token}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ site, seo, input }),
-      }).catch(() => null);
+    const payload = JSON.stringify({ site, seo, input });
+    if (payload === lastSavedPayloadRef.current) return;
+    setSaveState("saving");
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/projects/${project.edit_token}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: payload,
+        });
+        if (!res.ok) {
+          const errorPayload = await res.json().catch(() => null);
+          throw new Error(errorPayload?.error || "შენახვა ვერ შესრულდა.");
+        }
+        lastSavedPayloadRef.current = payload;
+        setSaveState("saved");
+      } catch (error) {
+        console.error("Autosave failed", error);
+        setSaveState("error");
+      }
     }, 800);
 
     return () => clearTimeout(timer);
@@ -385,6 +408,21 @@ export default function EditorShell({
             >
               გაზიარება
             </button>
+            <span
+              className={`text-xs ${
+                saveState === "saved"
+                  ? "text-emerald-300"
+                  : saveState === "saving"
+                  ? "text-amber-300"
+                  : "text-rose-300"
+              }`}
+            >
+              {saveState === "saved"
+                ? "შენახულია"
+                : saveState === "saving"
+                ? "ინახება..."
+                : "შენახვის შეცდომა"}
+            </span>
             <button
               className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900"
               onClick={downloadSeo}
