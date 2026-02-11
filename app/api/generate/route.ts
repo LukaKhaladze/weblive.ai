@@ -5,6 +5,7 @@ import { generateEditToken, generateShareSlug } from "@/lib/tokens";
 import { getSupabaseServer } from "@/lib/supabaseServer";
 import { generateWithAiStub } from "@/lib/generator/aiStub";
 import { ensureHeaderOnly } from "@/lib/generator/ensureHeaderOnly";
+import { normalizeEcommerceInput } from "@/lib/generator/normalizeEcommerceInput";
 
 const OPENAI_MODEL = "gpt-4o-mini";
 const OPENAI_IMAGE_MODEL = "gpt-image-1";
@@ -41,7 +42,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const input = parsed.data;
+  const input = normalizeEcommerceInput(parsed.data);
   const editToken = generateEditToken();
   const shareSlug = generateShareSlug();
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);

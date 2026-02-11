@@ -1,6 +1,7 @@
 import { WizardInput, Site, SeoPayload } from "@/lib/schema";
 import { generateWithAiStub } from "@/lib/generator/aiStub";
 import { ensureHeaderOnly } from "@/lib/generator/ensureHeaderOnly";
+import { normalizeEcommerceInput } from "@/lib/generator/normalizeEcommerceInput";
 
 const OPENAI_MODEL = "gpt-4o-mini";
 const OPENAI_IMAGE_MODEL = "gpt-image-1";
@@ -96,6 +97,7 @@ export async function runGeneration({
 }): Promise<{ site: Site; seo: SeoPayload }> {
   let site: Site | null = null;
   let seo: SeoPayload | null = null;
+  const normalizedInput = normalizeEcommerceInput(input);
 
   try {
     const apiKey = process.env.OPENAI_API_KEY;
@@ -226,7 +228,7 @@ export async function runGeneration({
             content: [
               {
                 type: "text",
-                text: `Business input JSON: ${JSON.stringify(input)}. Design seed: ${designSeed}.`,
+                text: `Business input JSON: ${JSON.stringify(normalizedInput)}. Design seed: ${designSeed}.`,
               },
             ],
           },
@@ -260,22 +262,22 @@ export async function runGeneration({
       throw new Error("No output from OpenAI");
     }
   } catch (error) {
-    const fallback = await generateWithAiStub(input);
+    const fallback = await generateWithAiStub(normalizedInput);
     site = fallback.site;
     seo = fallback.seo;
   }
 
   if (!site || !seo) {
-    const fallback = await generateWithAiStub(input);
+    const fallback = await generateWithAiStub(normalizedInput);
     site = fallback.site;
     seo = fallback.seo;
   }
 
-  site = ensureHeaderOnly(site, input);
+  site = ensureHeaderOnly(site, normalizedInput);
 
   const apiKey = process.env.OPENAI_API_KEY;
   if (apiKey) {
-    site = await applyGeneratedImages(site, projectId, apiKey, supabaseServer, input);
+    site = await applyGeneratedImages(site, projectId, apiKey, supabaseServer, normalizedInput);
   }
 
   return { site, seo };

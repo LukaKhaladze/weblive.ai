@@ -5,30 +5,20 @@ import { useRouter } from "next/navigation";
 import { WizardInput } from "@/lib/schema";
 import { recipes } from "@/lib/generator/recipes";
 import { widgetRegistry } from "@/widgets/registry";
+import { ECOMMERCE_FIXED_PAGES, normalizeEcommerceInput } from "@/lib/generator/normalizeEcommerceInput";
 
-const categories = [
-  { id: "ecommerce", label: "ელ-კომერცია" },
-  { id: "informational", label: "საინფორმაციო" },
-] as const;
-
-const goals = [
-  { id: "calls", label: "ზარები" },
-  { id: "leads", label: "ლიდები" },
-  { id: "bookings", label: "დაჯავშნა" },
-  { id: "sell", label: "გაყიდვა" },
-  { id: "visit", label: "ვიზიტები" },
-] as const;
+const GOAL_LABEL = "ზარების მიღება პროდუქტებიდან";
 
 const defaultInput: WizardInput = {
   businessName: "",
-  category: "informational",
+  category: "ecommerce",
   description: "",
   services: "",
   targetAudience: "",
   location: "",
   tone: "",
-  goal: "leads",
-  pages: ["home", "about", "contact"],
+  goal: "calls",
+  pages: [...ECOMMERCE_FIXED_PAGES],
   includeProductPage: false,
   products: [],
   brand: {
@@ -53,7 +43,6 @@ const defaultInput: WizardInput = {
 
 const stepsBase = [
   "ბიზნესის დასახელება",
-  "კატეგორია",
   "აღწერა",
   "დეტალები",
   "მთავარი მიზანი",
@@ -73,23 +62,17 @@ export default function BuildPage() {
   const [productFiles, setProductFiles] = useState<Record<number, File | null>>({});
   const [loading, setLoading] = useState(false);
 
-  const steps = useMemo(() => {
-    if (input.category === "ecommerce") return stepsBase;
-    return stepsBase.filter((item) => item !== "პროდუქტები");
-  }, [input.category]);
+  const steps = useMemo(() => stepsBase, []);
 
   const availablePages = useMemo(() => {
-    const recipe = recipes[input.category] || recipes.informational;
-    return recipe.pages
-      .filter((page) => (page.id === "product" ? input.includeProductPage : true))
-      .map((page) => ({ id: page.id, name: page.name }));
-  }, [input.category]);
+    const recipe = recipes.ecommerce;
+    return recipe.pages.map((page) => ({ id: page.id, name: page.name }));
+  }, []);
 
   const canNext = () => {
     if (step === 0) return input.businessName.trim().length > 0;
-    if (step === 2) return input.description.trim().length > 0;
-    if (steps[step] === "პროდუქტები" && input.category === "ecommerce") {
-      if (!input.includeProductPage) return true;
+    if (step === 1) return input.description.trim().length > 0;
+    if (steps[step] === "პროდუქტები") {
       return input.products.length > 0 && input.products.every((p) => p.name && p.price);
     }
     return true;
@@ -100,7 +83,7 @@ export default function BuildPage() {
     const response = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(input),
+      body: JSON.stringify(normalizeEcommerceInput(input)),
     });
 
     const data = await response.json();
@@ -137,7 +120,7 @@ export default function BuildPage() {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            input: { ...input, logoUrl: upload.url },
+            input: normalizeEcommerceInput({ ...input, logoUrl: upload.url }),
             site: updatedSite,
           }),
         });
@@ -147,7 +130,7 @@ export default function BuildPage() {
       }
     }
 
-    if (input.category === "ecommerce" && input.products.length > 0) {
+    if (input.products.length > 0) {
       const updatedProducts = [...input.products];
       for (let i = 0; i < updatedProducts.length; i += 1) {
         const file = productFiles[i];
@@ -167,7 +150,7 @@ export default function BuildPage() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          input: { ...input, products: updatedProducts },
+          input: normalizeEcommerceInput({ ...input, products: updatedProducts }),
         }),
       });
     }
@@ -203,40 +186,6 @@ export default function BuildPage() {
           )}
 
           {step === 1 && (
-            <div className="mt-6 grid gap-3 md:grid-cols-3">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  className={`rounded-2xl border px-4 py-6 text-left ${
-                    input.category === category.id
-                      ? "border-white bg-white text-slate-900"
-                      : "border-white/10 bg-slate-950 text-white/70"
-                  }`}
-                  onClick={() =>
-                    setInput((prev) => ({
-                      ...prev,
-                      category: category.id,
-                      includeProductPage:
-                        category.id === "ecommerce" ? prev.includeProductPage : false,
-                      products: category.id === "ecommerce" ? prev.products : [],
-                      pages: recipes[category.id].pages
-                        .filter((page) =>
-                          page.id === "product"
-                            ? category.id === "ecommerce" && prev.includeProductPage
-                            : true
-                        )
-                        .map((page) => page.id),
-                    }))
-                  }
-                >
-                  <h3 className="text-lg font-semibold">{category.label}</h3>
-                  <p className="mt-2 text-sm opacity-70">შესაფერისია {category.label.toLowerCase()}-სთვის.</p>
-                </button>
-              ))}
-            </div>
-          )}
-
-          {step === 2 && (
             <div className="mt-6">
               <label className="text-sm text-white/70">მოკლე აღწერა</label>
               <textarea
@@ -290,62 +239,28 @@ export default function BuildPage() {
           )}
 
           {steps[step] === "მთავარი მიზანი" && (
-            <div className="mt-6 grid gap-3 md:grid-cols-5">
-              {goals.map((goal) => (
-                <button
-                  key={goal.id}
-                  className={`rounded-xl border px-4 py-4 text-sm ${
-                    input.goal === goal.id
-                      ? "border-white bg-white text-slate-900"
-                      : "border-white/10 bg-slate-950 text-white/70"
-                  }`}
-                  onClick={() => setInput({ ...input, goal: goal.id })}
-                >
-                  {goal.label}
-                </button>
-              ))}
+            <div className="mt-6">
+              <div className="rounded-xl border border-white bg-white px-4 py-4 text-sm text-slate-900">
+                {GOAL_LABEL}
+              </div>
             </div>
           )}
 
           {steps[step] === "გვერდები" && (
             <div className="mt-6 space-y-3">
-              {availablePages.map((page) => (
-                <label key={page.id} className="flex items-center gap-3 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={input.pages.includes(page.id)}
-                    onChange={(event) => {
-                      const next = event.target.checked
-                        ? [...input.pages, page.id]
-                        : input.pages.filter((id) => id !== page.id);
-                      setInput({ ...input, pages: next.length ? next : [page.id] });
-                    }}
-                  />
-                  {page.name}
-                </label>
-              ))}
+              <p className="text-sm text-white/70">ელ-კომერციის სტანდარტული გვერდები:</p>
+              <div className="grid gap-2 md:grid-cols-2">
+                {availablePages.map((page) => (
+                  <div key={page.id} className="rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-sm">
+                    {page.name}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
-          {steps[step] === "პროდუქტები" && input.category === "ecommerce" && (
+          {steps[step] === "პროდუქტები" && (
             <div className="mt-6 space-y-4">
-              <label className="flex items-center gap-3 text-sm text-white/70">
-                <input
-                  type="checkbox"
-                  checked={input.includeProductPage}
-                  onChange={(event) => {
-                    const checked = event.target.checked;
-                    setInput((prev) => ({
-                      ...prev,
-                      includeProductPage: checked,
-                      pages: checked
-                        ? Array.from(new Set([...prev.pages, "product"]))
-                        : prev.pages.filter((id) => id !== "product"),
-                    }));
-                  }}
-                />
-                დამატება: პროდუქტის ერთეული გვერდი
-              </label>
               <div className="text-sm text-white/70">რამდენი პროდუქტი გაქვთ? (მაქს. 3)</div>
               <div className="flex gap-3">
                 {[1, 2, 3].map((count) => (
@@ -533,7 +448,7 @@ export default function BuildPage() {
                 <p className="text-xs uppercase tracking-[0.3em] text-white/50">შეჯამება</p>
                 <p className="mt-2">{input.businessName}</p>
                 <p>{input.description}</p>
-                <p>მიზანი: {goals.find((goal) => goal.id === input.goal)?.label}</p>
+                <p>მიზანი: {GOAL_LABEL}</p>
               </div>
               <div>
                 <p className="text-xs uppercase tracking-[0.3em] text-white/50">გვერდები</p>
