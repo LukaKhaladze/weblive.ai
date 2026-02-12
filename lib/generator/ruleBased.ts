@@ -44,15 +44,15 @@ export function generateRuleBasedSite(
 ): { site: Site; seo: SeoPayload } {
   const rng = createRng(options.seed);
   const categoryLabels: Record<string, string> = {
-    ecommerce: "ელ-კომერცია",
-    informational: "საინფორმაციო",
+    ecommerce: "ecommerce",
+    informational: "informational",
   };
   const goalLabels: Record<string, string> = {
-    calls: "ზარები",
-    leads: "ლიდები",
-    bookings: "დაჯავშნა",
-    sell: "გაყიდვა",
-    visit: "ვიზიტები",
+    calls: "calls",
+    leads: "leads",
+    bookings: "bookings",
+    sell: "sales",
+    visit: "visits",
   };
   const recipe = recipes[input.category] ?? recipes.informational;
   const fontOptions = ["Space Grotesk", "Sora", "Manrope", "Urbanist", "Plus Jakarta Sans"];
@@ -95,10 +95,10 @@ export function generateRuleBasedSite(
           title: `${input.businessName} | ${page.name}`,
           description: input.description,
           keywords: [
-            categoryLabels[input.category] || "ბიზნესი",
-            goalLabels[input.goal] || "ზრდა",
-            "ლოკალური",
-            "სერვისები",
+            categoryLabels[input.category] || "business",
+            goalLabels[input.goal] || "growth",
+            "local",
+            "services",
           ],
         },
         sections,
@@ -134,10 +134,10 @@ export function generateRuleBasedSite(
     },
     pages: buildSeoPages(site),
     recommendations: [
-      "დაადასტურე, რომ თითოეულ გვერდს აქვს უნიკალური სათაური (60 სიმბოლომდე).",
-      "დაამატე ლოკაციაზე ორიენტირებული საკვანძო სიტყვები ლოკალური ხილვადობისთვის.",
-      "გამოიყენე აღწერითი alt ტექსტები ყველა სურათზე, ლოგოს ჩათვლით.",
-      "meta აღწერები შეინარჩუნე 120–160 სიმბოლოს ფარგლებში.",
+      "Make sure each page has a unique title (up to 60 characters).",
+      "Add location-focused keywords for better local visibility.",
+      "Use descriptive alt text for all images, including the logo.",
+      "Keep meta descriptions within 120-160 characters.",
     ],
   };
 

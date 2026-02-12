@@ -36,12 +36,12 @@ export default function Hero({
   const isCard = variant === "v3-card";
   const isMetrics = variant === "v4-metrics";
 
-  const primary = props.ctaPrimary || { label: "დაწყება", href: "#contact" };
-  const secondary = props.ctaSecondary || { label: "გაიგე მეტი", href: "#more" };
+  const primary = props.ctaPrimary || { label: "Get Started", href: "#contact" };
+  const secondary = props.ctaSecondary || { label: "Learn More", href: "#more" };
 
   const handleCtaClick = (path: string, current: string) => {
     if (!editable || !onEdit) return;
-    const next = window.prompt("შეიყვანე ბმული", current);
+    const next = window.prompt("Enter URL", current);
     if (next !== null) {
       onEdit(path, next.trim());
     }
@@ -206,7 +206,7 @@ export default function Hero({
           <div className="absolute bottom-4 right-4 z-20">
             <ClickUpload onUpload={(file) => onImageUpload("backgroundImage", file, "images")}>
               <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-900">
-                შეცვალე ფონი
+                Change background
               </span>
             </ClickUpload>
           </div>
@@ -248,7 +248,7 @@ export default function Hero({
       props.products && props.products.length > 0
         ? props.products
         : (props.gallery || []).map((item, index) => ({
-            name: `პროდუქტი ${index + 1}`,
+            name: `Product ${index + 1}`,
             price: "",
             imageUrl: item.src,
             href: `/products/${index + 1}`,
@@ -325,7 +325,7 @@ export default function Hero({
                 {renderText(
                   "p",
                   "text-lg font-semibold text-slate-900",
-                  product.name || `პროდუქტი ${index + 1}`,
+                  product.name || `Product ${index + 1}`,
                   `products.${index}.name`
                 )}
                 {renderText(
@@ -345,14 +345,14 @@ export default function Hero({
                       )
                     }
                   >
-                    მეტის ნახვა
+                    View Details
                   </button>
                 ) : (
                   <Link
                     href={product.href || `/products/${index + 1}`}
                     className="inline-flex rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
                   >
-                    მეტის ნახვა
+                    View Details
                   </Link>
                 )}
               </div>

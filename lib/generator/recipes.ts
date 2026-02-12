@@ -18,25 +18,25 @@ export const recipes: Record<Category, Recipe> = {
     pages: [
       {
         id: "home",
-        name: "მთავარი",
+        name: "Home",
         slug: "/",
         sections: ["header"],
       },
       {
         id: "products",
-        name: "პროდუქტები",
+        name: "Products",
         slug: "/products",
         sections: ["header"],
       },
       {
         id: "about",
-        name: "ჩვენ შესახებ",
+        name: "About",
         slug: "/about",
         sections: ["header"],
       },
       {
         id: "contact",
-        name: "კონტაქტი",
+        name: "Contact",
         slug: "/contact",
         sections: ["header"],
       },
@@ -46,25 +46,25 @@ export const recipes: Record<Category, Recipe> = {
     pages: [
       {
         id: "home",
-        name: "მთავარი",
+        name: "Home",
         slug: "/",
         sections: ["header"],
       },
       {
         id: "about",
-        name: "ჩვენ შესახებ",
+        name: "About",
         slug: "/about",
         sections: ["header"],
       },
       {
         id: "blog",
-        name: "ბლოგი",
+        name: "Blog",
         slug: "/blog",
         sections: ["header"],
       },
       {
         id: "contact",
-        name: "კონტაქტი",
+        name: "Contact",
         slug: "/contact",
         sections: ["header"],
       },

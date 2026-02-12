@@ -5,18 +5,18 @@ import Hero from "@/widgets/hero";
 const businessTags = ["ecommerce", "informational"];
 
 const goalLabels: Record<string, string> = {
-  calls: "ზარებისთვის",
-  leads: "ლიდებისთვის",
-  bookings: "დაჯავშნებისთვის",
-  sell: "გაყიდვებისთვის",
-  visit: "ვიზიტებისთვის",
+  calls: "for calls",
+  leads: "for leads",
+  bookings: "for bookings",
+  sell: "for sales",
+  visit: "for visits",
 };
 
 export type WidgetType = "header" | "hero";
 
 export type WidgetCategory =
-  | "სათაური"
-  | "ჰირო";
+  | "Header"
+  | "Hero";
 
 export type EditableField = {
   label: string;
@@ -46,8 +46,8 @@ export type WidgetDefinition = {
 export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
   header: {
     type: "header",
-    name: "სათაური",
-    category: "სათაური",
+    name: "Header",
+    category: "Header",
     tags: [...businessTags, "navigation", "brand"],
     variants: [
       "v1-classic",
@@ -58,24 +58,24 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
       "v10-announcement",
     ],
     variantLabels: {
-      "v1-classic": "ვერსია 1",
-      "v2-compact-right": "ვერსია 2",
-      "v3-centered-logo": "ვერსია 3",
-      "v6-glass": "ვერსია 4",
-      "v9-bordered": "ვერსია 5",
-      "v10-announcement": "ვერსია 6",
+      "v1-classic": "Version 1",
+      "v2-compact-right": "Version 2",
+      "v3-centered-logo": "Version 3",
+      "v6-glass": "Version 4",
+      "v9-bordered": "Version 5",
+      "v10-announcement": "Version 6",
     },
     defaultProps: (input) => ({
       brand: input.businessName,
       nav: [
-        { label: "მთავარი", href: "/" },
-        { label: "პროდუქტები", href: "/products" },
-        { label: "ჩვენ შესახებ", href: "/about" },
-        { label: "კონტაქტი", href: "/contact" },
+        { label: "Home", href: "/" },
+        { label: "Products", href: "/products" },
+        { label: "About", href: "/about" },
+        { label: "Contact", href: "/contact" },
       ],
-      cta: { label: input.primaryCta || "დაწყება", href: "#contact" },
-      tagline: "AI-ით შექმნილი ვებგვერდი",
-      announcement: "ახალი შეთავაზება — 50% ფასდაკლება პირველ თვეზე",
+      cta: { label: input.primaryCta || "Get Started", href: "#contact" },
+      tagline: "AI-generated website",
+      announcement: "New Offer — 50% off first month",
       logo: input.logoUrl || "",
     }),
     editable: [
@@ -90,33 +90,33 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
   },
   hero: {
     type: "hero",
-    name: "ჰირო სექცია",
-    category: "ჰირო",
+    name: "Hero Section",
+    category: "Hero",
     tags: [...businessTags, "hero"],
     variants: ["v1-split", "v2-full-bg", "v3-card", "v4-metrics"],
     variantLabels: {
-      "v1-split": "ვერსია 1",
-      "v2-full-bg": "ვერსია 2",
-      "v3-card": "ვერსია 3",
-      "v4-metrics": "ვერსია 4",
+      "v1-split": "Version 1",
+      "v2-full-bg": "Version 2",
+      "v3-card": "Version 3",
+      "v4-metrics": "Version 4",
     },
     defaultProps: (input) => ({
-      eyebrow: input.location ? `📍 ${input.location}` : "⭐️ 5,000+ კმაყოფილი მომხმარებელი",
-      headline: `${input.businessName} — ${input.tone || "თანამედროვე"} ონლაინ მაღაზია`,
+      eyebrow: input.location ? `📍 ${input.location}` : "⭐️ 5,000+ happy customers",
+      headline: `${input.businessName} — ${input.tone || "modern"} online store`,
       subheadline: input.description,
-      ctaPrimary: { label: input.primaryCta || "დაწყება", href: "#contact" },
-      ctaSecondary: { label: "გაიგე მეტი", href: "#more" },
+      ctaPrimary: { label: input.primaryCta || "Get Started", href: "#contact" },
+      ctaSecondary: { label: "Learn More", href: "#more" },
       bullets: (input.productCategories || input.services)
         ? (input.productCategories || input.services)
             .split(",")
             .map((item) => item.trim())
             .filter(Boolean)
             .slice(0, 3)
-        : ["ტრენდული პროდუქცია", "მაღალი ხარისხი", "სწრაფი მიწოდება"],
+        : ["Trending products", "High quality", "Fast delivery"],
       stats: [
-        { label: "საწყისი წელი", value: "2020 წელი" },
-        { label: "კლიენტები", value: "150+ კომპანია" },
-        { label: "ტრაფიკი", value: "1M+ ვიზიტორი" },
+        { label: "Since", value: "2020" },
+        { label: "Clients", value: "150+ companies" },
+        { label: "Traffic", value: "1M+ visitors" },
       ],
       products:
         input.products && input.products.length > 0
@@ -130,8 +130,8 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
             }))
           : [
               {
-                name: "პროდუქტი 1",
-                price: "100 ლარი",
+                name: "Product 1",
+                price: "$100",
                 imageUrl: "/placeholders/scene-2.svg",
                 href: "/products/1",
               },

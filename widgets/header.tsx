@@ -109,7 +109,7 @@ export default function Header({ variant, props, editable, onEdit, onImageUpload
     </div>
   );
 
-  const ctaLabel = props.cta?.label || "დაწყება";
+  const ctaLabel = props.cta?.label || "Get Started";
   const ctaHref = props.cta?.href || "#contact";
   const CtaButton = (
     <Link

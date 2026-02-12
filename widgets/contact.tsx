@@ -43,7 +43,7 @@ export default function Contact({ variant, props, editable, onEdit }: ContactPro
           }`}
         >
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">ტელეფონი</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Phone</p>
             {editable && onEdit ? (
               <EditableText
                 as="p"
@@ -57,7 +57,7 @@ export default function Contact({ variant, props, editable, onEdit }: ContactPro
             )}
           </div>
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">ელ. ფოსტა</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Email</p>
             {editable && onEdit ? (
               <EditableText
                 as="p"
@@ -71,7 +71,7 @@ export default function Contact({ variant, props, editable, onEdit }: ContactPro
             )}
           </div>
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">მისამართი</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Address</p>
             {editable && onEdit ? (
               <EditableText
                 as="p"
@@ -85,7 +85,7 @@ export default function Contact({ variant, props, editable, onEdit }: ContactPro
             )}
           </div>
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">სამუშაო საათები</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Working Hours</p>
             {editable && onEdit ? (
               <EditableText
                 as="p"

@@ -6,7 +6,7 @@ export default async function EditPage({ params }: { params: { edit_token: strin
   if (!project) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-        <p>პროექტი ვერ მოიძებნა.</p>
+        <p>Project not found.</p>
       </div>
     );
   }
@@ -16,10 +16,10 @@ export default async function EditPage({ params }: { params: { edit_token: strin
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
         <div className="rounded-[28px] border border-white/10 bg-slate-900 p-8 text-center">
-          <h1 className="text-2xl font-semibold">ბმულის ვადა ამოიწურა</h1>
-          <p className="mt-2 text-sm text-white/70">ახალი ბმულის მისაღებად შექმენი ახალი პროექტი.</p>
+          <h1 className="text-2xl font-semibold">Link expired</h1>
+          <p className="mt-2 text-sm text-white/70">Create a new project to get a fresh link.</p>
           <a className="mt-4 inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900" href="/">
-            თავიდან დაწყება
+            Start over
           </a>
         </div>
       </div>

@@ -15,7 +15,7 @@ import { renderWidget, widgetRegistry, WidgetType } from "@/widgets/registry";
 import { Site, SeoPayload, WizardInput } from "@/lib/schema";
 import { updateByPath } from "@/lib/deepUpdate";
 
-const tabs = ["გვერდები", "თემა", "SEO", "ვიჯეტები"] as const;
+const tabs = ["Pages", "Theme", "SEO", "Widgets"] as const;
 
 export default function EditorShell({
   project,
@@ -43,7 +43,7 @@ export default function EditorShell({
     [site.pages]
   );
   const resolvedLogoUrl = input.logoUrl || headerLogoFromSite || project.input.logoUrl || "";
-  const [selectedTab, setSelectedTab] = useState<(typeof tabs)[number]>("გვერდები");
+  const [selectedTab, setSelectedTab] = useState<(typeof tabs)[number]>("Pages");
   const [selectedPageId, setSelectedPageId] = useState(site.pages[0]?.id);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
     site.pages[0]?.sections[0]?.id || null
@@ -122,7 +122,7 @@ export default function EditorShell({
       sections: page.sections.map((section) => {
         if (section.widget !== "header") return section;
         const nextNav = navLinks;
-        const nextCta = section.props?.cta?.label ? section.props.cta : { label: "დაწყება", href: "#contact" };
+        const nextCta = section.props?.cta?.label ? section.props.cta : { label: "Get Started", href: "#contact" };
         const navChanged = JSON.stringify(section.props?.nav || []) !== JSON.stringify(nextNav);
         const ctaChanged = JSON.stringify(section.props?.cta || {}) !== JSON.stringify(nextCta);
         if (navChanged || ctaChanged) {
@@ -159,7 +159,7 @@ export default function EditorShell({
         });
         if (!res.ok) {
           const errorPayload = await res.json().catch(() => null);
-          throw new Error(errorPayload?.error || "შენახვა ვერ შესრულდა.");
+          throw new Error(errorPayload?.error || "Save failed.");
         }
         lastSavedPayloadRef.current = payload;
         setSaveState("saved");
@@ -289,7 +289,7 @@ export default function EditorShell({
       const res = await fetch(`/api/regenerate/${project.edit_token}`, { method: "POST" });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data?.error || "გენერაცია ვერ შესრულდა.");
+        throw new Error(data?.error || "Generation failed.");
       }
       setSite(data.site);
       setSeo(data.seo);
@@ -297,7 +297,7 @@ export default function EditorShell({
       setSelectedPageId(data.site.pages[0]?.id);
       setSelectedSectionId(data.site.pages[0]?.sections[0]?.id || null);
     } catch (error) {
-      alert(error instanceof Error ? error.message : "გენერაცია ვერ შესრულდა.");
+      alert(error instanceof Error ? error.message : "Generation failed.");
     } finally {
       setRegenerating(false);
     }
@@ -355,7 +355,7 @@ export default function EditorShell({
                 props: {
                   ...section.props,
                   cta: {
-                    label: next.label ?? section.props?.cta?.label ?? "დაწყება",
+                    label: next.label ?? section.props?.cta?.label ?? "Get Started",
                     href: next.href ?? section.props?.cta?.href ?? "#contact",
                   },
                 },
@@ -375,7 +375,7 @@ export default function EditorShell({
   if (!currentPage) {
     return (
     <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-        <p>გვერდები არ მოიძებნა.</p>
+        <p>Pages not found.</p>
       </div>
     );
   }
@@ -386,27 +386,27 @@ export default function EditorShell({
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 text-white">
           <div>
             <p className="text-xs uppercase tracking-[0.4em] text-white/60">Weblive.ai</p>
-            <h1 className="text-lg font-semibold">რედაქტორი</h1>
+            <h1 className="text-lg font-semibold">Editor</h1>
           </div>
           <div className="flex items-center gap-3">
             <button
               className="rounded-full border border-white/20 px-4 py-2 text-sm"
               onClick={() => setViewMode(viewMode === "desktop" ? "mobile" : "desktop")}
             >
-              {viewMode === "desktop" ? "მობილური" : "დესკტოპი"}
+              {viewMode === "desktop" ? "Mobile" : "Desktop"}
             </button>
             <button
               className="rounded-full border border-white/20 px-4 py-2 text-sm"
               onClick={handleRegenerate}
               disabled={regenerating}
             >
-              {regenerating ? "მზადდება..." : "ხელახლა გენერაცია"}
+              {regenerating ? "Generating..." : "Regenerate"}
             </button>
             <button
               className="rounded-full border border-white/20 px-4 py-2 text-sm"
               onClick={() => setShareOpen(true)}
             >
-              გაზიარება
+              Share
             </button>
             <span
               className={`text-xs ${
@@ -418,16 +418,16 @@ export default function EditorShell({
               }`}
             >
               {saveState === "saved"
-                ? "შენახულია"
+                ? "Saved"
                 : saveState === "saving"
-                ? "ინახება..."
-                : "შენახვის შეცდომა"}
+                ? "Saving..."
+                : "Save error"}
             </span>
             <button
               className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900"
               onClick={downloadSeo}
             >
-              SEO JSON ჩამოტვირთვა
+              Download SEO JSON
             </button>
           </div>
         </div>
@@ -441,7 +441,7 @@ export default function EditorShell({
             target="_blank"
             rel="noreferrer"
           >
-            შაბლონების წესები (დროებითი)
+            Template Rules (temporary)
           </a>
           <div className="space-y-2">
             {tabs.map((tab) => (
@@ -457,7 +457,7 @@ export default function EditorShell({
             ))}
           </div>
 
-          {selectedTab === "გვერდები" && (
+          {selectedTab === "Pages" && (
             <div className="space-y-2 text-sm">
               {site.pages.map((page) => (
                 <button
@@ -474,10 +474,10 @@ export default function EditorShell({
           )}
 
 
-          {selectedTab === "თემა" && (
+          {selectedTab === "Theme" && (
             <div className="space-y-4 text-sm">
               <label className="block">
-                ლოგო
+                Logo
                 <input
                   type="file"
                   accept="image/*"
@@ -490,7 +490,7 @@ export default function EditorShell({
                   }}
                 />
                 <p className="mt-2 text-xs text-white/60">
-                  რეკომენდებული ზომა: 120×120px ან 240×240px (კვადრატი).
+                  Recommended size: 120x120px or 240x240px (square).
                 </p>
                 <button
                   className="mt-2 rounded-full border border-white/20 px-3 py-1 text-xs text-white/70"
@@ -499,16 +499,16 @@ export default function EditorShell({
                     removeLogo();
                   }}
                 >
-                  ლოგოს წაშლა
+                  Remove Logo
                 </button>
                 {input.logoUrl && (
                   <p className="mt-2 break-all text-[10px] text-white/40">
-                    მიმდინარე ლოგო: {input.logoUrl}
+                    Current Logo: {input.logoUrl}
                   </p>
                 )}
               </label>
               <label className="block">
-                მთავარი ფერი
+                Primary color
                 <input
                   type="color"
                   value={site.theme.primaryColor}
@@ -522,7 +522,7 @@ export default function EditorShell({
                 />
               </label>
               <label className="block">
-                მეორადი ფერი
+                Secondary color
                 <input
                   type="color"
                   value={site.theme.secondaryColor}
@@ -536,18 +536,18 @@ export default function EditorShell({
                 />
               </label>
               <label className="block">
-                CTA ტექსტი
+                CTA text
                 <input
                   className="mt-2 w-full rounded-xl border border-white/20 bg-transparent p-2 text-xs text-white"
                   value={
                     (site.pages[0]?.sections.find((section) => section.widget === "header")?.props
-                      ?.cta?.label as string) || "დაწყება"
+                      ?.cta?.label as string) || "Get Started"
                   }
                   onChange={(event) => updateHeaderCta({ label: event.target.value })}
                 />
               </label>
               <label className="block">
-                CTA ბმული
+                CTA URL
                 <input
                   className="mt-2 w-full rounded-xl border border-white/20 bg-transparent p-2 text-xs text-white"
                   value={
@@ -562,16 +562,16 @@ export default function EditorShell({
 
           {selectedTab === "SEO" && <SeoPanel seo={seo} />}
 
-          {selectedTab === "ვიჯეტები" && (
+          {selectedTab === "Widgets" && (
             <div className="space-y-4 text-sm">
               <p className="text-white/70">
-                ქვემოთ ხედავთ ყველა ვიჯეტის სრულ ვიზუალურ პრევიუს (ყველა ვარიანტი).
+                Below is a full visual preview of all widget variants.
               </p>
               <div className="flex flex-wrap gap-2">
                 {[
-                  { id: "all", label: "ყველა" },
-                  { id: "ecommerce", label: "ელ-კომერცია" },
-                  { id: "informational", label: "საინფორმაციო" },
+                  { id: "all", label: "All" },
+                  { id: "ecommerce", label: "Ecommerce" },
+                  { id: "informational", label: "Informational" },
                 ].map((item) => (
                   <button
                     key={item.id}
@@ -591,7 +591,7 @@ export default function EditorShell({
         </aside>
 
         <main>
-          {selectedTab === "ვიჯეტები" ? (
+          {selectedTab === "Widgets" ? (
             <div className="space-y-10">
               {Object.entries(
                 Object.values(widgetRegistry)
@@ -745,7 +745,7 @@ export default function EditorShell({
                           <div className={wrapperClasses} style={wrapperStyle}>
                             {style.hidden ? (
                               <div className="rounded-[20px] border border-dashed border-slate-300 bg-white/60 px-6 py-10 text-center text-sm text-slate-500">
-                                სექცია დამალულია
+                                Section is hidden
                               </div>
                             ) : (
                               renderWidget(
@@ -813,13 +813,13 @@ export default function EditorShell({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-6">
           <div className="w-full max-w-lg rounded-[28px] bg-white p-6 shadow-xl">
             <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">გაზიარების ბმული</h2>
+            <h2 className="text-xl font-semibold">Share link</h2>
             <button className="text-sm text-slate-500" onClick={() => setShareOpen(false)}>
-              დახურვა
+              Close
             </button>
             </div>
             <p className="mt-2 text-sm text-slate-600">
-              მხოლოდ ნახვის ბმულის ვადა იწურება {expiresAt}.
+              View-only link expires on {expiresAt}.
             </p>
             <div className="mt-4 flex items-center gap-2">
               <input
@@ -833,7 +833,7 @@ export default function EditorShell({
                   navigator.clipboard.writeText(`${baseUrl}/s/${project.share_slug}`);
                 }}
               >
-                კოპირება
+                Copy
               </button>
             </div>
           </div>

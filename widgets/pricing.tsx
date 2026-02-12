@@ -83,7 +83,7 @@ export default function Pricing({ props, editable, onEdit }: PricingProps) {
                 <p className="mt-3 text-sm text-slate-600">{tier.desc}</p>
               )}
               <button className="mt-6 w-full rounded-full bg-[color:var(--primary)] px-4 py-2 text-sm font-semibold text-white">
-                აირჩიე გეგმა
+                Choose plan
               </button>
             </div>
           ))}

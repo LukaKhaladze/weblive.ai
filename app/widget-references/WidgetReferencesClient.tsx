@@ -5,9 +5,9 @@ import { useSearchParams } from "next/navigation";
 import { widgetRegistry } from "@/widgets/registry";
 
 const businessFilters = [
-  { id: "all", label: "ყველა" },
-  { id: "ecommerce", label: "ელ-კომერცია" },
-  { id: "informational", label: "საინფორმაციო" },
+  { id: "all", label: "All" },
+  { id: "ecommerce", label: "Ecommerce" },
+  { id: "informational", label: "Informational" },
 ] as const;
 
 export default function WidgetReferencesClient() {
@@ -54,7 +54,7 @@ export default function WidgetReferencesClient() {
       body: JSON.stringify({ site: updated }),
     });
 
-    alert("სექცია დაემატა თქვენს პროექტს.");
+    alert("Section added to your project.");
   }
 
   return (
@@ -63,13 +63,13 @@ export default function WidgetReferencesClient() {
         <header className="flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.4em] text-white/60">Weblive.ai</p>
-            <h1 className="text-3xl font-semibold">ვიჯეტების კატალოგი</h1>
+            <h1 className="text-3xl font-semibold">Widget Catalog</h1>
           </div>
           <a
             href="/build"
             className="rounded-full border border-white/20 px-4 py-2 text-sm"
           >
-            დაწყება
+            Get Started
           </a>
         </header>
 
@@ -97,24 +97,24 @@ export default function WidgetReferencesClient() {
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="text-lg font-semibold">{widget.name}</h3>
-                        <p className="mt-1 text-sm text-white/60">ვარიანტები: {widget.variants.join(", ")}</p>
+                        <p className="mt-1 text-sm text-white/60">Variants: {widget.variants.join(", ")}</p>
                       </div>
                       {editToken && (
                         <button
                           className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-900"
                           onClick={() => handleAdd(widget.type, widget.variants[0])}
                         >
-                          პროექტში დამატება
+                          Add to project
                         </button>
                       )}
                     </div>
-                    <p className="mt-3 text-sm text-white/60">ტეგები: {widget.tags.join(", ")}</p>
+                    <p className="mt-3 text-sm text-white/60">Tags: {widget.tags.join(", ")}</p>
                     <div className="mt-4 grid gap-2 md:grid-cols-2">
                       {widget.variants.map((variant) => (
                         <div key={variant} className="rounded-2xl border border-white/10 bg-slate-950 p-3">
-                          <p className="text-xs uppercase tracking-[0.3em] text-white/40">პრევიუ</p>
+                          <p className="text-xs uppercase tracking-[0.3em] text-white/40">Preview</p>
                           <p className="mt-2 text-sm font-semibold">{variant}</p>
-                          <p className="mt-1 text-xs text-white/50">ვიჯეტი: {widget.name}</p>
+                          <p className="mt-1 text-xs text-white/50">Widget: {widget.name}</p>
                         </div>
                       ))}
                     </div>

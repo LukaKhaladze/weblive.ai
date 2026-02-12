@@ -1,10 +1,10 @@
 const rules = [
-  "ჰედერები არ იყენებს ბურგერ მენიუს. მენიუ არის ხილული ან დამალული მობილურზე.",
-  "ჰედერში ყოველთვის არის ლოგო, ნავიგაცია და CTA ღილაკი.",
-  "CTA ტექსტი ქართულად არის მოკლე და ქმედებაზე ორიენტირებული.",
-  "სიგანე: მაქს. 1200px კონტეინერი, სიმაღლე 72-96px დიაპაზონში.",
-  "ჰედერის ვარიანტები უნდა იყოს მკვეთრად განსხვავებული (განლაგება/ფონი/საბჭოთა).",
-  "არ გამოიყენოთ მენიუს ჩამოშლა ან overlay მობილურზე.",
+  "Headers must not use burger menus. Navigation should stay visible on mobile.",
+  "Header must always contain logo, navigation, and CTA.",
+  "CTA text should be short and action-oriented in English.",
+  "Width: max 1200px container, height 72-96px range.",
+  "Header variants must be clearly distinct (layout/background/style).",
+  "Do not use dropdown or overlay navigation on mobile.",
 ];
 
 export default function RulesPage() {
@@ -12,9 +12,9 @@ export default function RulesPage() {
     <div className="min-h-screen bg-slate-950 text-white">
       <div className="mx-auto max-w-3xl px-6 py-12">
         <p className="text-xs uppercase tracking-[0.4em] text-white/60">Weblive.ai</p>
-        <h1 className="mt-3 text-3xl font-semibold">ჰედერის შაბლონების წესები</h1>
+        <h1 className="mt-3 text-3xl font-semibold">Header Template Rules</h1>
         <p className="mt-2 text-sm text-white/60">
-          ეს გვერდი დროებითია და მხოლოდ შიდა გამოყენებისთვის.
+          This page is temporary and for internal use only.
         </p>
         <ul className="mt-8 space-y-3 text-sm text-white/80">
           {rules.map((item) => (

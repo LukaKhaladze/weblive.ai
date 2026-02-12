@@ -19,9 +19,9 @@ export default function WidgetPickerModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-6">
       <div className="max-h-[80vh] w-full max-w-4xl overflow-y-auto rounded-[28px] bg-white p-6 shadow-xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">სექციის დამატება</h2>
+          <h2 className="text-xl font-semibold">Add Section</h2>
           <button className="text-sm text-slate-500" onClick={onClose}>
-            დახურვა
+            Close
           </button>
         </div>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -42,16 +42,16 @@ export default function WidgetPickerModal({
                         onClose();
                       }}
                     >
-                      დამატება {variant}
+                      Add {variant}
                     </button>
                   ))}
                 </div>
               </div>
-              <p className="mt-2 text-sm text-slate-500">ტეგები: {widget.tags.join(", ")}</p>
+              <p className="mt-2 text-sm text-slate-500">Tags: {widget.tags.join(", ")}</p>
               <div className="mt-4 grid gap-2 md:grid-cols-2">
                 {widget.variants.map((variant) => (
                   <div key={variant} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                    <p className="text-xs uppercase tracking-[0.3em] text-slate-400">პრევიუ</p>
+                    <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Preview</p>
                     <p className="mt-2 text-sm font-semibold text-slate-900">{variant}</p>
                   </div>
                 ))}

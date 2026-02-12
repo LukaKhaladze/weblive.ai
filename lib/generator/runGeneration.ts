@@ -76,7 +76,7 @@ async function applyGeneratedImages(
         image: {
           ...image,
           src: signed?.signedUrl || image.src,
-          alt: image.alt || `${input.businessName} ვიზუალური`,
+          alt: image.alt || `${input.businessName} visual`,
         },
       };
       generated += 1;
@@ -218,7 +218,7 @@ export async function runGeneration({
                 type: "text",
                 text:
                   "You are an AI website planner. Return ONLY structured JSON that matches the provided schema. " +
-                  "Write all copy in Georgian with correct grammar and natural tone. " +
+                  "Write all copy in English with clear, natural tone. " +
                   "Use the business description, product categories, unique value, target audience, price range, location, tone, visual style and image mood. " +
                   "Create a unique layout each time with different section order " +
                   "and variants. Use only the existing widget types/variants. No HTML.",

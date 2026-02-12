@@ -50,8 +50,8 @@ export default function SectionFrame({
             event.stopPropagation();
             onMoveUp();
           }}
-          aria-label="ზემოთ"
-          title="ზემოთ"
+          aria-label="Move up"
+          title="Move up"
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 6l-6 6m6-6l6 6" />
@@ -63,8 +63,8 @@ export default function SectionFrame({
             event.stopPropagation();
             onMoveDown();
           }}
-          aria-label="ქვემოთ"
-          title="ქვემოთ"
+          aria-label="Move down"
+          title="Move down"
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 18l6-6m-6 6l-6-6" />
@@ -76,8 +76,8 @@ export default function SectionFrame({
             event.stopPropagation();
             onDuplicate();
           }}
-          aria-label="დუბლირება"
-          title="დუბლირება"
+          aria-label="Duplicate"
+          title="Duplicate"
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="8" y="8" width="10" height="10" rx="2" />
@@ -90,8 +90,8 @@ export default function SectionFrame({
             event.stopPropagation();
             onDelete();
           }}
-          aria-label="წაშლა"
-          title="წაშლა"
+          aria-label="Delete"
+          title="Delete"
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 6h18" />

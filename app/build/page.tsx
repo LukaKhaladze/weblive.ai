@@ -7,7 +7,7 @@ import { recipes } from "@/lib/generator/recipes";
 import { widgetRegistry } from "@/widgets/registry";
 import { ECOMMERCE_FIXED_PAGES, normalizeEcommerceInput } from "@/lib/generator/normalizeEcommerceInput";
 
-const GOAL_LABEL = "ზარების მიღება პროდუქტებიდან";
+const GOAL_LABEL = "Get calls from products";
 
 const defaultInput: WizardInput = {
   businessName: "",
@@ -48,16 +48,16 @@ const defaultInput: WizardInput = {
 };
 
 const stepsBase = [
-  "ბიზნესის დასახელება",
-  "აღწერა",
-  "დეტალები",
-  "მთავარი მიზანი",
-  "გვერდები",
-  "პროდუქტები",
-  "ბრენდის ფერები",
-  "ლოგო",
-  "კონტაქტი",
-  "გადახედვა",
+  "Business Name",
+  "Description",
+  "Details",
+  "Main Goal",
+  "Pages",
+  "Products",
+  "Brand Colors",
+  "Logo",
+  "Contact",
+  "Review",
 ];
 
 export default function BuildPage() {
@@ -78,7 +78,7 @@ export default function BuildPage() {
   const canNext = () => {
     if (step === 0) return input.businessName.trim().length > 0;
     if (step === 1) return input.description.trim().length > 0;
-    if (steps[step] === "პროდუქტები") {
+    if (steps[step] === "Products") {
       return input.products.length > 0 && input.products.every((p) => p.name && p.price);
     }
     return true;
@@ -95,7 +95,7 @@ export default function BuildPage() {
     const data = await response.json();
     if (!response.ok) {
       setLoading(false);
-      alert("გენერაცია ვერ შესრულდა.");
+      alert("Generation failed.");
       return;
     }
 
@@ -132,7 +132,7 @@ export default function BuildPage() {
         });
       } else {
         console.error("Logo upload failed:", upload);
-        alert("ლოგოს ატვირთვა ვერ შესრულდა. სცადე ხელახლა ან ატვირთე მოგვიანებით რედაქტორში.");
+        alert("Logo upload failed. Please try again or upload it later in the editor.");
       }
     }
 
@@ -170,10 +170,10 @@ export default function BuildPage() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.4em] text-white/60">Weblive.ai</p>
-            <h1 className="text-3xl font-semibold">შექმენი შენი საიტი</h1>
+            <h1 className="text-3xl font-semibold">Build your website</h1>
           </div>
           <div className="text-sm text-white/60">
-            ნაბიჯი {step + 1} / {steps.length}
+            Step {step + 1} / {steps.length}
           </div>
         </div>
 
@@ -182,7 +182,7 @@ export default function BuildPage() {
 
           {step === 0 && (
             <div className="mt-6">
-              <label className="text-sm text-white/70">ბიზნესის დასახელება</label>
+              <label className="text-sm text-white/70">Business Name</label>
               <input
                 className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                 value={input.businessName}
@@ -193,7 +193,7 @@ export default function BuildPage() {
 
           {step === 1 && (
             <div className="mt-6">
-              <label className="text-sm text-white/70">მოკლე აღწერა</label>
+              <label className="text-sm text-white/70">Short Description</label>
               <textarea
                 className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                 rows={4}
@@ -203,93 +203,93 @@ export default function BuildPage() {
             </div>
           )}
 
-          {steps[step] === "დეტალები" && (
+          {steps[step] === "Details" && (
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               <label className="text-sm text-white/70">
-                პროდუქტის კატეგორიები (ჩაწერე მძიმით)
+                Product categories (comma separated)
                 <input
                   className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                   value={input.productCategories || ""}
                   onChange={(event) => setInput({ ...input, productCategories: event.target.value, services: event.target.value })}
-                  placeholder="სკინქეარი, მაკიაჟი, აქსესუარები"
+                  placeholder="skincare, makeup, accessories"
                 />
               </label>
               <label className="text-sm text-white/70">
-                უნიკალური ღირებულება
+                Unique value proposition
                 <input
                   className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                   value={input.uniqueValue || ""}
                   onChange={(event) => setInput({ ...input, uniqueValue: event.target.value })}
-                  placeholder="რატომ უნდა აგირჩიონ კონკურენტებთან შედარებით"
+                  placeholder="Why customers should choose you over competitors"
                 />
               </label>
               <label className="text-sm text-white/70">
-                სამიზნე აუდიტორია
+                Target audience
                 <input
                   className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                   value={input.targetAudience}
                   onChange={(event) => setInput({ ...input, targetAudience: event.target.value })}
-                  placeholder="ქალები 20-45"
+                  placeholder="Women 20-45"
                 />
               </label>
               <label className="text-sm text-white/70">
-                ფასის დიაპაზონი
+                Price range
                 <input
                   className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                   value={input.priceRange || ""}
                   onChange={(event) => setInput({ ...input, priceRange: event.target.value })}
-                  placeholder="საშუალო, პრემიუმ, 30-120 ლარი"
+                  placeholder="mid-range, premium, $30-$120"
                 />
               </label>
               <label className="text-sm text-white/70">
-                ლოკაცია
+                Location
                 <input
                   className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                   value={input.location}
                   onChange={(event) => setInput({ ...input, location: event.target.value })}
-                  placeholder="თბილისი, ვაკე"
+                  placeholder="Tbilisi, Vake"
                 />
               </label>
               <label className="text-sm text-white/70">
-                ტონი / სტილი
+                Tone / style
                 <input
                   className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                   value={input.tone}
                   onChange={(event) => setInput({ ...input, tone: event.target.value })}
-                  placeholder="ელეგანტური, პრემიუმ"
+                  placeholder="elegant, premium"
                 />
               </label>
               <label className="text-sm text-white/70">
-                ვიზუალური სტილი
+                Visual style
                 <input
                   className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                   value={input.visualStyle || ""}
                   onChange={(event) => setInput({ ...input, visualStyle: event.target.value })}
-                  placeholder="მინიმალისტური, მოდერნი, ბნელი, ნათელი"
+                  placeholder="minimal, modern, dark, light"
                 />
               </label>
               <label className="text-sm text-white/70">
-                სურათის განწყობა
+                Image mood
                 <input
                   className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                   value={input.imageMood || ""}
                   onChange={(event) => setInput({ ...input, imageMood: event.target.value })}
-                  placeholder="თბილი, ლუქსი, ბუნებრივი განათება"
+                  placeholder="warm, luxury, natural light"
                 />
               </label>
               <label className="text-sm text-white/70 md:col-span-2">
-                მთავარი CTA ტექსტი
+                Primary CTA text
                 <input
                   className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                   value={input.primaryCta || ""}
                   onChange={(event) => setInput({ ...input, primaryCta: event.target.value })}
-                  placeholder="შეკვეთა ახლავე / დაგვიკავშირდი"
+                  placeholder="Order now / Contact us"
                 />
               </label>
             </div>
           )}
 
-          {steps[step] === "მთავარი მიზანი" && (
+          {steps[step] === "Main Goal" && (
             <div className="mt-6">
               <div className="rounded-xl border border-white bg-white px-4 py-4 text-sm text-slate-900">
                 {GOAL_LABEL}
@@ -297,9 +297,9 @@ export default function BuildPage() {
             </div>
           )}
 
-          {steps[step] === "გვერდები" && (
+          {steps[step] === "Pages" && (
             <div className="mt-6 space-y-3">
-              <p className="text-sm text-white/70">ელ-კომერციის სტანდარტული გვერდები:</p>
+              <p className="text-sm text-white/70">Standard ecommerce pages:</p>
               <div className="grid gap-2 md:grid-cols-2">
                 {availablePages.map((page) => (
                   <div key={page.id} className="rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-sm">
@@ -310,9 +310,9 @@ export default function BuildPage() {
             </div>
           )}
 
-          {steps[step] === "პროდუქტები" && (
+          {steps[step] === "Products" && (
             <div className="mt-6 space-y-4">
-              <div className="text-sm text-white/70">რამდენი პროდუქტი გაქვთ? (მაქს. 3)</div>
+              <div className="text-sm text-white/70">How many products do you have? (max 3)</div>
               <div className="flex gap-3">
                 {[1, 2, 3].map((count) => (
                   <button
@@ -338,10 +338,10 @@ export default function BuildPage() {
 
               {input.products.map((product, index) => (
                 <div key={index} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
-                  <p className="text-sm font-semibold text-white/80">პროდუქტი {index + 1}</p>
+                  <p className="text-sm font-semibold text-white/80">Product {index + 1}</p>
                   <div className="mt-3 grid gap-3 md:grid-cols-3">
                     <label className="text-sm text-white/70">
-                      დასახელება
+                      Name
                       <input
                         className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 p-3 text-white placeholder-white/40"
                         value={product.name}
@@ -353,7 +353,7 @@ export default function BuildPage() {
                       />
                     </label>
                     <label className="text-sm text-white/70">
-                      ფასი
+                      Price
                       <input
                         className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 p-3 text-white placeholder-white/40"
                         value={product.price}
@@ -365,7 +365,7 @@ export default function BuildPage() {
                       />
                     </label>
                     <label className="text-sm text-white/70">
-                      სურათი
+                      Image
                       <input
                         type="file"
                         accept="image/*"
@@ -384,10 +384,10 @@ export default function BuildPage() {
             </div>
           )}
 
-          {steps[step] === "ბრენდის ფერები" && (
+          {steps[step] === "Brand Colors" && (
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               <label className="text-sm text-white/70">
-                მთავარი ფერი
+                Primary color
                 <input
                   type="color"
                   value={input.brand.primaryColor}
@@ -398,7 +398,7 @@ export default function BuildPage() {
                 />
               </label>
               <label className="text-sm text-white/70">
-                მეორადი ფერი
+                Secondary color
                 <input
                   type="color"
                   value={input.brand.secondaryColor}
@@ -416,14 +416,14 @@ export default function BuildPage() {
                     setInput({ ...input, brand: { ...input.brand, extractFromLogo: event.target.checked } })
                   }
                 />
-                ლოგოდან ფერების ამოღება (დროებითი ქცევა)
+                Extract colors from logo (temporary behavior)
               </label>
             </div>
           )}
 
-          {steps[step] === "ლოგო" && (
+          {steps[step] === "Logo" && (
             <div className="mt-6 space-y-3">
-              <label className="text-sm text-white/70">ლოგოს ატვირთვა (არასავალდებულო)</label>
+              <label className="text-sm text-white/70">Logo upload (optional)</label>
               <input
                 type="file"
                 accept="image/*"
@@ -431,15 +431,15 @@ export default function BuildPage() {
                 className="text-sm"
               />
               <p className="text-xs text-white/50">
-                რეკომენდებული ზომა: 120×120px ან 240×240px (კვადრატი).
+                Recommended size: 120x120px or 240x240px (square).
               </p>
             </div>
           )}
 
-          {steps[step] === "კონტაქტი" && (
+          {steps[step] === "Contact" && (
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               <label className="text-sm text-white/70">
-                ტელეფონი
+                Phone
                 <input
                   className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                   value={input.contact.phone}
@@ -452,7 +452,7 @@ export default function BuildPage() {
                 />
               </label>
               <label className="text-sm text-white/70">
-                ელ. ფოსტა
+                Email
                 <input
                   className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                   value={input.contact.email}
@@ -465,7 +465,7 @@ export default function BuildPage() {
                 />
               </label>
               <label className="text-sm text-white/70">
-                მისამართი
+                Address
                 <input
                   className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                   value={input.contact.address}
@@ -478,7 +478,7 @@ export default function BuildPage() {
                 />
               </label>
               <label className="text-sm text-white/70">
-                სამუშაო საათები
+                Business hours
                 <input
                   className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                   value={input.contact.hours}
@@ -493,22 +493,22 @@ export default function BuildPage() {
             </div>
           )}
 
-          {steps[step] === "გადახედვა" && (
+          {steps[step] === "Review" && (
             <div className="mt-6 space-y-4 text-sm text-white/70">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-white/50">შეჯამება</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-white/50">Summary</p>
                 <p className="mt-2">{input.businessName}</p>
                 <p>{input.description}</p>
-                {!!input.productCategories && <p>კატეგორიები: {input.productCategories}</p>}
-                {!!input.uniqueValue && <p>უნიკალური ღირებულება: {input.uniqueValue}</p>}
-                <p>მიზანი: {GOAL_LABEL}</p>
+                {!!input.productCategories && <p>Categories: {input.productCategories}</p>}
+                {!!input.uniqueValue && <p>Unique value proposition: {input.uniqueValue}</p>}
+                <p>Goal: {GOAL_LABEL}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-white/50">გვერდები</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-white/50">Pages</p>
                 <p className="mt-2">{input.pages.join(", ")}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-white/50">ვიჯეტები</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-white/50">Widgets</p>
                 <p className="mt-2">{Object.values(widgetRegistry).map((w) => w.name).slice(0, 6).join(", ")}...</p>
               </div>
             </div>
@@ -520,7 +520,7 @@ export default function BuildPage() {
               onClick={() => setStep((prev) => Math.max(prev - 1, 0))}
               disabled={step === 0}
             >
-              უკან
+              Back
             </button>
             {step < steps.length - 1 ? (
               <button
@@ -529,7 +529,7 @@ export default function BuildPage() {
                 }`}
                 onClick={() => canNext() && setStep((prev) => Math.min(prev + 1, steps.length - 1))}
               >
-                შემდეგი
+                Next
               </button>
             ) : (
               <button
@@ -537,7 +537,7 @@ export default function BuildPage() {
                 onClick={handleGenerate}
                 disabled={loading}
               >
-                {loading ? "მზადდება..." : "საიტის გენერაცია"}
+                {loading ? "Generating..." : "Generate Website"}
               </button>
             )}
           </div>
