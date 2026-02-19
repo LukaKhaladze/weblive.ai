@@ -3,7 +3,7 @@ import WidgetReferencesClient from "@/app/widget-references/WidgetReferencesClie
 
 export default function WidgetReferencesPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-950 text-white p-10">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-primary text-[#F8FAFC] p-10">Loading...</div>}>
       <WidgetReferencesClient />
     </Suspense>
   );

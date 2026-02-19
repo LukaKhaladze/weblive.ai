@@ -8,6 +8,11 @@ const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-display" });
 export const metadata: Metadata = {
   title: "Weblive.ai",
   description: "AI website plans with editable previews.",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

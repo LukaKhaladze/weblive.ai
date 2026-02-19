@@ -33,29 +33,29 @@ export default function LandingFAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 md:p-8">
-      <h2 className="text-2xl font-semibold text-white">FAQ</h2>
+    <section className="surface-card rounded-[28px] p-6 md:p-8">
+      <h2 className="text-2xl font-semibold text-[#F8FAFC]">FAQ</h2>
       <div className="mt-5 space-y-3">
         {items.map((item, index) => {
           const open = openIndex === index;
           return (
-            <article key={item.question} className="rounded-xl border border-white/10 bg-[#0a1224]">
+            <article key={item.question} className="rounded-xl border border-border bg-primary">
               <button
                 type="button"
-                className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left text-sm font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+                className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left text-sm font-semibold text-[#F8FAFC]"
                 onClick={() => setOpenIndex(open ? null : index)}
                 aria-expanded={open}
                 aria-controls={`faq-panel-${index}`}
               >
                 <span>{item.question}</span>
-                <span className="text-white/60">{open ? "−" : "+"}</span>
+                <span className="text-muted">{open ? "−" : "+"}</span>
               </button>
               <div
                 id={`faq-panel-${index}`}
                 className={`grid transition-all duration-300 ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
               >
                 <div className="overflow-hidden">
-                  <p className="px-4 pb-4 text-sm text-white/65">{item.answer}</p>
+                  <p className="px-4 pb-4 text-sm text-muted">{item.answer}</p>
                 </div>
               </div>
             </article>

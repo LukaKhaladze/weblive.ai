@@ -3,25 +3,86 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
+  --brand-bg: #0f192b;
+  --brand-text: #f8fafc;
+  --brand-muted: #94a3b8;
+  --brand-border: #1e293b;
+  --brand-accent-blue: #2f9bfd;
+  --brand-accent-mid: #4d5cf3;
+  --brand-accent-purple: #7333f2;
 }
 
 body {
-  @apply bg-slate-950 text-white font-body antialiased;
+  @apply bg-primary text-primary font-body antialiased;
   overflow-x: hidden;
 }
 
 input, select, textarea {
-  @apply bg-white text-slate-900;
+  background-color: var(--brand-bg);
+  color: var(--brand-text);
+  border: 1px solid var(--brand-border);
 }
 
 * {
   box-sizing: border-box;
 }
 
+*:focus-visible {
+  outline: 2px solid var(--brand-accent-blue);
+  outline-offset: 2px;
+}
+
 img {
   max-width: 100%;
   height: auto;
+}
+
+a,
+button {
+  transition: all 200ms ease;
+}
+
+.bg-brand-gradient {
+  background: linear-gradient(135deg, #2f9bfd, #4d5cf3, #7333f2);
+}
+
+.text-brand-muted {
+  color: var(--brand-muted);
+}
+
+.border-brand {
+  border-color: var(--brand-border);
+}
+
+.surface-card {
+  background-color: var(--brand-bg);
+  border: 1px solid var(--brand-border);
+  border-radius: 16px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2f9bfd, #4d5cf3, #7333f2);
+  color: #ffffff;
+  border-radius: 14px;
+  border: 0;
+  box-shadow: none;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.05);
+  transform: scale(1.02);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--brand-text);
+  border: 1px solid var(--brand-border);
+  border-radius: 14px;
+}
+
+.btn-secondary:hover {
+  background: var(--brand-border);
 }
 
 .weblive-text {

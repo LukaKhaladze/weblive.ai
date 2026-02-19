@@ -58,16 +58,16 @@ export default function WidgetReferencesClient() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-primary text-[#F8FAFC]">
       <div className="mx-auto max-w-6xl px-6 py-12">
         <header className="flex items-center justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.4em] text-white/60">Weblive.ai</p>
+            <p className="text-xs uppercase tracking-[0.4em] text-muted">Weblive.ai</p>
             <h1 className="text-3xl font-semibold">Widget Catalog</h1>
           </div>
           <a
             href="/build"
-            className="rounded-full border border-white/20 px-4 py-2 text-sm"
+            className="btn-secondary rounded-full px-4 py-2 text-sm"
           >
             Get Started
           </a>
@@ -78,7 +78,7 @@ export default function WidgetReferencesClient() {
             <button
               key={item.id}
               className={`rounded-full px-4 py-2 text-sm ${
-                filter === item.id ? "bg-white text-slate-900" : "border border-white/20"
+                filter === item.id ? "bg-brand-gradient text-white" : "border border-border text-muted"
               }`}
               onClick={() => setFilter(item.id)}
             >
@@ -93,28 +93,28 @@ export default function WidgetReferencesClient() {
               <h2 className="text-xl font-semibold">{category}</h2>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 {widgets.map((widget) => (
-                  <div key={widget.type} className="rounded-[28px] border border-white/10 bg-slate-900 p-5">
+                  <div key={widget.type} className="rounded-[28px] border border-border bg-primary p-5">
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="text-lg font-semibold">{widget.name}</h3>
-                        <p className="mt-1 text-sm text-white/60">Variants: {widget.variants.join(", ")}</p>
+                        <p className="mt-1 text-sm text-muted">Variants: {widget.variants.join(", ")}</p>
                       </div>
                       {editToken && (
                         <button
-                          className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-900"
+                          className="btn-primary rounded-full px-3 py-1 text-xs font-semibold"
                           onClick={() => handleAdd(widget.type, widget.variants[0])}
                         >
                           Add to project
                         </button>
                       )}
                     </div>
-                    <p className="mt-3 text-sm text-white/60">Tags: {widget.tags.join(", ")}</p>
+                    <p className="mt-3 text-sm text-muted">Tags: {widget.tags.join(", ")}</p>
                     <div className="mt-4 grid gap-2 md:grid-cols-2">
                       {widget.variants.map((variant) => (
-                        <div key={variant} className="rounded-2xl border border-white/10 bg-slate-950 p-3">
-                          <p className="text-xs uppercase tracking-[0.3em] text-white/40">Preview</p>
+                        <div key={variant} className="rounded-2xl border border-border bg-primary p-3">
+                          <p className="text-xs uppercase tracking-[0.3em] text-muted">Preview</p>
                           <p className="mt-2 text-sm font-semibold">{variant}</p>
-                          <p className="mt-1 text-xs text-white/50">Widget: {widget.name}</p>
+                          <p className="mt-1 text-xs text-muted">Widget: {widget.name}</p>
                         </div>
                       ))}
                     </div>

@@ -248,26 +248,26 @@ export default function BuildPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-primary text-[#F8FAFC]">
       <div className="mx-auto max-w-4xl px-6 py-10">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.4em] text-white/60">Weblive.ai</p>
+            <p className="text-xs uppercase tracking-[0.4em] text-muted">Weblive.ai</p>
             <h1 className="text-3xl font-semibold">Build your website</h1>
           </div>
-          <div className="text-sm text-white/60">
+          <div className="text-sm text-muted">
             Step {step + 1} / {steps.length}
           </div>
         </div>
 
-        <div className="mt-8 rounded-[32px] border border-white/10 bg-slate-900 p-8">
+        <div className="mt-8 rounded-[32px] border border-border bg-primary p-8">
           <h2 className="text-xl font-semibold">{steps[step]}</h2>
 
           {step === 0 && (
             <div className="mt-6">
-              <label className="text-sm text-white/70">Business Name</label>
+              <label className="text-sm text-muted">Business Name</label>
               <input
-                className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                 value={input.businessName}
                 onChange={(event) => setInput({ ...input, businessName: event.target.value })}
               />
@@ -276,19 +276,19 @@ export default function BuildPage() {
 
           {step === 1 && (
             <div className="mt-6 space-y-4">
-              <label className="block text-sm text-white/70">
+              <label className="block text-sm text-muted">
                 Describe what website you need (planner prompt)
                 <textarea
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                   rows={4}
                   value={input.prompt || ""}
                   onChange={(event) => setInput({ ...input, prompt: event.target.value })}
                   placeholder="Example: Create a modern ecommerce site for a beauty salon in Tbilisi with trust-focused copy and product highlights."
                 />
               </label>
-              <label className="block text-sm text-white/70">Short Description</label>
+              <label className="block text-sm text-muted">Short Description</label>
               <textarea
-                className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                 rows={4}
                 value={input.description}
                 onChange={(event) => setInput({ ...input, description: event.target.value })}
@@ -298,82 +298,82 @@ export default function BuildPage() {
 
           {steps[step] === "Details" && (
             <div className="mt-6 grid gap-4 md:grid-cols-2">
-              <label className="text-sm text-white/70">
+              <label className="text-sm text-muted">
                 Product categories (comma separated)
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                   value={input.productCategories || ""}
                   onChange={(event) => setInput({ ...input, productCategories: event.target.value, services: event.target.value })}
                   placeholder="skincare, makeup, accessories"
                 />
               </label>
-              <label className="text-sm text-white/70">
+              <label className="text-sm text-muted">
                 Unique value proposition
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                   value={input.uniqueValue || ""}
                   onChange={(event) => setInput({ ...input, uniqueValue: event.target.value })}
                   placeholder="Why customers should choose you over competitors"
                 />
               </label>
-              <label className="text-sm text-white/70">
+              <label className="text-sm text-muted">
                 Target audience
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                   value={input.targetAudience}
                   onChange={(event) => setInput({ ...input, targetAudience: event.target.value })}
                   placeholder="Women 20-45"
                 />
               </label>
-              <label className="text-sm text-white/70">
+              <label className="text-sm text-muted">
                 Price range
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                   value={input.priceRange || ""}
                   onChange={(event) => setInput({ ...input, priceRange: event.target.value })}
                   placeholder="mid-range, premium, $30-$120"
                 />
               </label>
-              <label className="text-sm text-white/70">
+              <label className="text-sm text-muted">
                 Location
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                   value={input.location}
                   onChange={(event) => setInput({ ...input, location: event.target.value })}
                   placeholder="Tbilisi, Vake"
                 />
               </label>
-              <label className="text-sm text-white/70">
+              <label className="text-sm text-muted">
                 Tone / style
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                   value={input.tone}
                   onChange={(event) => setInput({ ...input, tone: event.target.value })}
                   placeholder="elegant, premium"
                 />
               </label>
-              <label className="text-sm text-white/70">
+              <label className="text-sm text-muted">
                 Visual style
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                   value={input.visualStyle || ""}
                   onChange={(event) => setInput({ ...input, visualStyle: event.target.value })}
                   placeholder="minimal, modern, dark, light"
                 />
               </label>
-              <label className="text-sm text-white/70">
+              <label className="text-sm text-muted">
                 Image mood
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                   value={input.imageMood || ""}
                   onChange={(event) => setInput({ ...input, imageMood: event.target.value })}
                   placeholder="warm, luxury, natural light"
                 />
               </label>
-              <label className="text-sm text-white/70 md:col-span-2">
+              <label className="text-sm text-muted md:col-span-2">
                 Primary CTA text
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                   value={input.primaryCta || ""}
                   onChange={(event) => setInput({ ...input, primaryCta: event.target.value })}
                   placeholder="Order now / Contact us"
@@ -384,7 +384,7 @@ export default function BuildPage() {
 
           {steps[step] === "Main Goal" && (
             <div className="mt-6">
-              <div className="rounded-xl border border-white bg-white px-4 py-4 text-sm text-slate-900">
+              <div className="rounded-xl border border-border bg-primary px-4 py-4 text-sm text-[#F8FAFC]">
                 {GOAL_LABEL}
               </div>
             </div>
@@ -392,10 +392,10 @@ export default function BuildPage() {
 
           {steps[step] === "Pages" && (
             <div className="mt-6 space-y-3">
-              <p className="text-sm text-white/70">Standard ecommerce pages:</p>
+              <p className="text-sm text-muted">Standard ecommerce pages:</p>
               <div className="grid gap-2 md:grid-cols-2">
                 {availablePages.map((page) => (
-                  <div key={page.id} className="rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-sm">
+                  <div key={page.id} className="rounded-xl border border-border bg-primary px-3 py-2 text-sm">
                     {page.name}
                   </div>
                 ))}
@@ -405,15 +405,15 @@ export default function BuildPage() {
 
           {steps[step] === "Products" && (
             <div className="mt-6 space-y-4">
-              <div className="text-sm text-white/70">How many products do you have? (max 3)</div>
+              <div className="text-sm text-muted">How many products do you have? (max 3)</div>
               <div className="flex gap-3">
                 {[1, 2, 3].map((count) => (
                   <button
                     key={count}
                     className={`rounded-full border px-4 py-2 text-sm ${
                       input.products.length === count
-                        ? "border-white bg-white text-slate-900"
-                        : "border-white/10 bg-slate-950 text-white/70"
+                        ? "border-border bg-brand-gradient text-white"
+                        : "border-border bg-primary text-muted"
                     }`}
                     onClick={() => {
                       const next = Array.from({ length: count }).map((_, index) => ({
@@ -430,13 +430,13 @@ export default function BuildPage() {
               </div>
 
               {input.products.map((product, index) => (
-                <div key={index} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
-                  <p className="text-sm font-semibold text-white/80">Product {index + 1}</p>
+                <div key={index} className="rounded-2xl border border-border bg-primary p-4">
+                  <p className="text-sm font-semibold text-[#F8FAFC]">Product {index + 1}</p>
                   <div className="mt-3 grid gap-3 md:grid-cols-3">
-                    <label className="text-sm text-white/70">
+                    <label className="text-sm text-muted">
                       Name
                       <input
-                        className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 p-3 text-white placeholder-white/40"
+                        className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                         value={product.name}
                         onChange={(event) => {
                           const next = [...input.products];
@@ -445,10 +445,10 @@ export default function BuildPage() {
                         }}
                       />
                     </label>
-                    <label className="text-sm text-white/70">
+                    <label className="text-sm text-muted">
                       Price
                       <input
-                        className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 p-3 text-white placeholder-white/40"
+                        className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                         value={product.price}
                         onChange={(event) => {
                           const next = [...input.products];
@@ -457,7 +457,7 @@ export default function BuildPage() {
                         }}
                       />
                     </label>
-                    <label className="text-sm text-white/70">
+                    <label className="text-sm text-muted">
                       Image
                       <input
                         type="file"
@@ -479,7 +479,7 @@ export default function BuildPage() {
 
           {steps[step] === "Brand Colors" && (
             <div className="mt-6 grid gap-4 md:grid-cols-2">
-              <label className="text-sm text-white/70">
+              <label className="text-sm text-muted">
                 Primary color
                 <input
                   type="color"
@@ -487,10 +487,10 @@ export default function BuildPage() {
                   onChange={(event) =>
                     setInput({ ...input, brand: { ...input.brand, primaryColor: event.target.value } })
                   }
-                  className="mt-2 h-12 w-full rounded-xl border border-white/10 bg-slate-950"
+                  className="mt-2 h-12 w-full rounded-xl border border-border bg-primary"
                 />
               </label>
-              <label className="text-sm text-white/70">
+              <label className="text-sm text-muted">
                 Secondary color
                 <input
                   type="color"
@@ -498,10 +498,10 @@ export default function BuildPage() {
                   onChange={(event) =>
                     setInput({ ...input, brand: { ...input.brand, secondaryColor: event.target.value } })
                   }
-                  className="mt-2 h-12 w-full rounded-xl border border-white/10 bg-slate-950"
+                  className="mt-2 h-12 w-full rounded-xl border border-border bg-primary"
                 />
               </label>
-              <label className="col-span-full flex items-center gap-3 text-sm text-white/70">
+              <label className="col-span-full flex items-center gap-3 text-sm text-muted">
                 <input
                   type="checkbox"
                   checked={input.brand.extractFromLogo}
@@ -516,14 +516,14 @@ export default function BuildPage() {
 
           {steps[step] === "Logo" && (
             <div className="mt-6 space-y-3">
-              <label className="text-sm text-white/70">Logo upload (optional)</label>
+              <label className="text-sm text-muted">Logo upload (optional)</label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={(event) => setLogoFile(event.target.files?.[0] || null)}
                 className="text-sm"
               />
-              <p className="text-xs text-white/50">
+              <p className="text-xs text-muted">
                 Recommended size: 120x120px or 240x240px (square).
               </p>
             </div>
@@ -531,10 +531,10 @@ export default function BuildPage() {
 
           {steps[step] === "Contact" && (
             <div className="mt-6 grid gap-4 md:grid-cols-2">
-              <label className="text-sm text-white/70">
+              <label className="text-sm text-muted">
                 Phone
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                   value={input.contact.phone}
                   onChange={(event) =>
                     setInput({
@@ -544,10 +544,10 @@ export default function BuildPage() {
                   }
                 />
               </label>
-              <label className="text-sm text-white/70">
+              <label className="text-sm text-muted">
                 Email
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                   value={input.contact.email}
                   onChange={(event) =>
                     setInput({
@@ -557,10 +557,10 @@ export default function BuildPage() {
                   }
                 />
               </label>
-              <label className="text-sm text-white/70">
+              <label className="text-sm text-muted">
                 Address
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                   value={input.contact.address}
                   onChange={(event) =>
                     setInput({
@@ -570,10 +570,10 @@ export default function BuildPage() {
                   }
                 />
               </label>
-              <label className="text-sm text-white/70">
+              <label className="text-sm text-muted">
                 Business hours
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                   value={input.contact.hours}
                   onChange={(event) =>
                     setInput({
@@ -587,9 +587,9 @@ export default function BuildPage() {
           )}
 
           {steps[step] === "Review" && (
-            <div className="mt-6 space-y-4 text-sm text-white/70">
+            <div className="mt-6 space-y-4 text-sm text-muted">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-white/50">Summary</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-muted">Summary</p>
                 <p className="mt-2">{input.businessName}</p>
                 {!!input.prompt && <p>Prompt: {input.prompt}</p>}
                 <p>{input.description}</p>
@@ -598,16 +598,16 @@ export default function BuildPage() {
                 <p>Goal: {GOAL_LABEL}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-white/50">Pages</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-muted">Pages</p>
                 <p className="mt-2">{input.pages.join(", ")}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-white/50">Widgets</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-muted">Widgets</p>
                 <p className="mt-2">{Object.values(widgetRegistry).map((w) => w.name).slice(0, 6).join(", ")}...</p>
               </div>
               {(plannerWarnings.length > 0 || unsupportedFeatures.length > 0) && (
                 <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-white/50">Planner Notes</p>
+                  <p className="text-xs uppercase tracking-[0.3em] text-muted">Planner Notes</p>
                   {plannerWarnings.length > 0 && (
                     <ul className="mt-2 list-disc space-y-1 pl-5">
                       {plannerWarnings.map((warning, index) => (
@@ -627,7 +627,7 @@ export default function BuildPage() {
 
           <div className="mt-8 flex items-center justify-between">
             <button
-              className="rounded-full border border-white/20 px-4 py-2 text-sm"
+              className="btn-secondary rounded-full px-4 py-2 text-sm"
               onClick={() => setStep((prev) => Math.max(prev - 1, 0))}
               disabled={step === 0}
             >
@@ -636,7 +636,7 @@ export default function BuildPage() {
             {step < steps.length - 1 ? (
               <button
                 className={`rounded-full px-4 py-2 text-sm font-semibold ${
-                  canNext() ? "bg-white text-slate-900" : "bg-white/30 text-white/50"
+                  canNext() ? "bg-brand-gradient text-white" : "border border-border text-muted"
                 }`}
                 onClick={() => canNext() && setStep((prev) => Math.min(prev + 1, steps.length - 1))}
               >
@@ -644,7 +644,7 @@ export default function BuildPage() {
               </button>
             ) : (
               <button
-                className="rounded-full bg-white px-6 py-2 text-sm font-semibold text-slate-900"
+                className="btn-primary rounded-full px-6 py-2 text-sm font-semibold"
                 onClick={handleGenerate}
                 disabled={loading}
               >

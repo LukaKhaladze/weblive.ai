@@ -14,9 +14,9 @@ export default function LandingEmailCapture() {
   }
 
   return (
-    <section id="email-capture" className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6 backdrop-blur md:p-8">
-      <h2 className="text-2xl font-semibold text-white">Get product updates</h2>
-      <p className="mt-2 text-sm text-white/65">Optional: receive release notes and practical tips. You can start building immediately.</p>
+    <section id="email-capture" className="surface-card p-6 md:p-8">
+      <h2 className="text-2xl font-semibold text-[#F8FAFC]">Get product updates</h2>
+      <p className="mt-2 text-sm text-muted">Optional: receive release notes and practical tips. You can start building immediately.</p>
       <form onSubmit={onSubmit} className="mt-5 flex flex-col gap-3 sm:flex-row">
         <label htmlFor="landing-email" className="sr-only">
           Email
@@ -28,18 +28,18 @@ export default function LandingEmailCapture() {
           onChange={(event) => setEmail(event.target.value)}
           required
           placeholder="you@company.com"
-          className="h-12 flex-1 rounded-xl border border-white/15 bg-[#0a1224] px-4 text-sm text-white placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+          className="h-12 flex-1 rounded-[14px] border border-border bg-primary px-4 text-sm text-[#F8FAFC] placeholder:text-muted"
         />
         <button
           type="submit"
-          className="h-12 rounded-xl bg-white px-5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+          className="btn-primary h-12 px-5 text-sm font-semibold"
         >
           Subscribe
         </button>
       </form>
       <p
         className={`mt-3 text-sm transition ${
-          status === "success" ? "translate-y-0 opacity-100 text-emerald-300" : "translate-y-1 opacity-0"
+          status === "success" ? "translate-y-0 opacity-100 text-[#F8FAFC]" : "translate-y-1 opacity-0"
         }`}
       >
         Thanks. You are subscribed.

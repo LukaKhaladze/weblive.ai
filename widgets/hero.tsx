@@ -76,7 +76,7 @@ export default function Hero({
     : undefined;
 
   const ImageBlock = (
-    <div className="relative overflow-hidden rounded-[24px] bg-slate-100">
+    <div className="relative overflow-hidden rounded-[24px] bg-primary border border-border">
       {editable && onImageUpload ? (
         <ClickUpload onUpload={(file) => onImageUpload("image.src", file, "images")}>
           <img
@@ -98,20 +98,20 @@ export default function Hero({
   const TextBlock = (
     <div className="space-y-4">
       {props.eyebrow && (
-        <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-primary px-3 py-1 text-xs font-semibold text-muted">
           {renderText("span", "font-semibold", props.eyebrow, "eyebrow")}
         </div>
       )}
       {renderText(
         "h2",
-        "text-4xl font-semibold tracking-tight text-slate-900",
+        "text-4xl font-semibold tracking-tight text-[#F8FAFC]",
         props.headline,
         "headline"
       )}
       {props.subheadline && (
         renderText(
           "p",
-          "max-w-xl text-base text-slate-600",
+          "max-w-xl text-base text-muted",
           props.subheadline,
           "subheadline"
         )
@@ -119,14 +119,14 @@ export default function Hero({
       <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
-          className="rounded-xl bg-[color:var(--primary)] px-5 py-2.5 text-sm font-semibold text-white"
+          className="btn-primary px-5 py-2.5 text-sm font-semibold"
           {...(editable ? { onClick: () => handleCtaClick("ctaPrimary.href", primary.href) } : {})}
         >
           {renderText("span", "font-semibold", primary.label, "ctaPrimary.label")}
         </button>
         <button
           type="button"
-          className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700"
+          className="btn-secondary px-5 py-2.5 text-sm font-semibold"
           {...(editable
             ? { onClick: () => handleCtaClick("ctaSecondary.href", secondary.href) }
             : {})}
@@ -135,7 +135,7 @@ export default function Hero({
         </button>
       </div>
       {props.bullets && props.bullets.length > 0 && (
-        <div className="flex flex-wrap gap-4 text-sm text-slate-600">
+        <div className="flex flex-wrap gap-4 text-sm text-muted">
           {props.bullets.map((item, index) => (
             <span key={index} className="flex items-center gap-2">
               {renderText("span", "flex items-center gap-2", item, `bullets.${index}`)}
@@ -153,7 +153,7 @@ export default function Hero({
         <div className="relative z-10 px-10 py-16">
           <div className="max-w-2xl space-y-5">
             {props.eyebrow && (
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white">
+              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-primary/60 px-3 py-1 text-xs font-semibold text-[#F8FAFC]">
                 {renderText("span", "font-semibold", props.eyebrow, "eyebrow")}
               </div>
             )}
@@ -166,7 +166,7 @@ export default function Hero({
             {props.subheadline && (
               renderText(
                 "p",
-                "max-w-xl text-base text-white/80",
+                "max-w-xl text-base text-muted",
                 props.subheadline,
                 "subheadline"
               )
@@ -174,7 +174,7 @@ export default function Hero({
             <div className="flex flex-wrap items-center gap-3">
               <button
                 type="button"
-                className="rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-slate-900"
+                className="btn-primary px-5 py-2.5 text-sm font-semibold"
                 {...(editable
                   ? { onClick: () => handleCtaClick("ctaPrimary.href", primary.href) }
                   : {})}
@@ -183,7 +183,7 @@ export default function Hero({
               </button>
               <button
                 type="button"
-                className="rounded-xl border border-white/50 px-5 py-2.5 text-sm font-semibold text-white"
+                className="btn-secondary px-5 py-2.5 text-sm font-semibold"
                 {...(editable
                   ? { onClick: () => handleCtaClick("ctaSecondary.href", secondary.href) }
                   : {})}
@@ -192,7 +192,7 @@ export default function Hero({
               </button>
             </div>
             {props.bullets && props.bullets.length > 0 && (
-              <div className="flex flex-wrap gap-4 text-sm text-white/80">
+              <div className="flex flex-wrap gap-4 text-sm text-muted">
                 {props.bullets.map((item, index) => (
                   <span key={index} className="flex items-center gap-2">
                     {renderText("span", "flex items-center gap-2", item, `bullets.${index}`)}
@@ -205,7 +205,7 @@ export default function Hero({
         {editable && onImageUpload && (
           <div className="absolute bottom-4 right-4 z-20">
             <ClickUpload onUpload={(file) => onImageUpload("backgroundImage", file, "images")}>
-              <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-900">
+              <span className="btn-secondary rounded-full px-3 py-1 text-xs font-semibold">
                 Change background
               </span>
             </ClickUpload>
@@ -217,7 +217,7 @@ export default function Hero({
 
   if (isCard) {
     return (
-      <section className="relative overflow-hidden rounded-[28px] bg-slate-100">
+      <section className="relative overflow-hidden rounded-[28px] bg-primary border border-border">
         <div className="absolute inset-0">
           {editable && onImageUpload ? (
             <ClickUpload onUpload={(file) => onImageUpload("backgroundImage", file, "images")}>
@@ -236,7 +236,7 @@ export default function Hero({
           )}
           <div className="absolute inset-0 bg-black/10" />
         </div>
-        <div className="relative z-10 max-w-xl rounded-[24px] bg-white p-8 shadow">
+        <div className="relative z-10 max-w-xl rounded-[24px] border border-border bg-primary p-8">
           {TextBlock}
         </div>
       </section>
@@ -260,21 +260,21 @@ export default function Hero({
           <div className="space-y-5">
             {renderText(
               "h2",
-              "text-4xl font-semibold tracking-tight text-slate-900",
+              "text-4xl font-semibold tracking-tight text-[#F8FAFC]",
               props.headline,
               "headline"
             )}
             {props.subheadline && (
               renderText(
                 "p",
-                "max-w-xl text-base text-slate-600",
+                "max-w-xl text-base text-muted",
                 props.subheadline,
                 "subheadline"
               )
             )}
             <button
               type="button"
-              className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white"
+              className="btn-primary px-5 py-2.5 text-sm font-semibold"
               {...(editable
                 ? { onClick: () => handleCtaClick("ctaPrimary.href", primary.href) }
                 : {})}
@@ -284,16 +284,16 @@ export default function Hero({
           </div>
           <div className="space-y-6">
             {(props.stats || []).map((stat, index) => (
-              <div key={index} className="border-b border-slate-200 pb-4">
+              <div key={index} className="border-b border-border pb-4">
                 {renderText(
                   "p",
-                  "text-xs uppercase tracking-[0.3em] text-slate-400",
+                  "text-xs uppercase tracking-[0.3em] text-muted",
                   stat.label,
                   `stats.${index}.label`
                 )}
                 {renderText(
                   "p",
-                  "text-2xl font-semibold text-slate-900",
+                  "text-2xl font-semibold text-[#F8FAFC]",
                   stat.value,
                   `stats.${index}.value`
                 )}
@@ -303,7 +303,7 @@ export default function Hero({
         </div>
         <div className={`grid gap-6 ${products.length === 1 ? "md:grid-cols-1" : products.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
           {products.map((product, index) => (
-            <div key={index} className="overflow-hidden rounded-[20px] border border-slate-200 bg-white">
+            <div key={index} className="overflow-hidden rounded-[20px] border border-border bg-primary">
               <div className="aspect-[4/3] overflow-hidden">
                 {editable && onImageUpload ? (
                   <ClickUpload onUpload={(file) => onImageUpload(`products.${index}.imageUrl`, file, "images")}>
@@ -324,20 +324,20 @@ export default function Hero({
               <div className="space-y-3 p-4">
                 {renderText(
                   "p",
-                  "text-lg font-semibold text-slate-900",
+                  "text-lg font-semibold text-[#F8FAFC]",
                   product.name || `Product ${index + 1}`,
                   `products.${index}.name`
                 )}
                 {renderText(
                   "p",
-                  "text-base font-medium text-slate-700",
+                  "text-base font-medium text-muted",
                   product.price || "",
                   `products.${index}.price`
                 )}
                 {editable ? (
                   <button
                     type="button"
-                    className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+                    className="btn-primary rounded-[14px] px-4 py-2 text-sm font-semibold"
                     onClick={() =>
                       handleCtaClick(
                         `products.${index}.href`,
@@ -350,7 +350,7 @@ export default function Hero({
                 ) : (
                   <Link
                     href={product.href || `/products/${index + 1}`}
-                    className="inline-flex rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+                    className="btn-primary inline-flex rounded-[14px] px-4 py-2 text-sm font-semibold"
                   >
                     View Details
                   </Link>

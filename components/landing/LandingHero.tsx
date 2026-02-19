@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 
 const socialLinks = [
   {
@@ -38,13 +39,19 @@ const socialLinks = [
 
 export default function LandingHero() {
   return (
-    <section className="relative overflow-hidden rounded-[30px] border border-white/10 bg-[#070b16] px-6 py-6 shadow-[0_0_80px_rgba(59,130,246,0.12)] md:px-10 md:py-10">
-      <div className="pointer-events-none absolute -left-40 -top-40 h-96 w-96 rounded-full bg-cyan-500/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-52 -right-44 h-[28rem] w-[28rem] rounded-full bg-indigo-500/20 blur-3xl" />
+    <section className="relative overflow-hidden rounded-[30px] border border-border bg-primary px-6 py-6 md:px-10 md:py-10">
+      <div className="pointer-events-none absolute left-1/2 top-[28%] h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-gradient opacity-15 blur-3xl" />
       <div className="relative z-10">
-        <nav className="flex flex-wrap items-center justify-between gap-4">
-          <Link href="/" className="text-sm font-semibold uppercase tracking-[0.35em] text-white/80">
-            Weblive.ai
+        <nav className="sticky top-0 flex flex-wrap items-center justify-between gap-4 bg-primary/90 py-2 backdrop-blur">
+          <Link href="/" className="flex items-center pl-6 pr-6">
+            <Image
+              src="/placeholders/weblive.png"
+              alt="Weblive.ai"
+              width={132}
+              height={34}
+              className="h-auto w-[132px]"
+              priority
+            />
           </Link>
           <div className="flex items-center gap-2">
             {socialLinks.map((item) => (
@@ -52,14 +59,14 @@ export default function LandingHero() {
                 key={item.name}
                 href={item.href}
                 aria-label={item.name}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/70 transition hover:border-white/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted transition hover:bg-border hover:text-primary"
               >
                 {item.icon}
               </a>
             ))}
             <Link
               href="/build"
-              className="ml-1 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+              className="btn-primary ml-1 px-4 py-2 text-sm font-semibold"
             >
               Start Building
             </Link>
@@ -67,18 +74,18 @@ export default function LandingHero() {
         </nav>
 
         <div className="mt-16 text-center md:mt-20">
-          <p className="text-sm uppercase tracking-[0.3em] text-white/50">Idea to website</p>
-          <h1 className="mx-auto mt-5 max-w-4xl text-4xl font-semibold leading-tight text-white sm:text-5xl md:text-6xl">
+          <p className="text-sm uppercase tracking-[0.3em] text-muted">Idea to website</p>
+          <h1 className="mx-auto mt-5 max-w-4xl text-4xl font-semibold leading-tight text-[#F8FAFC] sm:text-5xl md:text-6xl">
             <span className="block animate-[lift_8s_ease-in-out_infinite]">Generate it.</span>
-            <span className="block animate-[lift_8s_ease-in-out_1.6s_infinite] text-white/85">customize it.</span>
-            <span className="block animate-[lift_8s_ease-in-out_3.2s_infinite] text-white/70">launch it.</span>
+            <span className="block animate-[lift_8s_ease-in-out_1.6s_infinite]">customize it.</span>
+            <span className="block animate-[lift_8s_ease-in-out_3.2s_infinite]">launch it.</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-base text-white/65">
+          <p className="mx-auto mt-6 max-w-2xl text-base text-muted">
             Build your first production-ready website in minutes, then keep refining every section in a live editor.
           </p>
           <Link
             href="/build"
-            className="mt-8 inline-flex rounded-full bg-gradient-to-r from-cyan-400 to-indigo-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/30 transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+            className="btn-primary mt-8 inline-flex px-6 py-3 text-sm font-semibold"
           >
             Start Building
           </Link>

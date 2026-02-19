@@ -22,8 +22,8 @@ type HeaderProps = {
 export default function Header({ variant, props, editable, onEdit, onImageUpload }: HeaderProps) {
   const textStyles = (props as any)._textStyles || {};
   const styleFor = (path: string) => textStyles[path];
-  const isDark = variant === "v7-dark";
-  const isTransparent = variant === "v8-transparent";
+  const isDark = false;
+  const isTransparent = false;
   const isGlass = variant === "v6-glass";
   const isBordered = variant === "v9-bordered";
   const isCenteredLogo = variant === "v3-centered-logo";
@@ -32,14 +32,12 @@ export default function Header({ variant, props, editable, onEdit, onImageUpload
   const isSplitTagline = variant === "v4-split-tagline";
   const isAnnouncement = variant === "v10-announcement";
 
-  const baseText = isDark || isTransparent ? "text-white" : "text-neutral-900";
-  const mutedText = isDark || isTransparent ? "text-white/70" : "text-neutral-700";
+  const baseText = "text-[#F8FAFC]";
+  const mutedText = "text-muted";
 
   const frameClasses = [
-    "rounded-[18px] shadow-none",
-    isTransparent ? "bg-transparent" : "bg-white",
-    isDark ? "bg-neutral-900" : "",
-    isGlass ? "bg-white/70 backdrop-blur-md" : "",
+    "rounded-[18px] shadow-none border border-border bg-primary",
+    isGlass ? "backdrop-blur-sm" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -82,11 +80,7 @@ export default function Header({ variant, props, editable, onEdit, onImageUpload
       {editable && onImageUpload ? (
         <ClickUpload onUpload={(file) => onImageUpload("logo", file, "logo")}>
           {logoSrc ? (
-            <img
-              src={logoSrc}
-              alt={`${props.brand} logo`}
-              className="h-10 w-10 rounded-xl object-contain"
-            />
+            <img src={logoSrc} alt={`${props.brand} logo`} className="h-10 w-10 rounded-xl object-contain" />
           ) : (
             <EditableText
               as="span"
@@ -114,16 +108,16 @@ export default function Header({ variant, props, editable, onEdit, onImageUpload
   const CtaButton = (
     <Link
       href={ctaHref}
-      className={`px-6 py-2.5 text-sm font-semibold shadow ${
-        isBordered
-          ? "rounded-lg border-2 border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white"
+        className={`px-6 py-2.5 text-sm font-semibold ${
+          isBordered
+          ? "rounded-[14px] border border-border text-[#F8FAFC] hover:bg-border"
           : isTransparent
-          ? "rounded-lg border-2 border-white text-white hover:bg-white hover:text-neutral-900"
+          ? "rounded-[14px] border border-border text-[#F8FAFC] hover:bg-border"
           : isDark
-          ? "rounded-lg bg-white text-neutral-900 hover:bg-neutral-100"
+          ? "btn-primary rounded-[14px]"
           : isCompact
-          ? "rounded-full bg-neutral-900 text-white hover:bg-neutral-800"
-          : "rounded-lg bg-[color:var(--primary)] text-white hover:opacity-90"
+          ? "btn-primary rounded-full"
+          : "btn-primary rounded-[14px]"
       }`}
     >
       {editable && onEdit ? (
@@ -143,7 +137,7 @@ export default function Header({ variant, props, editable, onEdit, onImageUpload
   return (
     <header className="px-6 py-6">
       {isAnnouncement && props.announcement && (
-        <div className="mx-auto mb-3 max-w-6xl rounded-full bg-[color:var(--primary)] px-4 py-2 text-center text-xs font-semibold text-white">
+        <div className="bg-brand-gradient mx-auto mb-3 max-w-6xl rounded-full px-4 py-2 text-center text-xs font-semibold text-white">
           {props.announcement}
         </div>
       )}

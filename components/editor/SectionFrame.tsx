@@ -33,7 +33,7 @@ export default function SectionFrame({
   };
 
   const iconBtn =
-    "rounded-full border border-slate-200 bg-white p-2 text-slate-600 shadow-sm hover:text-slate-900";
+    "rounded-full border border-border bg-primary p-2 text-muted hover:bg-border hover:text-[#F8FAFC]";
 
   return (
     <div
@@ -85,7 +85,7 @@ export default function SectionFrame({
           </svg>
         </button>
         <button
-          className={`${iconBtn} text-red-600 hover:text-red-700`}
+          className={`${iconBtn} text-[#F8FAFC]`}
           onClick={(event) => {
             event.stopPropagation();
             onDelete();
@@ -104,7 +104,7 @@ export default function SectionFrame({
       )}
       {!disableControls && (
         <div
-          className="absolute left-3 top-3 z-10 cursor-grab rounded-full border border-slate-200 bg-white p-2 text-slate-600"
+          className="absolute left-3 top-3 z-10 cursor-grab rounded-full border border-border bg-primary p-2 text-muted"
           {...attributes}
           {...listeners}
           aria-label="Drag"
@@ -115,7 +115,7 @@ export default function SectionFrame({
           </svg>
         </div>
       )}
-      <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-[24px] border border-border bg-primary">
         {toolbar}
         {children}
       </div>

@@ -28,28 +28,28 @@ export default function LandingTabs() {
   const content = useMemo(() => tabContent[activeTab], [activeTab]);
 
   return (
-    <section className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 md:p-8">
-      <h2 className="text-2xl font-semibold text-white">Everything you need to grow online.</h2>
+    <section className="surface-card rounded-[28px] p-6 md:p-8">
+      <h2 className="text-2xl font-semibold text-[#F8FAFC]">Everything you need to grow online.</h2>
       <div className="mt-5 flex flex-wrap gap-2">
         {(Object.keys(tabContent) as TabKey[]).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`rounded-full px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 ${
-              activeTab === tab ? "bg-white text-slate-900" : "border border-white/20 text-white/80 hover:border-white/40"
+            className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+              activeTab === tab ? "bg-brand-gradient text-white" : "border border-border text-muted hover:bg-border hover:text-white"
             }`}
           >
             {tab}
           </button>
         ))}
       </div>
-      <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-[#0b1326] p-6">
+      <div className="mt-5 overflow-hidden rounded-2xl border border-border bg-primary p-6">
         <div key={activeTab} className="grid gap-5 md:grid-cols-[1.2fr_0.8fr] animate-[fadein_.35s_ease]">
           <div>
-            <h3 className="text-xl font-semibold text-white">{content.title}</h3>
-            <p className="mt-2 text-sm text-white/65">{content.desc}</p>
+            <h3 className="text-xl font-semibold text-[#F8FAFC]">{content.title}</h3>
+            <p className="mt-2 text-sm text-muted">{content.desc}</p>
           </div>
-          <div className="h-28 rounded-xl border border-white/10 bg-gradient-to-br from-cyan-400/20 via-indigo-500/20 to-fuchsia-500/20" />
+          <div className="bg-brand-gradient h-28 rounded-xl border border-border opacity-20" />
         </div>
       </div>
       <style jsx>{`

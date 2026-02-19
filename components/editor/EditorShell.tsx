@@ -14,6 +14,7 @@ import SeoPanel from "@/components/editor/SeoPanel";
 import { renderWidget, widgetRegistry, WidgetType } from "@/widgets/registry";
 import { Site, SeoPayload, WizardInput } from "@/lib/schema";
 import { updateByPath } from "@/lib/deepUpdate";
+import Image from "next/image";
 
 const tabs = ["Pages", "Theme", "SEO", "Widgets"] as const;
 
@@ -374,36 +375,38 @@ export default function EditorShell({
 
   if (!currentPage) {
     return (
-    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+    <div className="min-h-screen bg-primary text-[#F8FAFC] flex items-center justify-center">
         <p>Pages not found.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-900">
-      <div className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/80 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 text-white">
+    <div className="min-h-screen bg-primary text-[#F8FAFC]">
+      <div className="sticky top-0 z-20 border-b border-border bg-primary/95 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 text-[#F8FAFC]">
           <div>
-            <p className="text-xs uppercase tracking-[0.4em] text-white/60">Weblive.ai</p>
+            <div className="pl-6 pr-6">
+              <Image src="/placeholders/weblive.png" alt="Weblive.ai" width={132} height={34} className="h-auto w-[132px]" />
+            </div>
             <h1 className="text-lg font-semibold">Editor</h1>
           </div>
           <div className="flex items-center gap-3">
             <button
-              className="rounded-full border border-white/20 px-4 py-2 text-sm"
+              className="btn-secondary rounded-full px-4 py-2 text-sm"
               onClick={() => setViewMode(viewMode === "desktop" ? "mobile" : "desktop")}
             >
               {viewMode === "desktop" ? "Mobile" : "Desktop"}
             </button>
             <button
-              className="rounded-full border border-white/20 px-4 py-2 text-sm"
+              className="btn-secondary rounded-full px-4 py-2 text-sm"
               onClick={handleRegenerate}
               disabled={regenerating}
             >
               {regenerating ? "Generating..." : "Regenerate"}
             </button>
             <button
-              className="rounded-full border border-white/20 px-4 py-2 text-sm"
+              className="btn-secondary rounded-full px-4 py-2 text-sm"
               onClick={() => setShareOpen(true)}
             >
               Share
@@ -423,10 +426,7 @@ export default function EditorShell({
                 ? "Saving..."
                 : "Save error"}
             </span>
-            <button
-              className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900"
-              onClick={downloadSeo}
-            >
+            <button className="btn-primary rounded-full px-4 py-2 text-sm font-semibold" onClick={downloadSeo}>
               Download SEO JSON
             </button>
           </div>
@@ -434,10 +434,10 @@ export default function EditorShell({
       </div>
 
       <div className="mx-auto grid max-w-7xl grid-cols-[280px_1fr] gap-6 px-6 py-6">
-        <aside className="space-y-6 bg-slate-900 p-5 text-white">
+        <aside className="space-y-6 border border-border bg-primary p-5 text-[#F8FAFC]">
           <a
             href="/rules"
-            className="rounded-full border border-white/20 px-4 py-2 text-xs text-white/70"
+            className="btn-secondary rounded-full px-4 py-2 text-xs text-muted"
             target="_blank"
             rel="noreferrer"
           >
@@ -448,7 +448,7 @@ export default function EditorShell({
               <button
                 key={tab}
                 className={`w-full rounded-full px-4 py-2 text-left text-sm ${
-                  tab === selectedTab ? "bg-white text-slate-900" : "text-white/70"
+                  tab === selectedTab ? "bg-brand-gradient text-white" : "text-muted hover:bg-border"
                 }`}
                 onClick={() => setSelectedTab(tab)}
               >
@@ -463,7 +463,7 @@ export default function EditorShell({
                 <button
                   key={page.id}
                   className={`w-full rounded-xl px-3 py-2 text-left ${
-                    page.id === currentPage.id ? "bg-white text-slate-900" : "text-white/70"
+                    page.id === currentPage.id ? "bg-brand-gradient text-white" : "text-muted hover:bg-border"
                   }`}
                   onClick={() => setSelectedPageId(page.id)}
                 >
@@ -481,7 +481,7 @@ export default function EditorShell({
                 <input
                   type="file"
                   accept="image/*"
-                  className="mt-2 w-full rounded-xl border border-white/20 bg-transparent p-2 text-xs"
+                  className="mt-2 w-full rounded-xl border border-border bg-transparent p-2 text-xs"
                   onChange={(event) => {
                     const file = event.target.files?.[0];
                     if (!file) return;
@@ -489,11 +489,11 @@ export default function EditorShell({
                     event.currentTarget.value = "";
                   }}
                 />
-                <p className="mt-2 text-xs text-white/60">
+                <p className="mt-2 text-xs text-muted">
                   Recommended size: 120x120px or 240x240px (square).
                 </p>
                 <button
-                  className="mt-2 rounded-full border border-white/20 px-3 py-1 text-xs text-white/70"
+                  className="btn-secondary mt-2 rounded-full px-3 py-1 text-xs"
                   onClick={(event) => {
                     event.preventDefault();
                     removeLogo();
@@ -502,7 +502,7 @@ export default function EditorShell({
                   Remove Logo
                 </button>
                 {input.logoUrl && (
-                  <p className="mt-2 break-all text-[10px] text-white/40">
+                  <p className="mt-2 break-all text-[10px] text-muted">
                     Current Logo: {input.logoUrl}
                   </p>
                 )}
@@ -512,7 +512,7 @@ export default function EditorShell({
                 <input
                   type="color"
                   value={site.theme.primaryColor}
-                  className="mt-2 h-10 w-full rounded-xl border border-white/20 bg-transparent"
+                  className="mt-2 h-10 w-full rounded-xl border border-border bg-transparent"
                   onChange={(event) =>
                     setSite((prev) => ({
                       ...prev,
@@ -526,7 +526,7 @@ export default function EditorShell({
                 <input
                   type="color"
                   value={site.theme.secondaryColor}
-                  className="mt-2 h-10 w-full rounded-xl border border-white/20 bg-transparent"
+                  className="mt-2 h-10 w-full rounded-xl border border-border bg-transparent"
                   onChange={(event) =>
                     setSite((prev) => ({
                       ...prev,
@@ -538,7 +538,7 @@ export default function EditorShell({
               <label className="block">
                 CTA text
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/20 bg-transparent p-2 text-xs text-white"
+                  className="mt-2 w-full rounded-xl border border-border bg-transparent p-2 text-xs text-[#F8FAFC]"
                   value={
                     (site.pages[0]?.sections.find((section) => section.widget === "header")?.props
                       ?.cta?.label as string) || "Get Started"
@@ -549,7 +549,7 @@ export default function EditorShell({
               <label className="block">
                 CTA URL
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/20 bg-transparent p-2 text-xs text-white"
+                  className="mt-2 w-full rounded-xl border border-border bg-transparent p-2 text-xs text-[#F8FAFC]"
                   value={
                     (site.pages[0]?.sections.find((section) => section.widget === "header")?.props
                       ?.cta?.href as string) || "#contact"
@@ -564,7 +564,7 @@ export default function EditorShell({
 
           {selectedTab === "Widgets" && (
             <div className="space-y-4 text-sm">
-              <p className="text-white/70">
+              <p className="text-muted">
                 Below is a full visual preview of all widget variants.
               </p>
               <div className="flex flex-wrap gap-2">
@@ -577,8 +577,8 @@ export default function EditorShell({
                     key={item.id}
                     className={`rounded-full px-4 py-2 text-xs ${
                       widgetFilter === item.id
-                        ? "bg-white text-slate-900"
-                        : "border border-white/20 text-white/70"
+                        ? "bg-brand-gradient text-white"
+                        : "border border-border text-muted"
                     }`}
                     onClick={() => setWidgetFilter(item.id as typeof widgetFilter)}
                   >
@@ -605,16 +605,16 @@ export default function EditorShell({
                 }, {} as Record<string, typeof widgetRegistry[keyof typeof widgetRegistry][]>)
               ).map(([category, widgets]) => (
                 <section key={category} className="space-y-6">
-                  <div className="rounded-full border border-white/10 bg-slate-900 px-4 py-2 text-xs uppercase tracking-[0.3em] text-white/70">
+                  <div className="rounded-full border border-border bg-primary px-4 py-2 text-xs uppercase tracking-[0.3em] text-muted">
                     {category}
                   </div>
                   {widgets.map((widget) => (
-                    <div key={widget.type} className="bg-slate-900 p-6">
-                      <div className="flex items-center justify-between text-white">
+                    <div key={widget.type} className="border border-border bg-primary p-6">
+                      <div className="flex items-center justify-between text-[#F8FAFC]">
                         <div>
                           <h3 className="text-lg font-semibold">{widget.name}</h3>
                         </div>
-                        <span className="text-xs text-white/50">{widget.type}</span>
+                        <span className="text-xs text-muted">{widget.type}</span>
                       </div>
                       <div className="mt-6 space-y-6">
                         {widget.variants.map((variant) => {
@@ -625,8 +625,8 @@ export default function EditorShell({
                                   .find((section) => section.widget === "header")?.props
                               : null;
                           return (
-                          <div key={`${widget.type}-${variant}`} className="bg-white">
-                            <div className="border-b border-slate-100 px-4 py-2 text-xs text-slate-500">
+                          <div key={`${widget.type}-${variant}`} className="border border-border bg-primary">
+                            <div className="border-b border-border px-4 py-2 text-xs text-muted">
                               {widget.variantLabels?.[variant] || variant}
                             </div>
                             <div
@@ -658,7 +658,7 @@ export default function EditorShell({
             </div>
           ) : (
             <div
-              className={`bg-white ${viewMode === "mobile" ? "mx-auto max-w-[420px]" : ""}`}
+              className={`border border-border bg-primary ${viewMode === "mobile" ? "mx-auto max-w-[420px]" : ""}`}
               style={{
                 "--primary": site.theme.primaryColor,
                 "--secondary": site.theme.secondaryColor,
@@ -744,7 +744,7 @@ export default function EditorShell({
                         >
                           <div className={wrapperClasses} style={wrapperStyle}>
                             {style.hidden ? (
-                              <div className="rounded-[20px] border border-dashed border-slate-300 bg-white/60 px-6 py-10 text-center text-sm text-slate-500">
+                              <div className="rounded-[20px] border border-dashed border-border bg-primary px-6 py-10 text-center text-sm text-muted">
                                 Section is hidden
                               </div>
                             ) : (
@@ -811,24 +811,24 @@ export default function EditorShell({
 
       {shareOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-6">
-          <div className="w-full max-w-lg rounded-[28px] bg-white p-6 shadow-xl">
+          <div className="w-full max-w-lg rounded-[28px] border border-border bg-primary p-6">
             <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Share link</h2>
-            <button className="text-sm text-slate-500" onClick={() => setShareOpen(false)}>
+            <button className="text-sm text-muted" onClick={() => setShareOpen(false)}>
               Close
             </button>
             </div>
-            <p className="mt-2 text-sm text-slate-600">
+            <p className="mt-2 text-sm text-muted">
               View-only link expires on {expiresAt}.
             </p>
             <div className="mt-4 flex items-center gap-2">
               <input
-                className="flex-1 rounded-xl border border-slate-200 p-3 text-sm"
+                className="flex-1 rounded-xl border border-border bg-primary p-3 text-sm text-[#F8FAFC]"
                 value={`${baseUrl}/s/${project.share_slug}`}
                 readOnly
               />
               <button
-                className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+                className="btn-primary rounded-full px-4 py-2 text-sm font-semibold"
                 onClick={() => {
                   navigator.clipboard.writeText(`${baseUrl}/s/${project.share_slug}`);
                 }}

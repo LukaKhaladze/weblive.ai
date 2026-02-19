@@ -9,16 +9,16 @@ const rules = [
 
 export default function RulesPage() {
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-primary text-[#F8FAFC]">
       <div className="mx-auto max-w-3xl px-6 py-12">
-        <p className="text-xs uppercase tracking-[0.4em] text-white/60">Weblive.ai</p>
+        <p className="text-xs uppercase tracking-[0.4em] text-muted">Weblive.ai</p>
         <h1 className="mt-3 text-3xl font-semibold">Header Template Rules</h1>
-        <p className="mt-2 text-sm text-white/60">
+        <p className="mt-2 text-sm text-muted">
           This page is temporary and for internal use only.
         </p>
-        <ul className="mt-8 space-y-3 text-sm text-white/80">
+        <ul className="mt-8 space-y-3 text-sm text-[#F8FAFC]">
           {rules.map((item) => (
-            <li key={item} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+            <li key={item} className="rounded-2xl border border-border bg-primary px-4 py-3">
               {item}
             </li>
           ))}
