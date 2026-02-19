@@ -70,6 +70,7 @@ export default function BuildPage() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [productFiles, setProductFiles] = useState<Record<number, File | null>>({});
   const [loading, setLoading] = useState(false);
+  const [lastError, setLastError] = useState<string>("");
   const [plannerWarnings, setPlannerWarnings] = useState<string[]>([]);
   const [unsupportedFeatures, setUnsupportedFeatures] = useState<string[]>([]);
 
@@ -91,6 +92,7 @@ export default function BuildPage() {
 
   async function handleGenerate() {
     setLoading(true);
+    setLastError("");
     try {
       const normalized = normalizeEcommerceInput(input);
       const prompt =
@@ -125,10 +127,18 @@ export default function BuildPage() {
         }),
       });
 
-      const planData = await planResponse.json();
+      const planRaw = await planResponse.text();
+      let planData: any = null;
+      try {
+        planData = planRaw ? JSON.parse(planRaw) : null;
+      } catch {
+        planData = { error: planRaw?.slice(0, 280) || "Unknown planner response" };
+      }
       if (!planResponse.ok || !planData?.siteSpec) {
         setLoading(false);
-        alert(planData?.error ? `Planning failed: ${planData.error}` : "Planning failed.");
+        const message = planData?.error ? `Planning failed: ${planData.error}` : "Planning failed.";
+        setLastError(message);
+        alert(message);
         return;
       }
 
@@ -169,10 +179,18 @@ export default function BuildPage() {
         }),
       });
 
-      const data = await response.json();
+      const generateRaw = await response.text();
+      let data: any = null;
+      try {
+        data = generateRaw ? JSON.parse(generateRaw) : null;
+      } catch {
+        data = { error: generateRaw?.slice(0, 280) || "Unknown generation response" };
+      }
       if (!response.ok) {
         setLoading(false);
-        alert(data?.error ? `Generation failed: ${data.error}` : "Generation failed.");
+        const message = data?.error ? `Generation failed: ${data.error}` : "Generation failed.";
+        setLastError(message);
+        alert(message);
         return;
       }
 
@@ -241,7 +259,9 @@ export default function BuildPage() {
       router.push(`/e/${data.edit_token}`);
     } catch (error) {
       console.error("Build generate failed", error);
-      alert(error instanceof Error ? `Generation failed: ${error.message}` : "Generation failed.");
+      const message = error instanceof Error ? `Generation failed: ${error.message}` : "Generation failed.";
+      setLastError(message);
+      alert(message);
       setLoading(false);
     }
   }
@@ -651,6 +671,11 @@ export default function BuildPage() {
               </button>
             )}
           </div>
+          {lastError && (
+            <p className="mt-4 rounded-xl border border-border px-3 py-2 text-xs text-[#F8FAFC]">
+              {lastError}
+            </p>
+          )}
         </div>
       </div>
     </div>
