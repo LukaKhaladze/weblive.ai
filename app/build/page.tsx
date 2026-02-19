@@ -140,9 +140,8 @@ export default function BuildPage() {
       setPlannerWarnings(warnings);
       setUnsupportedFeatures(unsupported);
 
-      if (warnings.length > 0 || unsupported.length > 0) {
+      if (unsupported.length > 0) {
         const notes = [
-          warnings.length ? `Warnings:\n- ${warnings.join("\n- ")}` : "",
           unsupported.length ? `Unsupported features:\n- ${unsupported.join("\n- ")}` : "",
         ]
           .filter(Boolean)

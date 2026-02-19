@@ -93,7 +93,7 @@ function buildHeuristicSpec(input: PlanInput): SiteSpec {
     requested_features: requestedFeatures,
     supported_features: [],
     unsupported_features: [],
-    warnings: ["Planner fallback was used due to invalid or unavailable model output."],
+    warnings: ["Used deterministic planner fallback."],
   };
 
   return normalizeSiteSpec(spec);
@@ -305,9 +305,12 @@ export async function planSite(input: PlanInput): Promise<PlanOutput> {
     };
   } catch (error) {
     const fallback = buildHeuristicSpec(input);
+    const warnings = Array.from(
+      new Set([...fallback.warnings, "AI planner unavailable, used deterministic fallback."])
+    );
     return {
       siteSpec: fallback,
-      warnings: [...fallback.warnings, "Planner used fallback due to temporary AI error."],
+      warnings,
       unsupported_features: fallback.unsupported_features,
     };
   }
