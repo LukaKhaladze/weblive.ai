@@ -6,10 +6,13 @@ import { WizardInput } from "@/lib/schema";
 import { recipes } from "@/lib/generator/recipes";
 import { widgetRegistry } from "@/widgets/registry";
 import { ECOMMERCE_FIXED_PAGES, normalizeEcommerceInput } from "@/lib/generator/normalizeEcommerceInput";
+import { buildPromptFromFields } from "@/lib/planner";
+import { SiteSpec } from "@/schemas/siteSpec";
 
 const GOAL_LABEL = "Get calls from products";
 
 const defaultInput: WizardInput = {
+  prompt: "",
   businessName: "",
   category: "ecommerce",
   description: "",
@@ -67,6 +70,8 @@ export default function BuildPage() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [productFiles, setProductFiles] = useState<Record<number, File | null>>({});
   const [loading, setLoading] = useState(false);
+  const [plannerWarnings, setPlannerWarnings] = useState<string[]>([]);
+  const [unsupportedFeatures, setUnsupportedFeatures] = useState<string[]>([]);
 
   const steps = useMemo(() => stepsBase, []);
 
@@ -77,7 +82,7 @@ export default function BuildPage() {
 
   const canNext = () => {
     if (step === 0) return input.businessName.trim().length > 0;
-    if (step === 1) return input.description.trim().length > 0;
+    if (step === 1) return input.description.trim().length > 0 || (input.prompt || "").trim().length > 0;
     if (steps[step] === "Products") {
       return input.products.length > 0 && input.products.every((p) => p.name && p.price);
     }
@@ -86,82 +91,160 @@ export default function BuildPage() {
 
   async function handleGenerate() {
     setLoading(true);
-    const response = await fetch("/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(normalizeEcommerceInput(input)),
-    });
+    try {
+      const normalized = normalizeEcommerceInput(input);
+      const prompt =
+        normalized.prompt?.trim() ||
+        buildPromptFromFields({
+          businessName: normalized.businessName,
+          description: normalized.description,
+          productCategories: normalized.productCategories,
+          targetAudience: normalized.targetAudience,
+          location: normalized.location,
+          tone: normalized.tone,
+          uniqueValue: normalized.uniqueValue,
+        });
 
-    const data = await response.json();
-    if (!response.ok) {
-      setLoading(false);
-      alert("Generation failed.");
-      return;
-    }
+      const planResponse = await fetch("/api/plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt,
+          locale: "en",
+          brand: {
+            colors: [normalized.brand.primaryColor, normalized.brand.secondaryColor],
+            logo_url: normalized.logoUrl || undefined,
+          },
+          contact: {
+            phone: normalized.contact.phone,
+            email: normalized.contact.email,
+            address: normalized.contact.address,
+            city: normalized.location || undefined,
+          },
+          constraints: { max_pages: 5 },
+        }),
+      });
 
-    if (logoFile) {
-      const form = new FormData();
-      form.append("file", logoFile);
-      form.append("projectId", data.id);
-      form.append("type", "logo");
-      const uploadRes = await fetch("/api/upload", { method: "POST", body: form });
-      const upload = await uploadRes.json();
+      const planData = await planResponse.json();
+      if (!planResponse.ok || !planData?.siteSpec) {
+        setLoading(false);
+        alert("Planning failed.");
+        return;
+      }
 
-      if (upload?.url) {
-        const projectRes = await fetch(`/api/projects/${data.edit_token}`);
-        const project = await projectRes.json();
-        const updatedSite = {
-          ...project.site,
-          pages: project.site.pages.map((page: any) => ({
-            ...page,
-            sections: page.sections.map((section: any) =>
-              section.widget === "header"
-                ? { ...section, props: { ...section.props, logo: upload.url } }
-                : section
-            ),
-          })),
-        };
+      const siteSpec = planData.siteSpec as SiteSpec;
+      const warnings = Array.isArray(planData.warnings) ? (planData.warnings as string[]) : [];
+      const unsupported = Array.isArray(planData.unsupported_features)
+        ? (planData.unsupported_features as string[])
+        : [];
+      setPlannerWarnings(warnings);
+      setUnsupportedFeatures(unsupported);
+
+      if (warnings.length > 0 || unsupported.length > 0) {
+        const notes = [
+          warnings.length ? `Warnings:\n- ${warnings.join("\n- ")}` : "",
+          unsupported.length ? `Unsupported features:\n- ${unsupported.join("\n- ")}` : "",
+        ]
+          .filter(Boolean)
+          .join("\n\n");
+        alert(`Planner notes:\n\n${notes}`);
+      }
+
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          siteSpec,
+          prompt,
+          brand: {
+            colors: [normalized.brand.primaryColor, normalized.brand.secondaryColor],
+            logo_url: normalized.logoUrl || undefined,
+          },
+          contact: {
+            phone: normalized.contact.phone,
+            email: normalized.contact.email,
+            address: normalized.contact.address,
+            city: normalized.location || undefined,
+          },
+          inputOverrides: normalized,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        setLoading(false);
+        alert("Generation failed.");
+        return;
+      }
+
+      if (logoFile) {
+        const form = new FormData();
+        form.append("file", logoFile);
+        form.append("projectId", data.id);
+        form.append("type", "logo");
+        const uploadRes = await fetch("/api/upload", { method: "POST", body: form });
+        const upload = await uploadRes.json();
+
+        if (upload?.url) {
+          const projectRes = await fetch(`/api/projects/${data.edit_token}`);
+          const project = await projectRes.json();
+          const updatedSite = {
+            ...project.site,
+            pages: project.site.pages.map((page: any) => ({
+              ...page,
+              sections: page.sections.map((section: any) =>
+                section.widget === "header"
+                  ? { ...section, props: { ...section.props, logo: upload.url } }
+                  : section
+              ),
+            })),
+          };
+
+          await fetch(`/api/projects/${data.edit_token}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              input: normalizeEcommerceInput({ ...input, logoUrl: upload.url }),
+              site: updatedSite,
+            }),
+          });
+        } else {
+          console.error("Logo upload failed:", upload);
+          alert("Logo upload failed. Please try again or upload it later in the editor.");
+        }
+      }
+
+      if (input.products.length > 0) {
+        const updatedProducts = [...input.products];
+        for (let i = 0; i < updatedProducts.length; i += 1) {
+          const file = productFiles[i];
+          if (!file) continue;
+          const form = new FormData();
+          form.append("file", file);
+          form.append("projectId", data.id);
+          form.append("type", "images");
+          const uploadRes = await fetch("/api/upload", { method: "POST", body: form });
+          const upload = await uploadRes.json();
+          if (upload?.url) {
+            updatedProducts[i] = { ...updatedProducts[i], imageUrl: upload.url };
+          }
+        }
 
         await fetch(`/api/projects/${data.edit_token}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            input: normalizeEcommerceInput({ ...input, logoUrl: upload.url }),
-            site: updatedSite,
+            input: normalizeEcommerceInput({ ...input, products: updatedProducts }),
           }),
         });
-      } else {
-        console.error("Logo upload failed:", upload);
-        alert("Logo upload failed. Please try again or upload it later in the editor.");
-      }
-    }
-
-    if (input.products.length > 0) {
-      const updatedProducts = [...input.products];
-      for (let i = 0; i < updatedProducts.length; i += 1) {
-        const file = productFiles[i];
-        if (!file) continue;
-        const form = new FormData();
-        form.append("file", file);
-        form.append("projectId", data.id);
-        form.append("type", "images");
-        const uploadRes = await fetch("/api/upload", { method: "POST", body: form });
-        const upload = await uploadRes.json();
-        if (upload?.url) {
-          updatedProducts[i] = { ...updatedProducts[i], imageUrl: upload.url };
-        }
       }
 
-      await fetch(`/api/projects/${data.edit_token}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          input: normalizeEcommerceInput({ ...input, products: updatedProducts }),
-        }),
-      });
+      router.push(`/e/${data.edit_token}`);
+    } catch (error) {
+      console.error("Build generate failed", error);
+      alert("Generation failed.");
+      setLoading(false);
     }
-
-    router.push(`/e/${data.edit_token}`);
   }
 
   return (
@@ -192,8 +275,18 @@ export default function BuildPage() {
           )}
 
           {step === 1 && (
-            <div className="mt-6">
-              <label className="text-sm text-white/70">Short Description</label>
+            <div className="mt-6 space-y-4">
+              <label className="block text-sm text-white/70">
+                Describe what website you need (planner prompt)
+                <textarea
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  rows={4}
+                  value={input.prompt || ""}
+                  onChange={(event) => setInput({ ...input, prompt: event.target.value })}
+                  placeholder="Example: Create a modern ecommerce site for a beauty salon in Tbilisi with trust-focused copy and product highlights."
+                />
+              </label>
+              <label className="block text-sm text-white/70">Short Description</label>
               <textarea
                 className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                 rows={4}
@@ -498,6 +591,7 @@ export default function BuildPage() {
               <div>
                 <p className="text-xs uppercase tracking-[0.3em] text-white/50">Summary</p>
                 <p className="mt-2">{input.businessName}</p>
+                {!!input.prompt && <p>Prompt: {input.prompt}</p>}
                 <p>{input.description}</p>
                 {!!input.productCategories && <p>Categories: {input.productCategories}</p>}
                 {!!input.uniqueValue && <p>Unique value proposition: {input.uniqueValue}</p>}
@@ -511,6 +605,23 @@ export default function BuildPage() {
                 <p className="text-xs uppercase tracking-[0.3em] text-white/50">Widgets</p>
                 <p className="mt-2">{Object.values(widgetRegistry).map((w) => w.name).slice(0, 6).join(", ")}...</p>
               </div>
+              {(plannerWarnings.length > 0 || unsupportedFeatures.length > 0) && (
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-white/50">Planner Notes</p>
+                  {plannerWarnings.length > 0 && (
+                    <ul className="mt-2 list-disc space-y-1 pl-5">
+                      {plannerWarnings.map((warning, index) => (
+                        <li key={`warning-${index}`}>{warning}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {unsupportedFeatures.length > 0 && (
+                    <p className="mt-2">
+                      Unsupported features: {unsupportedFeatures.join(", ")}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

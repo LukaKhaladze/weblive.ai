@@ -21,6 +21,8 @@ export const ContactInfoSchema = z.object({
 });
 
 export const WizardInputSchema = z.object({
+  prompt: z.string().optional().default(""),
+  siteSpec: z.unknown().optional(),
   businessName: z.string().min(1),
   category: CategorySchema,
   description: z.string().min(1),
