@@ -15,8 +15,8 @@ export default function LandingEmailCapture() {
 
   return (
     <section id="email-capture" className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6 backdrop-blur md:p-8">
-      <h2 className="text-2xl font-semibold text-white">Get product updates before launch</h2>
-      <p className="mt-2 text-sm text-white/65">No spam. We only send major product updates and early-access invites.</p>
+      <h2 className="text-2xl font-semibold text-white">Get product updates</h2>
+      <p className="mt-2 text-sm text-white/65">Optional: receive release notes and practical tips. You can start building immediately.</p>
       <form onSubmit={onSubmit} className="mt-5 flex flex-col gap-3 sm:flex-row">
         <label htmlFor="landing-email" className="sr-only">
           Email
@@ -34,7 +34,7 @@ export default function LandingEmailCapture() {
           type="submit"
           className="h-12 rounded-xl bg-white px-5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
         >
-          Notify Me
+          Subscribe
         </button>
       </form>
       <p
@@ -42,7 +42,7 @@ export default function LandingEmailCapture() {
           status === "success" ? "translate-y-0 opacity-100 text-emerald-300" : "translate-y-1 opacity-0"
         }`}
       >
-        You are on the list. We will contact you soon.
+        Thanks. You are subscribed.
       </p>
     </section>
   );

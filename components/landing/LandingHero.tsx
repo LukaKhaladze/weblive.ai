@@ -58,10 +58,10 @@ export default function LandingHero() {
               </a>
             ))}
             <Link
-              href="#email-capture"
+              href="/build"
               className="ml-1 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
             >
-              Get Early Access
+              Start Building
             </Link>
           </div>
         </nav>
@@ -77,10 +77,10 @@ export default function LandingHero() {
             Build your first production-ready website in minutes, then keep refining every section in a live editor.
           </p>
           <Link
-            href="#email-capture"
+            href="/build"
             className="mt-8 inline-flex rounded-full bg-gradient-to-r from-cyan-400 to-indigo-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/30 transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
           >
-            Join the Waitlist
+            Start Building
           </Link>
         </div>
       </div>
