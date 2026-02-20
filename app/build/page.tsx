@@ -122,6 +122,7 @@ export default function BuildPage() {
   };
 
   async function handleGenerate(sourceInput?: WizardInput) {
+    if (loading) return;
     setLoading(true);
     setLastError("");
     try {
@@ -291,6 +292,7 @@ export default function BuildPage() {
       }
 
       router.push(`/e/${data.edit_token}`);
+      return;
     } catch (error) {
       console.error("Build generate failed", error);
       const message = error instanceof Error ? `Generation failed: ${error.message}` : "Generation failed.";
@@ -304,7 +306,7 @@ export default function BuildPage() {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("demo") !== "tbilisi-business") return;
-    setInput(demoInput);
+    setInput(normalizeEcommerceInput({ ...demoInput, products: demoInput.products || [] }));
     setStep(steps.length - 1);
     if (params.get("autostart") === "1" && !autoStartedRef.current) {
       autoStartedRef.current = true;
@@ -511,7 +513,7 @@ export default function BuildPage() {
                 ))}
               </div>
 
-              {input.products.map((product, index) => (
+              {(input.products || []).map((product, index) => (
                 <div key={index} className="rounded-2xl border border-border bg-primary p-4">
                   <p className="text-sm font-semibold text-[#F8FAFC]">Product {index + 1}</p>
                   <div className="mt-3 grid gap-3 md:grid-cols-3">
@@ -681,7 +683,7 @@ export default function BuildPage() {
               </div>
               <div>
                 <p className="text-xs uppercase tracking-[0.3em] text-muted">Pages</p>
-                <p className="mt-2">{input.pages.join(", ")}</p>
+                  <p className="mt-2">{(input.pages || []).join(", ")}</p>
               </div>
               <div>
                 <p className="text-xs uppercase tracking-[0.3em] text-muted">Widgets</p>
@@ -690,9 +692,9 @@ export default function BuildPage() {
               {(plannerWarnings.length > 0 || unsupportedFeatures.length > 0) && (
                 <div>
                   <p className="text-xs uppercase tracking-[0.3em] text-muted">Planner Notes</p>
-                  {plannerWarnings.length > 0 && (
+                  {(plannerWarnings || []).length > 0 && (
                     <ul className="mt-2 list-disc space-y-1 pl-5">
-                      {plannerWarnings.map((warning, index) => (
+                      {(plannerWarnings || []).map((warning, index) => (
                         <li key={`warning-${index}`}>{warning}</li>
                       ))}
                     </ul>
