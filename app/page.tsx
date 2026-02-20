@@ -34,7 +34,7 @@ export default function HomePage() {
             </div>
             <div className="flex items-center gap-3">
               <Link
-                href="/build"
+                href="/build?demo=tbilisi-business&autostart=1"
                 className="btn-primary px-5 py-2 text-sm font-semibold"
               >
                 Start Building

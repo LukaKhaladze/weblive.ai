@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { WizardInput } from "@/lib/schema";
 import { recipes } from "@/lib/generator/recipes";
@@ -63,6 +63,35 @@ const stepsBase = [
   "Review",
 ];
 
+const demoInput: WizardInput = normalizeEcommerceInput({
+  ...defaultInput,
+  prompt:
+    "Create a modern ecommerce website for a Tbilisi pool construction company with strong trust messaging and contact-first CTAs.",
+  businessName: "AquaLine",
+  description:
+    "AquaLine is a Tbilisi-based pool construction company focused on custom residential and commercial pools with full-cycle service.",
+  productCategories: "Pool Construction, Renovation, Maintenance",
+  services: "Pool Construction, Renovation, Maintenance",
+  uniqueValue: "Certified technical support and turnkey delivery.",
+  targetAudience: "Homeowners, hotels, developers",
+  location: "Tbilisi, Georgia",
+  tone: "professional",
+  visualStyle: "modern minimal",
+  imageMood: "clean daylight",
+  primaryCta: "Call Now",
+  products: [
+    { name: "Residential Pool", price: "From $18,000", imageUrl: "" },
+    { name: "Commercial Pool", price: "From $35,000", imageUrl: "" },
+    { name: "Pool Renovation", price: "From $6,000", imageUrl: "" },
+  ],
+  contact: {
+    ...defaultInput.contact,
+    phone: "+995 555 123 456",
+    email: "hello@aqualine.ge",
+    address: "Tbilisi, Georgia",
+  },
+});
+
 export default function BuildPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -73,6 +102,7 @@ export default function BuildPage() {
   const [lastError, setLastError] = useState<string>("");
   const [plannerWarnings, setPlannerWarnings] = useState<string[]>([]);
   const [unsupportedFeatures, setUnsupportedFeatures] = useState<string[]>([]);
+  const autoStartedRef = useRef(false);
 
   const steps = useMemo(() => stepsBase, []);
 
@@ -90,11 +120,12 @@ export default function BuildPage() {
     return true;
   };
 
-  async function handleGenerate() {
+  async function handleGenerate(sourceInput?: WizardInput) {
     setLoading(true);
     setLastError("");
     try {
-      const normalized = normalizeEcommerceInput(input);
+      const activeInput = sourceInput ?? input;
+      const normalized = normalizeEcommerceInput(activeInput);
       const prompt =
         normalized.prompt?.trim() ||
         buildPromptFromFields({
@@ -194,7 +225,7 @@ export default function BuildPage() {
         return;
       }
 
-      if (logoFile) {
+      if (logoFile && !sourceInput) {
         const form = new FormData();
         form.append("file", logoFile);
         form.append("projectId", data.id);
@@ -221,7 +252,7 @@ export default function BuildPage() {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              input: normalizeEcommerceInput({ ...input, logoUrl: upload.url }),
+              input: normalizeEcommerceInput({ ...activeInput, logoUrl: upload.url }),
               site: updatedSite,
             }),
           });
@@ -231,8 +262,8 @@ export default function BuildPage() {
         }
       }
 
-      if (input.products.length > 0) {
-        const updatedProducts = [...input.products];
+      if (activeInput.products.length > 0 && !sourceInput) {
+        const updatedProducts = [...activeInput.products];
         for (let i = 0; i < updatedProducts.length; i += 1) {
           const file = productFiles[i];
           if (!file) continue;
@@ -251,7 +282,7 @@ export default function BuildPage() {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            input: normalizeEcommerceInput({ ...input, products: updatedProducts }),
+            input: normalizeEcommerceInput({ ...activeInput, products: updatedProducts }),
           }),
         });
       }
@@ -265,6 +296,18 @@ export default function BuildPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("demo") !== "tbilisi-business") return;
+    setInput(demoInput);
+    setStep(steps.length - 1);
+    if (params.get("autostart") === "1" && !autoStartedRef.current) {
+      autoStartedRef.current = true;
+      void handleGenerate(demoInput);
+    }
+  }, [steps.length]);
 
   return (
     <div className="min-h-screen bg-primary text-[#F8FAFC]">
@@ -664,7 +707,7 @@ export default function BuildPage() {
             ) : (
               <button
                 className="btn-primary rounded-full px-6 py-2 text-sm font-semibold"
-                onClick={handleGenerate}
+                onClick={() => void handleGenerate()}
                 disabled={loading}
               >
                 {loading ? "Generating..." : "Generate Website"}

@@ -65,7 +65,7 @@ export default function LandingHero() {
               </a>
             ))}
             <Link
-              href="/build"
+              href="/build?demo=tbilisi-business&autostart=1"
               className="btn-primary ml-1 px-4 py-2 text-sm font-semibold"
             >
               Start Building
@@ -84,7 +84,7 @@ export default function LandingHero() {
             Build your first production-ready website in minutes, then keep refining every section in a live editor.
           </p>
           <Link
-            href="/build"
+            href="/build?demo=tbilisi-business&autostart=1"
             className="btn-primary mt-8 inline-flex px-6 py-3 text-sm font-semibold"
           >
             Start Building
