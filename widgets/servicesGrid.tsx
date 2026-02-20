@@ -15,6 +15,7 @@ type ServicesGridProps = {
 export default function ServicesGrid({ variant, props, editable, onEdit }: ServicesGridProps) {
   const textStyles = (props as any)._textStyles || {};
   const styleFor = (path: string) => textStyles[path];
+  const items = Array.isArray(props.items) ? props.items : [];
   const isIcons = variant === "icons";
   return (
     <section id="services" className="px-6 py-16">
@@ -31,7 +32,7 @@ export default function ServicesGrid({ variant, props, editable, onEdit }: Servi
           <h2 className="text-3xl font-semibold text-slate-900">{props.title}</h2>
         )}
         <div className="mt-8 grid gap-6 md:grid-cols-3">
-          {props.items.map((item, index) => (
+          {items.map((item, index) => (
             <div
               key={`${item.title}-${index}`}
               className={`rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm ${

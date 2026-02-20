@@ -38,6 +38,9 @@ export default function Hero({
 
   const primary = props.ctaPrimary || { label: "Get Started", href: "#contact" };
   const secondary = props.ctaSecondary || { label: "Learn More", href: "#more" };
+  const bullets = Array.isArray(props.bullets) ? props.bullets : [];
+  const stats = Array.isArray(props.stats) ? props.stats : [];
+  const gallery = Array.isArray(props.gallery) ? props.gallery : [];
 
   const handleCtaClick = (path: string, current: string) => {
     if (!editable || !onEdit) return;
@@ -134,9 +137,9 @@ export default function Hero({
           {renderText("span", "font-semibold", secondary.label, "ctaSecondary.label")}
         </button>
       </div>
-      {props.bullets && props.bullets.length > 0 && (
+      {bullets.length > 0 && (
         <div className="flex flex-wrap gap-4 text-sm text-muted">
-          {props.bullets.map((item, index) => (
+          {bullets.map((item, index) => (
             <span key={index} className="flex items-center gap-2">
               {renderText("span", "flex items-center gap-2", item, `bullets.${index}`)}
             </span>
@@ -191,9 +194,9 @@ export default function Hero({
                 {renderText("span", "font-semibold", secondary.label, "ctaSecondary.label")}
               </button>
             </div>
-            {props.bullets && props.bullets.length > 0 && (
+            {bullets.length > 0 && (
               <div className="flex flex-wrap gap-4 text-sm text-muted">
-                {props.bullets.map((item, index) => (
+                {bullets.map((item, index) => (
                   <span key={index} className="flex items-center gap-2">
                     {renderText("span", "flex items-center gap-2", item, `bullets.${index}`)}
                   </span>
@@ -247,7 +250,7 @@ export default function Hero({
     const products =
       props.products && props.products.length > 0
         ? props.products
-        : (props.gallery || []).map((item, index) => ({
+        : gallery.map((item, index) => ({
             name: `Product ${index + 1}`,
             price: "",
             imageUrl: item.src,
@@ -283,7 +286,7 @@ export default function Hero({
             </button>
           </div>
           <div className="space-y-6">
-            {(props.stats || []).map((stat, index) => (
+            {stats.map((stat, index) => (
               <div key={index} className="border-b border-border pb-4">
                 {renderText(
                   "p",

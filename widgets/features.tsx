@@ -15,6 +15,7 @@ type FeaturesProps = {
 export default function Features({ props, editable, onEdit }: FeaturesProps) {
   const textStyles = (props as any)._textStyles || {};
   const styleFor = (path: string) => textStyles[path];
+  const items = Array.isArray(props.items) ? props.items : [];
   return (
     <section className="px-6 py-16">
       <div className="mx-auto max-w-6xl rounded-[36px] bg-[color:var(--secondary)]/15 p-10">
@@ -30,7 +31,7 @@ export default function Features({ props, editable, onEdit }: FeaturesProps) {
           <h2 className="text-3xl font-semibold text-slate-900">{props.title}</h2>
         )}
         <div className="mt-8 grid gap-6 md:grid-cols-3">
-          {props.items.map((item, index) => (
+          {items.map((item, index) => (
             <div key={`${item.title}-${index}`} className="space-y-3">
               {editable && onEdit ? (
                 <EditableText

@@ -15,6 +15,7 @@ type PricingProps = {
 export default function Pricing({ props, editable, onEdit }: PricingProps) {
   const textStyles = (props as any)._textStyles || {};
   const styleFor = (path: string) => textStyles[path];
+  const tiers = Array.isArray(props.tiers) ? props.tiers : [];
   return (
     <section className="px-6 py-16">
       <div className="mx-auto max-w-6xl">
@@ -30,7 +31,7 @@ export default function Pricing({ props, editable, onEdit }: PricingProps) {
           <h2 className="text-3xl font-semibold text-slate-900">{props.title}</h2>
         )}
         <div className="mt-8 grid gap-6 md:grid-cols-3">
-          {props.tiers.map((tier, index) => (
+          {tiers.map((tier, index) => (
             <div
               key={tier.name}
               className={`rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm ${

@@ -18,6 +18,8 @@ type FooterProps = {
 export default function Footer({ variant, props, editable, onEdit }: FooterProps) {
   const textStyles = (props as any)._textStyles || {};
   const styleFor = (path: string) => textStyles[path];
+  const links = Array.isArray(props.links) ? props.links : [];
+  const social = Array.isArray(props.social) ? props.social : [];
   const minimal = variant === "minimal";
   return (
     <footer className="px-6 py-12">
@@ -52,14 +54,14 @@ export default function Footer({ variant, props, editable, onEdit }: FooterProps
             )}
           </div>
           <div className="flex flex-wrap gap-4 text-sm text-slate-500">
-            {props.links.map((link) => (
+            {links.map((link) => (
               <Link key={link.href} href={link.href}>
                 {link.label}
               </Link>
             ))}
           </div>
           <div className="flex flex-wrap gap-4 text-sm text-slate-500">
-            {props.social.map((link) => (
+            {social.map((link) => (
               <Link key={link.href} href={link.href}>
                 {link.label}
               </Link>

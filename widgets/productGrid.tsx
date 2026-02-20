@@ -17,6 +17,7 @@ type ProductGridProps = {
 export default function ProductGrid({ props, editable, onEdit, onImageUpload }: ProductGridProps) {
   const textStyles = (props as any)._textStyles || {};
   const styleFor = (path: string) => textStyles[path];
+  const items = Array.isArray(props.items) ? props.items : [];
 
   return (
     <section className="px-6 py-16">
@@ -34,7 +35,7 @@ export default function ProductGrid({ props, editable, onEdit, onImageUpload }: 
         )}
 
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {props.items.map((item, index) => (
+          {items.map((item, index) => (
             <div
               key={`${item.title}-${index}`}
               className="rounded-[28px] border border-slate-200 bg-white p-6 text-center shadow-sm"

@@ -15,6 +15,7 @@ type TeamProps = {
 export default function Team({ props, editable, onEdit }: TeamProps) {
   const textStyles = (props as any)._textStyles || {};
   const styleFor = (path: string) => textStyles[path];
+  const members = Array.isArray(props.members) ? props.members : [];
   return (
     <section className="px-6 py-16">
       <div className="mx-auto max-w-6xl">
@@ -30,7 +31,7 @@ export default function Team({ props, editable, onEdit }: TeamProps) {
           <h2 className="text-3xl font-semibold text-slate-900">{props.title}</h2>
         )}
         <div className="mt-8 grid gap-6 md:grid-cols-2">
-          {props.members.map((member, index) => (
+          {members.map((member, index) => (
             <div
               key={`${member.name}-${index}`}
               className="rounded-[28px] border border-slate-200 bg-white p-6"

@@ -73,6 +73,7 @@ export default function Header({ variant, props, editable, onEdit, onImageUpload
       </Link>
     );
   };
+  const navItems = Array.isArray(props.nav) ? props.nav : [];
 
   const logoSrc = (props.logo || "").trim();
   const LogoBlock = (
@@ -151,7 +152,7 @@ export default function Header({ variant, props, editable, onEdit, onImageUpload
               <div className="flex-1 flex justify-end">{CtaButton}</div>
             </div>
             <nav className={`mt-4 flex flex-wrap items-center justify-center gap-6 pb-2 text-xs ${mutedText} md:text-sm`}>
-              {props.nav.map((item, index) => renderNavItem(item, index))}
+              {navItems.map((item, index) => renderNavItem(item, index))}
             </nav>
           </div>
         ) : (
@@ -168,7 +169,7 @@ export default function Header({ variant, props, editable, onEdit, onImageUpload
             )}
 
             <nav className={`flex flex-wrap items-center justify-center gap-6 text-xs ${mutedText} md:text-sm`}>
-              {props.nav.map((item, index) => renderNavItem(item, index))}
+              {navItems.map((item, index) => renderNavItem(item, index))}
             </nav>
 
             {CtaButton}

@@ -106,6 +106,7 @@ export default function BuildPage() {
   const autoStartedRef = useRef(false);
 
   const steps = useMemo(() => stepsBase, []);
+  const products = useMemo(() => (Array.isArray(input.products) ? input.products : []), [input.products]);
 
   const availablePages = useMemo(() => {
     const pages = recipes?.ecommerce?.pages;
@@ -129,7 +130,10 @@ export default function BuildPage() {
     setLastError("");
     try {
       const activeInput = sourceInput ?? input;
-      const normalized = normalizeEcommerceInput(activeInput);
+      const normalized = normalizeEcommerceInput({
+        ...activeInput,
+        products: Array.isArray(activeInput.products) ? activeInput.products : [],
+      });
       const prompt =
         normalized.prompt?.trim() ||
         buildPromptFromFields({
@@ -268,8 +272,8 @@ export default function BuildPage() {
         }
       }
 
-      if (Array.isArray(activeInput.products) && activeInput.products.length > 0 && !sourceInput) {
-        const updatedProducts = [...activeInput.products];
+      if (products.length > 0 && !sourceInput) {
+        const updatedProducts = [...products];
         for (let i = 0; i < updatedProducts.length; i += 1) {
           const file = productFiles[i];
           if (!file) continue;
@@ -504,15 +508,15 @@ export default function BuildPage() {
                   <button
                     key={count}
                     className={`rounded-full border px-4 py-2 text-sm ${
-                      input.products.length === count
+                      products.length === count
                         ? "border-border bg-brand-gradient text-white"
                         : "border-border bg-primary text-muted"
                     }`}
                     onClick={() => {
                       const next = Array.from({ length: count }).map((_, index) => ({
-                        name: (input.products || [])[index]?.name || "",
-                        price: (input.products || [])[index]?.price || "",
-                        imageUrl: (input.products || [])[index]?.imageUrl || "",
+                        name: products[index]?.name || "",
+                        price: products[index]?.price || "",
+                        imageUrl: products[index]?.imageUrl || "",
                       }));
                       setInput((prev) => ({ ...prev, products: next }));
                     }}
@@ -522,7 +526,7 @@ export default function BuildPage() {
                 ))}
               </div>
 
-              {(input.products || []).map((product, index) => (
+              {products.map((product, index) => (
                 <div key={index} className="rounded-2xl border border-border bg-primary p-4">
                   <p className="text-sm font-semibold text-[#F8FAFC]">Product {index + 1}</p>
                   <div className="mt-3 grid gap-3 md:grid-cols-3">
@@ -532,7 +536,7 @@ export default function BuildPage() {
                         className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                         value={product.name}
                         onChange={(event) => {
-                          const next = [...input.products];
+                          const next = [...products];
                           next[index] = { ...next[index], name: event.target.value };
                           setInput((prev) => ({ ...prev, products: next }));
                         }}
@@ -544,7 +548,7 @@ export default function BuildPage() {
                         className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
                         value={product.price}
                         onChange={(event) => {
-                          const next = [...input.products];
+                          const next = [...products];
                           next[index] = { ...next[index], price: event.target.value };
                           setInput((prev) => ({ ...prev, products: next }));
                         }}
@@ -698,7 +702,8 @@ export default function BuildPage() {
                 <p className="text-xs uppercase tracking-[0.3em] text-muted">Widgets</p>
                 <p className="mt-2">
                   {(widgetRegistry ? Object.values(widgetRegistry) : [])
-                    .map((w) => w.name)
+                    .map((w) => (w && typeof w.name === "string" ? w.name : ""))
+                    .filter(Boolean)
                     .slice(0, 6)
                     .join(", ")}
                   ...
