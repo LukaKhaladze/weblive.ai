@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DesignKitIdSchema } from "@/schemas/designKits";
 
 export const CategorySchema = z.enum(["ecommerce", "informational"]);
 
@@ -65,6 +66,7 @@ export const ThemeSchema = z.object({
   fontFamily: z.string(),
   radius: z.number(),
   buttonStyle: z.enum(["solid", "outline"]),
+  designKit: DesignKitIdSchema.optional().default("clean-minimal"),
 });
 
 export const SectionSchema = z.object({

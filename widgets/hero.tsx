@@ -79,7 +79,10 @@ export default function Hero({
     : undefined;
 
   const ImageBlock = (
-    <div className="relative overflow-hidden rounded-[24px] bg-primary border border-border">
+    <div
+      className="relative overflow-hidden rounded-[24px] border"
+      style={{ background: "var(--wf-surface)", borderColor: "var(--wf-border)" }}
+    >
       {editable && onImageUpload ? (
         <ClickUpload onUpload={(file) => onImageUpload("image.src", file, "images")}>
           <img
@@ -101,13 +104,20 @@ export default function Hero({
   const TextBlock = (
     <div className="space-y-4">
       {props.eyebrow && (
-        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-primary px-3 py-1 text-xs font-semibold text-muted">
+        <div
+          className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold"
+          style={{
+            background: "var(--wf-surface)",
+            borderColor: "var(--wf-border)",
+            color: "var(--wf-muted)",
+          }}
+        >
           {renderText("span", "font-semibold", props.eyebrow, "eyebrow")}
         </div>
       )}
       {renderText(
         "h2",
-        "text-4xl font-semibold tracking-tight text-slate-900",
+        "text-4xl font-semibold tracking-tight",
         props.headline,
         "headline"
       )}
@@ -156,7 +166,14 @@ export default function Hero({
         <div className="relative z-10 px-10 py-16">
           <div className="max-w-2xl space-y-5">
             {props.eyebrow && (
-              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-primary/60 px-3 py-1 text-xs font-semibold text-slate-900">
+              <div
+                className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold"
+                style={{
+                  background: "color-mix(in srgb, var(--wf-surface) 60%, transparent)",
+                  borderColor: "var(--wf-border)",
+                  color: "var(--wf-text)",
+                }}
+              >
                 {renderText("span", "font-semibold", props.eyebrow, "eyebrow")}
               </div>
             )}
@@ -220,7 +237,10 @@ export default function Hero({
 
   if (isCard) {
     return (
-      <section className="relative overflow-hidden rounded-[28px] bg-primary border border-border">
+      <section
+        className="relative overflow-hidden rounded-[28px] border"
+        style={{ background: "var(--wf-surface)", borderColor: "var(--wf-border)" }}
+      >
         <div className="absolute inset-0">
           {editable && onImageUpload ? (
             <ClickUpload onUpload={(file) => onImageUpload("backgroundImage", file, "images")}>
@@ -239,7 +259,10 @@ export default function Hero({
           )}
           <div className="absolute inset-0 bg-black/10" />
         </div>
-        <div className="relative z-10 max-w-xl rounded-[24px] border border-border bg-primary p-8">
+        <div
+          className="relative z-10 max-w-xl rounded-[24px] border p-8"
+          style={{ background: "var(--wf-surface)", borderColor: "var(--wf-border)" }}
+        >
           {TextBlock}
         </div>
       </section>
@@ -263,7 +286,7 @@ export default function Hero({
           <div className="space-y-5">
             {renderText(
               "h2",
-              "text-4xl font-semibold tracking-tight text-slate-900",
+              "text-4xl font-semibold tracking-tight",
               props.headline,
               "headline"
             )}
@@ -296,7 +319,7 @@ export default function Hero({
                 )}
                 {renderText(
                   "p",
-                  "text-2xl font-semibold text-slate-900",
+                  "text-2xl font-semibold",
                   stat.value,
                   `stats.${index}.value`
                 )}
@@ -306,7 +329,11 @@ export default function Hero({
         </div>
         <div className={`grid gap-6 ${products.length === 1 ? "md:grid-cols-1" : products.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
           {products.map((product, index) => (
-            <div key={index} className="overflow-hidden rounded-[20px] border border-border bg-primary">
+            <div
+              key={index}
+              className="overflow-hidden rounded-[20px] border"
+              style={{ background: "var(--wf-surface)", borderColor: "var(--wf-border)" }}
+            >
               <div className="aspect-[4/3] overflow-hidden">
                 {editable && onImageUpload ? (
                   <ClickUpload onUpload={(file) => onImageUpload(`products.${index}.imageUrl`, file, "images")}>
@@ -327,7 +354,7 @@ export default function Hero({
               <div className="space-y-3 p-4">
                 {renderText(
                   "p",
-                  "text-lg font-semibold text-slate-900",
+                  "text-lg font-semibold",
                   product.name || `Product ${index + 1}`,
                   `products.${index}.name`
                 )}

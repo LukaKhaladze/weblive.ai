@@ -6,6 +6,7 @@ describe("layout plan validation", () => {
   it("rejects unknown widgets", () => {
     const payload = {
       website_type: "info",
+      designKit: "clean-minimal",
       style_preset: "dark-neon",
       template_pack: "INFO_PACK",
       recipe_id: "info-corporate-clean",

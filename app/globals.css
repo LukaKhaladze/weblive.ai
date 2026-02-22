@@ -11,6 +11,15 @@
   --brand-accent-blue: #2f9bfd;
   --brand-accent-mid: #4d5cf3;
   --brand-accent-purple: #7333f2;
+  --wf-bg: #ffffff;
+  --wf-surface: #ffffff;
+  --wf-text: #0f172a;
+  --wf-muted: #64748b;
+  --wf-border: #e2e8f0;
+  --wf-primary: #2f9bfd;
+  --wf-primary-text: #ffffff;
+  --wf-secondary: #4d5cf3;
+  --wf-radius: 16px;
 }
 
 body {
@@ -62,8 +71,8 @@ button {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #2f9bfd, #4d5cf3, #7333f2);
-  color: #ffffff;
+  background: var(--wf-primary);
+  color: var(--wf-primary-text);
   border-radius: 14px;
   border: 0;
   box-shadow: none;
@@ -76,13 +85,13 @@ button {
 
 .btn-secondary {
   background: transparent;
-  color: var(--brand-text);
-  border: 1px solid var(--brand-border);
+  color: var(--wf-text);
+  border: 1px solid var(--wf-border);
   border-radius: 14px;
 }
 
 .btn-secondary:hover {
-  background: #f8fafc;
+  background: color-mix(in srgb, var(--wf-surface) 94%, var(--wf-text) 6%);
 }
 
 .weblive-text {

@@ -23,30 +23,38 @@ export default function ServicesGrid({ variant, props, editable, onEdit }: Servi
         {editable && onEdit ? (
           <EditableText
             as="h2"
-            className="text-3xl font-semibold text-slate-900"
+            className="text-3xl font-semibold"
             value={props.title}
             onChange={(value) => onEdit("title", value)}
             responsiveStyle={styleFor("title")}
           />
         ) : (
-          <h2 className="text-3xl font-semibold text-slate-900">{props.title}</h2>
+          <h2 className="text-3xl font-semibold">{props.title}</h2>
         )}
         <div className="mt-8 grid gap-6 md:grid-cols-3">
           {items.map((item, index) => (
             <div
               key={`${item.title}-${index}`}
-              className={`rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm ${
+              className={`rounded-[28px] border p-6 ${
                 isIcons ? "flex gap-4" : ""
               }`}
+              style={{
+                background: "var(--wf-surface)",
+                borderColor: "var(--wf-border)",
+                boxShadow: "none",
+              }}
             >
               {isIcons && (
-                <div className="h-10 w-10 rounded-full bg-[color:var(--primary)]/15" />
+                <div
+                  className="h-10 w-10 rounded-full"
+                  style={{ background: "color-mix(in srgb, var(--wf-primary) 15%, transparent)" }}
+                />
               )}
               <div>
                 {editable && onEdit ? (
                   <EditableText
                     as="h3"
-                    className="text-lg font-semibold text-slate-900"
+                    className="text-lg font-semibold"
                     value={item.title}
                     onChange={(value) => {
                       const next = [...props.items];
@@ -56,12 +64,12 @@ export default function ServicesGrid({ variant, props, editable, onEdit }: Servi
                     responsiveStyle={styleFor("items")}
                   />
                 ) : (
-                  <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
+                  <h3 className="text-lg font-semibold">{item.title}</h3>
                 )}
                 {editable && onEdit ? (
                   <EditableText
                     as="p"
-                    className="mt-2 text-sm text-slate-600"
+                    className="mt-2 text-sm"
                     value={item.desc}
                     onChange={(value) => {
                       const next = [...props.items];
@@ -71,7 +79,7 @@ export default function ServicesGrid({ variant, props, editable, onEdit }: Servi
                     responsiveStyle={styleFor("items")}
                   />
                 ) : (
-                  <p className="mt-2 text-sm text-slate-600">{item.desc}</p>
+                  <p className="mt-2 text-sm" style={{ color: "var(--wf-muted)" }}>{item.desc}</p>
                 )}
               </div>
             </div>

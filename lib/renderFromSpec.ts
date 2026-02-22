@@ -200,6 +200,7 @@ export function renderFromSpec(rawSpec: SiteSpec): { site: Site; seo: SeoPayload
       fontFamily: spec.brand?.fontFamily || "Manrope",
       radius: 24,
       buttonStyle: "solid",
+      designKit: "clean-minimal",
     },
     pages,
   };

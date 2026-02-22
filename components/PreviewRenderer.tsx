@@ -1,5 +1,6 @@
 import { Site } from "@/lib/schema";
 import { renderWidget, WidgetType } from "@/widgets/registry";
+import { getThemeCssVars } from "@/lib/designKitTheme";
 
 export default function PreviewRenderer({
   site,
@@ -12,12 +13,12 @@ export default function PreviewRenderer({
   if (!page) return null;
   return (
     <div
-      className="w-full max-w-full bg-primary"
+      className="w-full max-w-full"
       style={{
-        "--primary": site.theme.primaryColor,
-        "--secondary": site.theme.secondaryColor,
-        "--radius": `${site.theme.radius}px`,
-      } as React.CSSProperties}
+        ...getThemeCssVars(site.theme),
+        background: "var(--wf-bg)",
+        color: "var(--wf-text)",
+      }}
     >
       {page.sections.map((section) => (
         <div key={section.id}>

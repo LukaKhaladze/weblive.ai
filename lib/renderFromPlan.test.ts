@@ -4,6 +4,7 @@ import { renderFromPlan } from "@/lib/renderFromPlan";
 
 const basePlan = {
   website_type: "catalog" as const,
+  designKit: "modern-saas" as const,
   style_preset: "dark-neon" as const,
   template_pack: "CATALOG_PACK" as const,
   recipe_id: "catalog-megamarket",
@@ -82,5 +83,10 @@ describe("renderFromPlan invariants", () => {
       first.pages.map((page) => page.sections.map((section) => section.id)),
       second.pages.map((page) => page.sections.map((section) => section.id))
     );
+  });
+
+  it("stores selected design kit in theme", () => {
+    const { site } = renderFromPlan(basePlan, { businessName: "Demo" });
+    assert.equal(site.theme.designKit, "modern-saas");
   });
 });

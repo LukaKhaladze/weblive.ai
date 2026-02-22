@@ -8,6 +8,7 @@ import {
   TemplatePack,
   WebsiteType,
 } from "@/schemas/sectionLibrary";
+import { DesignKitId, DESIGN_KIT_IDS } from "@/schemas/designKits";
 
 type PlanInput = {
   prompt: string;
@@ -383,67 +384,320 @@ type LayoutPlanOutput = {
 
 const CATALOG_HINTS = ["product", "catalog", "shop", "store", "collection", "sku"];
 
+const PAGE_ORDER = ["/", "/services", "/products", "/pricing", "/portfolio", "/about", "/blog", "/contact"] as const;
+const PAGE_NAME_DEFAULTS: Record<string, string> = {
+  "/": "Home",
+  "/about": "About",
+  "/services": "Services",
+  "/products": "Products",
+  "/pricing": "Pricing",
+  "/portfolio": "Portfolio",
+  "/contact": "Contact",
+  "/blog": "Blog",
+};
+
+type BusinessArchetype = "medical" | "saas" | "luxury" | "restaurant" | "agency" | "general";
+
 function detectWebsiteType(prompt: string, forced?: WebsiteType): WebsiteType {
   if (forced) return forced;
   const normalized = prompt.toLowerCase();
   return CATALOG_HINTS.some((hint) => normalized.includes(hint)) ? "catalog" : "info";
 }
 
-function fallbackLayoutPlan(input: LayoutPlanInput): LayoutPlan {
-  const websiteType = detectWebsiteType(input.prompt, input.website_type);
+function detectBusinessArchetype(prompt: string): BusinessArchetype {
+  const normalized = prompt.toLowerCase();
+  if (/(medical|clinic|dental|hospital|health)/.test(normalized)) return "medical";
+  if (/(saas|startup|software|ai|platform)/.test(normalized)) return "saas";
+  if (/(luxury|premium|boutique|high-end|exclusive)/.test(normalized)) return "luxury";
+  if (/(restaurant|cafe|organic|farm|bakery|food)/.test(normalized)) return "restaurant";
+  if (/(agency|marketing|creative|branding|studio)/.test(normalized)) return "agency";
+  return "general";
+}
+
+function selectDesignKit(
+  prompt: string,
+  websiteType: WebsiteType,
+  tone?: string
+): DesignKitId {
+  const normalized = `${prompt} ${tone || ""}`.toLowerCase();
+  const archetype = detectBusinessArchetype(normalized);
+  if (archetype === "medical") return "medical-blue";
+  if (archetype === "saas") return "modern-saas";
+  if (archetype === "luxury") return "luxury-elegant";
+  if (archetype === "restaurant") return "warm-organic";
+  if (archetype === "agency") return "bold-gradient";
+  if (websiteType === "catalog") return "clean-minimal";
+  return "clean-minimal";
+}
+
+function stylePresetFromKit(designKit: DesignKitId): keyof typeof STYLE_PRESETS {
+  if (designKit === "modern-saas" || designKit === "bold-gradient") return "dark-neon";
+  if (designKit === "warm-organic") return "light-commerce";
+  return "premium-minimal";
+}
+
+function chooseRecipe(websiteType: WebsiteType, archetype: BusinessArchetype) {
   const recipes = websiteType === "catalog" ? CATALOG_RECIPES : INFO_RECIPES;
-  const recipe = recipes[0];
+  if (websiteType === "catalog") {
+    if (archetype === "luxury") return recipes.find((r) => r.id === "catalog-boutique") || recipes[0];
+    if (archetype === "saas" || archetype === "agency") {
+      return recipes.find((r) => r.id === "catalog-megamarket") || recipes[0];
+    }
+    if (archetype === "restaurant") return recipes.find((r) => r.id === "catalog-story") || recipes[0];
+    return recipes.find((r) => r.id === "catalog-clean") || recipes[0];
+  }
+
+  if (archetype === "saas") return recipes.find((r) => r.id === "info-agency-modern") || recipes[0];
+  if (archetype === "medical") return recipes.find((r) => r.id === "info-service-trust") || recipes[0];
+  if (archetype === "luxury") return recipes.find((r) => r.id === "info-premium") || recipes[0];
+  if (archetype === "agency") return recipes.find((r) => r.id === "info-agency-modern") || recipes[0];
+  return recipes.find((r) => r.id === "info-corporate-clean") || recipes[0];
+}
+
+function chooseVariant(
+  widget: string,
+  defaultVariant: string,
+  context: { websiteType: WebsiteType; designKit: DesignKitId; archetype: BusinessArchetype; pageSlug: string }
+) {
+  if (widget === "header") {
+    return context.websiteType === "catalog" ? "v2-search" : "v1-classic";
+  }
+  if (widget === "hero") {
+    if (context.designKit === "modern-saas") return "v2-split";
+    if (context.designKit === "medical-blue") return "v1-centered";
+    if (context.designKit === "luxury-elegant") return "v2-split";
+    if (context.designKit === "bold-gradient") return "v4-metrics";
+    return context.pageSlug === "/" ? "v1-centered" : defaultVariant;
+  }
+  if (widget === "services") {
+    if (context.archetype === "agency" || context.archetype === "saas") return "grid";
+    if (context.archetype === "medical") return "list";
+    if (context.archetype === "restaurant") return "grid";
+  }
+  if (widget === "testimonials") {
+    if (context.archetype === "luxury") return "slider";
+    if (context.archetype === "medical") return "slider";
+    return "cards";
+  }
+  if (widget === "promo_strip" && context.archetype === "restaurant") return "cards";
+  if (widget === "categories" && context.archetype === "luxury") return "image_grid";
+  return defaultVariant;
+}
+
+function normalizePages(
+  websiteType: WebsiteType,
+  candidatePages: Array<{ slug: string; name?: string; nav_label?: string }> | undefined
+) {
+  const sourcePages =
+    candidatePages && candidatePages.length > 0
+      ? candidatePages
+      : websiteType === "catalog"
+        ? [
+            { slug: "/", name: "Home", nav_label: "Home" },
+            { slug: "/products", name: "Products", nav_label: "Products" },
+            { slug: "/about", name: "About", nav_label: "About" },
+            { slug: "/contact", name: "Contact", nav_label: "Contact" },
+          ]
+        : [
+            { slug: "/", name: "Home", nav_label: "Home" },
+            { slug: "/services", name: "Services", nav_label: "Services" },
+            { slug: "/about", name: "About", nav_label: "About" },
+            { slug: "/contact", name: "Contact", nav_label: "Contact" },
+          ];
+
+  const allowed = new Set<string>([...ALLOWED_PAGE_SLUGS, "/blog"]);
+  const map = new Map<string, { slug: string; name: string; nav_label: string }>();
+  for (const page of sourcePages) {
+    if (!allowed.has(page.slug)) continue;
+    if (map.has(page.slug)) continue;
+    map.set(page.slug, {
+      slug: page.slug,
+      name: page.name?.trim() || PAGE_NAME_DEFAULTS[page.slug] || fallbackSlugToName(page.slug),
+      nav_label: page.nav_label?.trim() || page.name?.trim() || PAGE_NAME_DEFAULTS[page.slug] || fallbackSlugToName(page.slug),
+    });
+  }
+
+  if (!map.has("/")) map.set("/", { slug: "/", name: "Home", nav_label: "Home" });
+  if (!map.has("/contact")) {
+    map.set("/contact", { slug: "/contact", name: "Contact", nav_label: "Contact" });
+  }
+  if (websiteType === "catalog" && !map.has("/products")) {
+    map.set("/products", { slug: "/products", name: "Products", nav_label: "Products" });
+  }
+
+  return Array.from(map.values())
+    .sort((a, b) => {
+      const aRank = PAGE_ORDER.findIndex((slug) => slug === a.slug);
+      const bRank = PAGE_ORDER.findIndex((slug) => slug === b.slug);
+      const aValue = aRank === -1 ? Number.MAX_SAFE_INTEGER : aRank;
+      const bValue = bRank === -1 ? Number.MAX_SAFE_INTEGER : bRank;
+      return aValue - bValue;
+    })
+    .slice(0, 7);
+}
+
+function sectionSeedsByPageAndWidget(
+  pages: Array<{ slug: string; sections?: Array<{ widget: string; props_seed?: Record<string, unknown> }> }>
+) {
+  const seeds: Record<string, Record<string, Record<string, unknown>>> = {};
+  for (const page of pages || []) {
+    if (!page?.slug || !Array.isArray(page.sections)) continue;
+    seeds[page.slug] = seeds[page.slug] || {};
+    for (const section of page.sections) {
+      if (!section?.widget) continue;
+      seeds[page.slug][section.widget] = section.props_seed || {};
+    }
+  }
+  return seeds;
+}
+
+function buildSectionsForSlug(args: {
+  slug: string;
+  websiteType: WebsiteType;
+  designKit: DesignKitId;
+  archetype: BusinessArchetype;
+  recipeSections: readonly string[];
+  seedMap: Record<string, Record<string, Record<string, unknown>>>;
+}) {
+  const parsedRecipe = args.recipeSections.map((item) => {
+    const [widget, variant] = item.split(":");
+    return { widget, variant };
+  });
+  const hasWidget = (name: string) => parsedRecipe.some((item) => item.widget === name);
+  const byWidget = (name: string, fallbackVariant = "v1-classic") =>
+    parsedRecipe.find((item) => item.widget === name) || { widget: name, variant: fallbackVariant };
+
+  let composition = parsedRecipe;
+  if (args.slug !== "/") {
+    if (args.slug === "/contact") {
+      composition = [byWidget("header"), hasWidget("contact") ? byWidget("contact", "form") : byWidget("cta", "v1-banner"), byWidget("footer", "v1-simple")];
+    } else if (args.slug === "/about") {
+      composition = [byWidget("header"), hasWidget("about") ? byWidget("about", "split") : byWidget("features", "cards"), hasWidget("testimonials") ? byWidget("testimonials", "cards") : byWidget("stats", "grid"), byWidget("cta", "v2-card"), byWidget("footer", "v1-simple")];
+    } else if (args.slug === "/services") {
+      composition = [byWidget("header"), hasWidget("services") ? byWidget("services", "grid") : byWidget("features", "icons"), hasWidget("steps") ? byWidget("steps", "steps") : byWidget("cta", "v1-banner"), byWidget("cta", "v1-banner"), byWidget("footer", "v1-simple")];
+    } else if (args.slug === "/products") {
+      composition = [
+        byWidget("header", "v2-search"),
+        hasWidget("categories") ? byWidget("categories", "icons_grid") : byWidget("products_grid", "grid_8"),
+        byWidget("products_grid", "grid_8"),
+        hasWidget("promo_strip") ? byWidget("promo_strip", "icons") : byWidget("cta", "v1-banner"),
+        byWidget("footer", "v1-simple"),
+      ];
+    } else {
+      composition = [byWidget("header"), hasWidget("cta") ? byWidget("cta", "v1-banner") : byWidget("features", "cards"), byWidget("footer", "v1-simple")];
+    }
+  }
+
+  const seen = new Set<string>();
+  return composition
+    .filter((item) => {
+      if (item.widget === "hero" && args.slug !== "/") return false;
+      const dedupeKey = `${item.widget}:${item.variant}`;
+      if (seen.has(dedupeKey) && item.widget !== "products_grid" && item.widget !== "blog_teasers") {
+        return false;
+      }
+      seen.add(dedupeKey);
+      return true;
+    })
+    .map((item) => ({
+      widget: item.widget,
+      variant: chooseVariant(item.widget, item.variant, {
+        websiteType: args.websiteType,
+        designKit: args.designKit,
+        archetype: args.archetype,
+        pageSlug: args.slug,
+      }),
+      props_seed: args.seedMap[args.slug]?.[item.widget] || {},
+    }));
+}
+
+function computeRequiredChecklist(pages: Array<{ sections: Array<{ widget: string }> }>, websiteType: WebsiteType) {
+  const widgets = pages.flatMap((page) => page.sections.map((section) => section.widget));
+  const home = pages[0];
+  const has = (widget: string) => widgets.includes(widget);
+  const checklist: Record<string, boolean> = {
+    header: has("header"),
+    hero: home?.sections.some((section) => section.widget === "hero") || false,
+  };
+  if (websiteType === "info") {
+    checklist.services_or_features = has("services") || has("features");
+    checklist.credibility = has("testimonials") || has("stats");
+    checklist.cta = has("cta");
+    checklist.contact = has("contact");
+    checklist.footer = has("footer");
+  } else {
+    checklist.categories = has("categories");
+    checklist.products_grid = has("products_grid");
+    checklist.promo_strip = has("promo_strip");
+    checklist.contact_or_footer = has("contact") || has("footer");
+  }
+  return checklist;
+}
+
+function buildDeterministicLayoutPlan(
+  input: LayoutPlanInput,
+  modelPlan?: LayoutPlan
+) {
+  const websiteType = detectWebsiteType(input.prompt, input.website_type || modelPlan?.website_type);
+  const archetype = detectBusinessArchetype(input.prompt);
+  const designKit = selectDesignKit(input.prompt, websiteType);
+  const stylePreset = stylePresetFromKit(designKit);
   const templatePack: TemplatePack = websiteType === "catalog" ? "CATALOG_PACK" : "INFO_PACK";
-  const warnings: string[] = ["Used deterministic planner fallback."];
+  const recipe =
+    (modelPlan?.recipe_id
+      ? [...INFO_RECIPES, ...CATALOG_RECIPES].find((candidate) => candidate.id === modelPlan.recipe_id)
+      : undefined) || chooseRecipe(websiteType, archetype);
+
+  const pages = normalizePages(
+    websiteType,
+    modelPlan?.pages?.map((page) => ({
+      slug: page.slug,
+      name: page.name,
+      nav_label: page.nav_label,
+    }))
+  );
+  const seedMap = sectionSeedsByPageAndWidget(modelPlan?.pages || []);
+  const pagePlans = pages.map((page) => ({
+    slug: page.slug as LayoutPlan["pages"][number]["slug"],
+    name: page.name,
+    nav_label: page.nav_label,
+    sections: buildSectionsForSlug({
+      slug: page.slug,
+      websiteType,
+      designKit,
+      archetype,
+      recipeSections: recipe.sections,
+      seedMap,
+    }),
+  }));
+
   const unsupported = FORBIDDEN_CATALOG_FEATURE_KEYWORDS.filter((token) =>
     input.prompt.toLowerCase().includes(token)
   );
-  if (unsupported.length > 0) {
-    warnings.push("Marketing/catalog site only; advanced features not included.");
-  }
-
-  const defaultPages =
-    websiteType === "catalog"
-      ? [
-          { slug: "/", name: "Home", nav_label: "Home" },
-          { slug: "/products", name: "Products", nav_label: "Products" },
-          { slug: "/about", name: "About", nav_label: "About" },
-          { slug: "/contact", name: "Contact", nav_label: "Contact" },
-        ]
-      : [
-          { slug: "/", name: "Home", nav_label: "Home" },
-          { slug: "/services", name: "Services", nav_label: "Services" },
-          { slug: "/about", name: "About", nav_label: "About" },
-          { slug: "/contact", name: "Contact", nav_label: "Contact" },
-        ];
-
-  const sections = recipe.sections.map((item) => {
-    const [widget, variant] = item.split(":");
-    return {
-      widget,
-      variant,
-      props_seed: {},
-    };
-  });
-
-  const pages = defaultPages.map((page) => ({
-    ...page,
-    sections:
-      page.slug === "/"
-        ? sections
-        : sections.filter((section) => section.widget !== "hero" && section.widget !== "categories"),
-  }));
+  const warnings = [
+    ...(modelPlan?.warnings || []),
+    ...(unsupported.length > 0 ? ["Marketing/catalog site only; advanced features not included."] : []),
+  ];
 
   return parseAndValidateLayoutPlan({
     website_type: websiteType,
-    style_preset: "dark-neon",
+    designKit,
+    style_preset: stylePreset,
     template_pack: templatePack,
     recipe_id: recipe.id,
-    pages,
-    required_sections_checklist: {},
-    unsupported_features: unsupported,
-    warnings,
+    pages: pagePlans,
+    required_sections_checklist: computeRequiredChecklist(pagePlans, websiteType),
+    unsupported_features: [...new Set([...(modelPlan?.unsupported_features || []), ...unsupported])],
+    warnings: [...new Set(warnings)],
   });
+}
+
+function fallbackLayoutPlan(input: LayoutPlanInput): LayoutPlan {
+  const plan = buildDeterministicLayoutPlan(input);
+  return {
+    ...plan,
+    warnings: [...new Set([...plan.warnings, "Used deterministic planner fallback."])],
+  };
 }
 
 async function callLayoutPlannerModel(input: LayoutPlanInput, repairPayload?: unknown): Promise<unknown> {
@@ -459,6 +713,7 @@ async function callLayoutPlannerModel(input: LayoutPlanInput, repairPayload?: un
     additionalProperties: false,
     required: [
       "website_type",
+      "designKit",
       "style_preset",
       "template_pack",
       "recipe_id",
@@ -469,6 +724,7 @@ async function callLayoutPlannerModel(input: LayoutPlanInput, repairPayload?: un
     ],
     properties: {
       website_type: { type: "string", enum: ["info", "catalog"] },
+      designKit: { type: "string", enum: [...DESIGN_KIT_IDS] },
       style_preset: { type: "string", enum: Object.keys(STYLE_PRESETS) },
       template_pack: { type: "string", enum: ["INFO_PACK", "CATALOG_PACK"] },
       recipe_id: { type: "string", enum: recipeIds },
@@ -509,7 +765,8 @@ async function callLayoutPlannerModel(input: LayoutPlanInput, repairPayload?: un
     "You output strict JSON only. Use only curated widgets/variants from the chosen template pack. " +
     "Do not include cart/checkout/payments/login/dashboard. " +
     "If user asks those, put in unsupported_features and add warning: Marketing/catalog site only; advanced features not included. " +
-    "Ensure header on all pages and hero on home.";
+    "Ensure header on all pages and hero on home. " +
+    "Pick designKit from allowed ids and keep sections deterministic.";
 
   const userPayload = repairPayload
     ? {
@@ -574,41 +831,40 @@ export async function planLayout(input: LayoutPlanInput): Promise<LayoutPlanOutp
     };
   }
 
+  let modelPlan: LayoutPlan | undefined;
+  let plannerWarnings: string[] = [];
+  let plannerUnsupported: string[] = [];
+
   try {
     const raw = await callLayoutPlannerModel(input);
     const parsed = LayoutPlanSchema.safeParse(raw);
     if (parsed.success) {
-      const validated = parseAndValidateLayoutPlan(parsed.data);
-      return {
-        layoutPlan: validated,
-        warnings: validated.warnings,
-        unsupported_features: validated.unsupported_features,
-      };
+      modelPlan = parseAndValidateLayoutPlan(parsed.data);
+      plannerWarnings = modelPlan.warnings;
+      plannerUnsupported = modelPlan.unsupported_features;
+    } else {
+      const repairedRaw = await callLayoutPlannerModel(input, raw);
+      const repaired = LayoutPlanSchema.safeParse(repairedRaw);
+      if (repaired.success) {
+        modelPlan = parseAndValidateLayoutPlan(repaired.data);
+        plannerWarnings = modelPlan.warnings;
+        plannerUnsupported = modelPlan.unsupported_features;
+      } else {
+        plannerWarnings = ["Planner fallback was used due to invalid model output."];
+      }
     }
-
-    const repairedRaw = await callLayoutPlannerModel(input, raw);
-    const repaired = LayoutPlanSchema.safeParse(repairedRaw);
-    if (repaired.success) {
-      const validated = parseAndValidateLayoutPlan(repaired.data);
-      return {
-        layoutPlan: validated,
-        warnings: validated.warnings,
-        unsupported_features: validated.unsupported_features,
-      };
-    }
-
-    const fallback = fallbackLayoutPlan(input);
-    return {
-      layoutPlan: fallback,
-      warnings: [...fallback.warnings, "Planner fallback was used due to invalid model output."],
-      unsupported_features: fallback.unsupported_features,
-    };
   } catch (error) {
-    const fallback = fallbackLayoutPlan(input);
-    return {
-      layoutPlan: fallback,
-      warnings: [...fallback.warnings, "Planner used fallback due to temporary AI error."],
-      unsupported_features: fallback.unsupported_features,
-    };
+    plannerWarnings = ["Planner used fallback due to temporary AI error."];
   }
+
+  const deterministicPlan = buildDeterministicLayoutPlan(input, modelPlan);
+  const warnings = [...new Set([...deterministicPlan.warnings, ...plannerWarnings])];
+  const unsupportedFeatures = [
+    ...new Set([...deterministicPlan.unsupported_features, ...plannerUnsupported]),
+  ];
+  return {
+    layoutPlan: { ...deterministicPlan, warnings, unsupported_features: unsupportedFeatures },
+    warnings,
+    unsupported_features: unsupportedFeatures,
+  };
 }

@@ -22,24 +22,29 @@ export default function Testimonials({ props, editable, onEdit }: TestimonialsPr
         {editable && onEdit ? (
           <EditableText
             as="h2"
-            className="text-3xl font-semibold text-slate-900"
+            className="text-3xl font-semibold"
             value={props.title}
             onChange={(value) => onEdit("title", value)}
             responsiveStyle={styleFor("title")}
           />
         ) : (
-          <h2 className="text-3xl font-semibold text-slate-900">{props.title}</h2>
+          <h2 className="text-3xl font-semibold">{props.title}</h2>
         )}
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           {items.map((item, index) => (
             <div
               key={`${item.name}-${index}`}
-              className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm"
+              className="rounded-[28px] border p-6"
+              style={{
+                background: "var(--wf-surface)",
+                borderColor: "var(--wf-border)",
+                boxShadow: "none",
+              }}
             >
               {editable && onEdit ? (
                 <EditableText
                   as="p"
-                  className="text-slate-700"
+                  className="text-base"
                   value={item.quote}
                   onChange={(value) => {
                     const next = [...props.items];
@@ -49,13 +54,13 @@ export default function Testimonials({ props, editable, onEdit }: TestimonialsPr
                   responsiveStyle={styleFor("items")}
                 />
               ) : (
-                <p className="text-slate-700">“{item.quote}”</p>
+                <p style={{ color: "var(--wf-muted)" }}>“{item.quote}”</p>
               )}
-              <div className="mt-4 text-sm text-slate-500">
+              <div className="mt-4 text-sm" style={{ color: "var(--wf-muted)" }}>
                 {editable && onEdit ? (
                   <EditableText
                     as="span"
-                    className="font-semibold text-slate-900"
+                    className="font-semibold"
                     value={item.name}
                     onChange={(value) => {
                       const next = [...props.items];
@@ -65,13 +70,13 @@ export default function Testimonials({ props, editable, onEdit }: TestimonialsPr
                     responsiveStyle={styleFor("items")}
                   />
                 ) : (
-                  <strong className="text-slate-900">{item.name}</strong>
+                  <strong style={{ color: "var(--wf-text)" }}>{item.name}</strong>
                 )}
                 {" · "}
                 {editable && onEdit ? (
                   <EditableText
                     as="span"
-                    className="text-slate-500"
+                    className="text-sm"
                     value={item.role}
                     onChange={(value) => {
                       const next = [...props.items];

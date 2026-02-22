@@ -14,6 +14,7 @@ import SeoPanel from "@/components/editor/SeoPanel";
 import { editableFieldsByWidgetVariant, renderWidget, widgetRegistry, WidgetType } from "@/widgets/registry";
 import { Site, SeoPayload, WizardInput } from "@/lib/schema";
 import { getByPath, setByPath } from "@/lib/pathAccess";
+import { getThemeCssVars } from "@/lib/designKitTheme";
 import Image from "next/image";
 
 const tabs = ["Pages", "Theme", "SEO", "Widgets"] as const;
@@ -702,11 +703,7 @@ export default function EditorShell({
                             </div>
                             <div
                               className="p-4"
-                              style={{
-                                "--primary": site.theme.primaryColor,
-                                "--secondary": site.theme.secondaryColor,
-                                "--radius": `${site.theme.radius}px`,
-                              } as React.CSSProperties}
+                              style={getThemeCssVars(site.theme)}
                             >
                           {renderWidget(
                             widget.type as WidgetType,
@@ -730,11 +727,7 @@ export default function EditorShell({
           ) : (
             <div
               className={`border border-border bg-primary ${viewMode === "mobile" ? "mx-auto max-w-[420px]" : ""}`}
-              style={{
-                "--primary": site.theme.primaryColor,
-                "--secondary": site.theme.secondaryColor,
-                "--radius": `${site.theme.radius}px`,
-              } as React.CSSProperties}
+              style={getThemeCssVars(site.theme)}
             >
               <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
                 <SortableContext items={currentPage.sections.map((section) => section.id)}>

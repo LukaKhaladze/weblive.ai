@@ -64,6 +64,7 @@ export function generateRuleBasedSite(
     fontFamily: pick(fontOptions, rng),
     radius: pick(radiusOptions, rng),
     buttonStyle: pick(buttonOptions, rng),
+    designKit: "clean-minimal" as const,
   };
 
   function buildSections(base: WidgetType[]): WidgetType[] {

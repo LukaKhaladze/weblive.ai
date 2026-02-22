@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DesignKitIdSchema } from "@/schemas/designKits";
 import {
   CATALOG_PACK,
   CATALOG_RECIPES,
@@ -41,6 +42,7 @@ const pagePlanSchema = z
 export const LayoutPlanSchema = z
   .object({
     website_type: z.enum(["info", "catalog"] satisfies [WebsiteType, ...WebsiteType[]]),
+    designKit: DesignKitIdSchema,
     style_preset: z.enum(["dark-neon", "light-commerce", "premium-minimal"] satisfies [StylePresetId, ...StylePresetId[]]),
     template_pack: z.enum(["INFO_PACK", "CATALOG_PACK"] satisfies [TemplatePack, ...TemplatePack[]]),
     recipe_id: z.string().min(1),

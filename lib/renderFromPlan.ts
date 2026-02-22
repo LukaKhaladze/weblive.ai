@@ -1,6 +1,7 @@
 import { SeoPayload, Site } from "@/lib/schema";
 import { LayoutPlan, parseAndValidateLayoutPlan, SECTION_PROPS_SCHEMAS } from "@/schemas/layoutPlan";
 import { STYLE_PRESETS, TemplatePack } from "@/schemas/sectionLibrary";
+import { resolveDesignKit } from "@/schemas/designKits";
 
 type RenderOverrides = {
   brand?: { logo_url?: string; colors?: string[] };
@@ -280,6 +281,7 @@ function injectInvariants(site: Site) {
 
 export function renderFromPlan(rawPlan: unknown, overrides: RenderOverrides = {}) {
   const layoutPlan = parseAndValidateLayoutPlan(rawPlan);
+  const designKit = resolveDesignKit(layoutPlan.designKit);
   const sortedPages = sortPages(layoutPlan.pages);
   const businessName = overrides.businessName || "Weblive.ai";
   const nav = sortedPages.map((page) => ({
@@ -335,11 +337,12 @@ export function renderFromPlan(rawPlan: unknown, overrides: RenderOverrides = {}
   const preset = STYLE_PRESETS[layoutPlan.style_preset];
   const site: Site = {
     theme: {
-      primaryColor: overrides.brand?.colors?.[0] || preset.primaryColor,
-      secondaryColor: overrides.brand?.colors?.[1] || preset.secondaryColor,
-      fontFamily: preset.fontFamily,
-      radius: preset.radius,
+      primaryColor: overrides.brand?.colors?.[0] || designKit.tokens.primary || preset.primaryColor,
+      secondaryColor: overrides.brand?.colors?.[1] || designKit.tokens.secondary || preset.secondaryColor,
+      fontFamily: designKit.typography.fontBody || preset.fontFamily,
+      radius: designKit.tokens.radius || preset.radius,
       buttonStyle: preset.buttonStyle,
+      designKit: layoutPlan.designKit,
     },
     pages,
   };
